@@ -1,0 +1,692 @@
+<title>Product Manufacturing Standards</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    /* Same dark-only Onsor system as the roadmap timeline and hub. */
+    color-scheme: dark;
+    --bg:#121212;
+    --surface:#19191F;
+    --surface-2:#202027;
+    --border:#302F3B;
+    --text:#F2F1F5;
+    --text-muted:#A4A4AE;
+    --text-faint:#6E6D7A;
+    --main:#8377F7;
+    --main-soft:#241F3D;
+    --eng:#63C2B4;
+    --eng-soft:#1D3733;
+    --supply:#D79770;
+    --supply-soft:#3A2A20;
+    --milestone:#E3B655;
+    --milestone-soft:#3B301A;
+    --today:#E4685A;
+    --focus:#8377F7;
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 12px 28px -14px rgba(0,0,0,.6);
+  }
+
+  *{ box-sizing:border-box; }
+  [hidden]{ display:none !important; }
+  html,body{ margin:0; }
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:"IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+    padding-inline:20px;
+    padding-block:28px 60px;
+  }
+  .wrap{ max-width:1080px; margin:0 auto; display:flex; flex-direction:column; gap:22px; }
+  .mono{ font-family:"IBM Plex Mono", ui-monospace, "SF Mono", monospace; }
+  .tabular{ font-variant-numeric: tabular-nums; }
+
+  .back-link{
+    align-self:flex-start; display:inline-flex; align-items:center; gap:6px;
+    font-family:"IBM Plex Mono",monospace; font-size:12px; font-weight:500; letter-spacing:.01em;
+    color:var(--text-faint); text-decoration:none;
+  }
+  .back-link:hover{ color:var(--main); }
+  .back-link:focus-visible{ outline:2px solid var(--focus); outline-offset:2px; border-radius:4px; }
+
+  header{ display:flex; flex-direction:column; gap:10px; }
+  .eyebrow{
+    font-family:"IBM Plex Mono", monospace;
+    font-size:11.5px; font-weight:600; letter-spacing:.11em; text-transform:uppercase;
+    color:var(--main);
+  }
+  h1{ margin:0; font-size:clamp(24px,4vw,32px); font-weight:700; letter-spacing:-.01em; text-wrap:balance; }
+  .lede{ margin:0; color:var(--text-muted); font-size:14.5px; max-width:64ch; }
+
+  .stat-strip{ display:flex; flex-wrap:wrap; gap:8px 22px; margin-top:2px; }
+  .stat{ display:flex; align-items:baseline; gap:6px; }
+  .stat b{ font-family:"IBM Plex Mono",monospace; font-size:15px; color:var(--text); }
+  .stat span{ font-size:12px; color:var(--text-faint); text-transform:uppercase; letter-spacing:.05em; }
+
+  .editor-toolbar{ display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+  .toolbar-actions{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .save-status{ font-size:12.5px; color:var(--text-faint); display:flex; align-items:center; gap:7px; }
+  .save-status .dot{ width:7px; height:7px; border-radius:50%; background:var(--text-faint); flex:none; }
+  .save-status.is-saved .dot{ background:var(--eng); }
+  .save-status.is-pending .dot{ background:var(--milestone); }
+  .save-status.is-error .dot{ background:var(--today); }
+
+  .btn{
+    appearance:none; border:1px solid var(--border); background:var(--surface); color:var(--text);
+    font-family:inherit; font-size:13px; font-weight:600; padding:8px 14px; border-radius:8px; cursor:pointer;
+  }
+  .btn:hover{ border-color:var(--text-faint); }
+  .btn:focus-visible{ outline:2px solid var(--focus); outline-offset:2px; }
+  .btn-primary{ background:var(--main); border-color:var(--main); color:#fff; }
+  .btn-primary:hover{ filter:brightness(1.08); border-color:var(--main); }
+
+  .readonly-banner{
+    font-size:12.5px; color:var(--milestone); background:var(--milestone-soft);
+    border:1px solid var(--border); padding:9px 12px; border-radius:8px;
+  }
+
+  .card{ background:var(--surface); border:1px solid var(--border); border-radius:12px; box-shadow:var(--shadow); overflow:hidden; }
+  .table-scroll{ overflow-x:auto; }
+  table.phase-table{ width:100%; border-collapse:collapse; min-width:920px; }
+  table.phase-table thead th{
+    text-align:left; font-size:10.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--text-faint);
+    padding:10px; border-bottom:1px solid var(--border); background:var(--surface-2); white-space:nowrap; font-weight:600;
+  }
+  table.phase-table td{ padding:6px 10px; border-bottom:1px solid var(--border); vertical-align:middle; }
+  table.phase-table tr.phase-row:hover td{ background:var(--surface-2); }
+  table.phase-table tr.detail-row td{ background:var(--surface-2); padding:14px 16px; }
+  .col-order{ width:56px; }
+  .col-id{ width:96px; font-family:"IBM Plex Mono",monospace; font-size:11px; color:var(--text-faint); }
+  .col-track{ width:168px; }
+  .col-owner{ width:180px; }
+  .col-actions{ width:86px; white-space:nowrap; }
+  .order-btns{ display:flex; gap:3px; }
+
+  .icon-btn{
+    appearance:none; border:1px solid var(--border); background:var(--surface-2); color:var(--text-muted);
+    width:26px; height:26px; border-radius:7px; cursor:pointer; font-size:12.5px; line-height:1;
+    display:inline-flex; align-items:center; justify-content:center;
+  }
+  .icon-btn:hover{ color:var(--text); }
+  .icon-btn:disabled{ opacity:.32; cursor:not-allowed; }
+  .icon-btn.danger:hover{ color:var(--today); border-color:var(--today); }
+  .icon-btn:focus-visible{ outline:2px solid var(--focus); outline-offset:2px; }
+
+  .cell-input{
+    width:100%; font-family:inherit; font-size:13.5px; color:var(--text); background:transparent;
+    border:1px solid transparent; border-radius:6px; padding:6px 7px;
+  }
+  .cell-input:hover{ border-color:var(--border); }
+  .cell-input:focus{ outline:none; border-color:var(--focus); background:var(--surface-2); }
+  .cell-input:disabled{ opacity:.4; }
+  select.cell-input{ background:var(--surface-2); border-color:var(--border); }
+
+  .status-cell{ display:flex; align-items:center; gap:7px; }
+  .status-dot{ width:8px; height:8px; border-radius:50%; flex:none; }
+
+  .field{ display:flex; flex-direction:column; gap:5px; font-size:10.5px; color:var(--text-faint); text-transform:uppercase; letter-spacing:.05em; }
+  .field.span2{ grid-column:span 2; }
+  .field input, .field textarea{
+    font-family:inherit; font-size:13.5px; color:var(--text); background:var(--surface);
+    border:1px solid var(--border); border-radius:7px; padding:7px 9px; text-transform:none; letter-spacing:normal;
+  }
+  .field textarea{ resize:vertical; min-height:42px; }
+  .field input:focus, .field textarea:focus{ outline:2px solid var(--focus); outline-offset:1px; }
+
+  .detail-grid{ display:grid; grid-template-columns:repeat(4, 1fr); gap:10px 12px; }
+  @media (max-width:760px){ .detail-grid{ grid-template-columns:repeat(2,1fr); } }
+
+  .task-count{ font-family:"IBM Plex Mono",monospace; font-size:10.5px; color:var(--text-faint); margin-right:4px; white-space:nowrap; }
+  .tasks-block{ margin-top:14px; }
+  .tasks-head{ display:flex; align-items:center; justify-content:space-between; font-size:10.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--text-faint); margin-bottom:8px; }
+  .task-list{ display:flex; flex-direction:column; gap:6px; }
+  .task-row{ display:flex; align-items:center; gap:8px; }
+  .task-row input[type="checkbox"]{ width:15px; height:15px; accent-color:var(--main); flex:none; cursor:pointer; }
+  .task-row input[type="text"]{ flex:1; }
+  .task-row.is-done input[type="text"]{ color:var(--text-faint); text-decoration:line-through; }
+  .task-empty{ font-size:12.5px; color:var(--text-faint); font-style:italic; }
+
+  footer{ text-align:center; font-size:11.5px; color:var(--text-faint); }
+
+  .diag-banner{
+    background:#3B1A1A; border:1px solid #7A3B3B; color:#F5C8C8;
+    font-family:"IBM Plex Mono",monospace; font-size:12.5px; line-height:1.5;
+    padding:12px 14px; border-radius:8px; white-space:pre-wrap; word-break:break-word;
+  }
+</style>
+
+<div class="wrap">
+
+  <div class="diag-banner" id="diagBanner" hidden></div>
+
+  <a class="back-link" href="group-project-management.html">&larr; Project Management</a>
+
+  <header>
+    <div class="eyebrow">Onsor · Manufacturing</div>
+    <h1>Product Manufacturing Standards</h1>
+    <p class="lede">Quality and process standards every laptop device must meet before mass production — organized by category, with test method and current status.</p>
+    <div class="stat-strip">
+      <div class="stat"><b class="tabular" id="statTotal">&nbsp;</b><span>Standards</span></div>
+      <div class="stat"><b class="tabular" id="statStatus0">&nbsp;</b><span>Pass</span></div>
+      <div class="stat"><b class="tabular" id="statStatus1">&nbsp;</b><span>Pending</span></div>
+      <div class="stat"><b class="tabular" id="statStatus2">&nbsp;</b><span>Fail</span></div>
+      <div class="stat"><b class="tabular" id="statStatus3">&nbsp;</b><span>Not Tested</span></div>
+    </div>
+  </header>
+
+  <div class="editor-toolbar">
+    <div class="save-status" id="saveStatus"><span class="dot"></span><span id="saveStatusText">Loading&hellip;</span></div>
+    <div class="toolbar-actions">
+      <button type="button" class="btn btn-primary" id="addRowBtn">+ Add standard</button>
+    </div>
+  </div>
+  <div id="readonlyBanner" class="readonly-banner" hidden>Live sync isn&rsquo;t available in this view, so edits here stay local to this browser tab and won&rsquo;t be saved or reflected for other viewers.</div>
+
+  <div class="card">
+    <div class="table-scroll">
+      <table class="phase-table">
+        <thead>
+          <tr>
+            <th class="col-order"></th>
+            <th class="col-id">ID</th>
+            <th>Standard</th>
+            <th class="col-track">Category</th>
+            <th class="col-track">Status</th>
+            <th class="col-owner">Owner</th>
+            <th class="col-actions"></th>
+          </tr>
+        </thead>
+        <tbody id="rowsBody"><!-- built by JS --></tbody>
+      </table>
+    </div>
+  </div>
+  <footer>Click … on a row for test method and notes · changes sync live and autosave a moment later.</footer>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  function showDiag(msg){
+    try {
+      var b = document.getElementById("diagBanner");
+      if (!b) return;
+      b.hidden = false;
+      b.textContent = "Something went wrong on this page: " + msg + "\n\nPlease screenshot this message and share it so it can be fixed.";
+    } catch (ignored) { /* nothing more we can do */ }
+  }
+  window.addEventListener("error", function(e){ showDiag(e && e.message ? e.message : "unknown script error"); });
+  window.addEventListener("unhandledrejection", function(e){
+    var reason = e && e.reason;
+    showDiag(reason && reason.message ? reason.message : String(reason));
+  });
+
+  try {
+
+  var CONFIG = {
+  "idPrefix": "MS",
+  "dbDoc": "standards/items",
+  "newRowTitle": "New standard",
+  "titleFieldLabel": "Standard",
+  "categoryColLabel": "Category",
+  "ownerFieldLabel": "Owner",
+  "notesLabel": "Notes",
+  "checklist": false,
+  "checklistLabel": "",
+  "categoryOptions": [
+    {
+      "value": "mechanical",
+      "label": "Mechanical"
+    },
+    {
+      "value": "electrical",
+      "label": "Electrical"
+    },
+    {
+      "value": "thermal",
+      "label": "Thermal"
+    },
+    {
+      "value": "safety",
+      "label": "Safety & Compliance"
+    },
+    {
+      "value": "packaging",
+      "label": "Packaging & Logistics"
+    },
+    {
+      "value": "software",
+      "label": "Software & Firmware"
+    }
+  ],
+  "statusOptions": [
+    {
+      "value": "pass",
+      "label": "Pass",
+      "color": "eng"
+    },
+    {
+      "value": "pending",
+      "label": "Pending",
+      "color": "milestone"
+    },
+    {
+      "value": "fail",
+      "label": "Fail",
+      "color": "today"
+    },
+    {
+      "value": "nottested",
+      "label": "Not Tested",
+      "color": "text-faint"
+    }
+  ],
+  "detailFields": [
+    {
+      "key": "testMethod",
+      "label": "Test Method",
+      "type": "text"
+    }
+  ]
+};
+  var SEED_ROWS = [
+  {
+    "id": "MS-1",
+    "title": "Hinge Cycle Durability",
+    "category": "mechanical",
+    "status": "pass",
+    "owner": "Quality",
+    "testMethod": "30,000 open/close cycles on a fixture rig",
+    "notes": "No visible wear, play or torque loss after full cycle count."
+  },
+  {
+    "id": "MS-2",
+    "title": "Chassis Drop Test",
+    "category": "mechanical",
+    "status": "pending",
+    "owner": "Quality",
+    "testMethod": "26-drop sequence from 76cm onto plywood over concrete",
+    "notes": "Pending EVT sample availability."
+  },
+  {
+    "id": "MS-3",
+    "title": "Battery Safety Certification",
+    "category": "electrical",
+    "status": "pass",
+    "owner": "Compliance",
+    "testMethod": "UN38.3 transport test + IEC 62133-2",
+    "notes": "Certificate on file with the cell supplier."
+  },
+  {
+    "id": "MS-4",
+    "title": "Thermal Throttling Under Load",
+    "category": "thermal",
+    "status": "pending",
+    "owner": "Engineering",
+    "testMethod": "Sustained CPU/GPU load with surface and internal temperature logging",
+    "notes": "Scheduled for DVT."
+  },
+  {
+    "id": "MS-5",
+    "title": "RF & EMC Compliance",
+    "category": "safety",
+    "status": "nottested",
+    "owner": "Compliance",
+    "testMethod": "FCC Part 15B / CE / RCM",
+    "notes": "Requires a pre-compliance scan before EVT."
+  },
+  {
+    "id": "MS-6",
+    "title": "Keyboard Backlight Uniformity",
+    "category": "electrical",
+    "status": "pass",
+    "owner": "Engineering",
+    "testMethod": "Luminance mapping across keycaps",
+    "notes": "Within 15% variance spec."
+  },
+  {
+    "id": "MS-7",
+    "title": "Retail Packaging Drop & Crush",
+    "category": "packaging",
+    "status": "pending",
+    "owner": "Logistics",
+    "testMethod": "ISTA 3A test sequence",
+    "notes": "Awaiting finalized carton design."
+  }
+];
+
+  function escapeHtml(s){
+    return String(s == null ? "" : s).replace(/[&<>]/g, function(c){
+      return c === "&" ? "&amp;" : (c === "<" ? "&lt;" : "&gt;");
+    });
+  }
+  function escAttr(s){ return escapeHtml(s).replace(/"/g, "&quot;"); }
+
+  function cloneDeep(r){
+    var out = { id:r.id, title:r.title, category:r.category, status:r.status, owner:r.owner, notes:r.notes || "" };
+    CONFIG.detailFields.forEach(function(f){ out[f.key] = r[f.key] || ""; });
+    if (CONFIG.checklist) out.steps = (r.steps || []).map(function(s){ return { text:s.text, done:!!s.done }; });
+    return out;
+  }
+
+  var state = { rows: SEED_ROWS.map(cloneDeep) };
+  var expandedIds = {};
+  var dbDocRef = null;
+  var saveTimer = null;
+  var firstSnapshotHandled = false;
+
+  var STATUS_MAP = {};
+  CONFIG.statusOptions.forEach(function(s){ STATUS_MAP[s.value] = s; });
+
+  var rowsBody = document.getElementById("rowsBody");
+
+  function categoryOptionsHtml(current){
+    return CONFIG.categoryOptions.map(function(c){
+      return '<option value="'+c.value+'"'+(c.value===current?" selected":"")+'>'+escapeHtml(c.label)+'</option>';
+    }).join("");
+  }
+  function statusOptionsHtml(current){
+    return CONFIG.statusOptions.map(function(s){
+      return '<option value="'+s.value+'"'+(s.value===current?" selected":"")+'>'+escapeHtml(s.label)+'</option>';
+    }).join("");
+  }
+  function statusColorVar(value){
+    var s = STATUS_MAP[value];
+    return s ? s.color : "text-faint";
+  }
+
+  function rowHTML(r, idx, total, expanded){
+    var steps = CONFIG.checklist ? (r.steps || []) : [];
+    var doneCount = steps.filter(function(s){ return s.done; }).length;
+    var stepBadge = (CONFIG.checklist && steps.length)
+      ? '<span class="task-count" title="'+doneCount+' of '+steps.length+' done">'+doneCount+'/'+steps.length+'</span>'
+      : '';
+    var mainRow = ''
+      + '<tr class="phase-row" data-idx="'+idx+'">'
+      +   '<td class="col-order"><div class="order-btns">'
+      +     '<button type="button" class="icon-btn" data-act="up" aria-label="Move up"'+(idx===0?" disabled":"")+'>&uarr;</button>'
+      +     '<button type="button" class="icon-btn" data-act="down" aria-label="Move down"'+(idx===total-1?" disabled":"")+'>&darr;</button>'
+      +   '</div></td>'
+      +   '<td class="col-id">'+escapeHtml(r.id)+'</td>'
+      +   '<td><input type="text" class="cell-input" data-field="title" value="'+escAttr(r.title)+'" aria-label="'+escAttr(CONFIG.titleFieldLabel)+'"></td>'
+      +   '<td class="col-track"><select class="cell-input" data-field="category" aria-label="'+escAttr(CONFIG.categoryColLabel)+'">'+categoryOptionsHtml(r.category)+'</select></td>'
+      +   '<td class="col-track"><div class="status-cell"><span class="status-dot" style="background:var(--'+statusColorVar(r.status)+')"></span><select class="cell-input" data-field="status" aria-label="Status">'+statusOptionsHtml(r.status)+'</select></div></td>'
+      +   '<td class="col-owner"><input type="text" class="cell-input" data-field="owner" value="'+escAttr(r.owner)+'" aria-label="'+escAttr(CONFIG.ownerFieldLabel)+'"></td>'
+      +   '<td class="col-actions">'
+      +     stepBadge
+      +     '<button type="button" class="icon-btn" data-act="toggle" aria-label="More details" aria-expanded="'+(expanded?"true":"false")+'">&hellip;</button>'
+      +     '<button type="button" class="icon-btn danger" data-act="remove" aria-label="Remove row">&times;</button>'
+      +   '</td>'
+      + '</tr>';
+
+    var detailFieldsHtml = CONFIG.detailFields.map(function(f){
+      return '<label class="field"><span>'+escapeHtml(f.label)+'</span><input type="'+f.type+'" data-field="'+f.key+'" value="'+escAttr(r[f.key])+'"></label>';
+    }).join("");
+
+    var stepsBlockHtml = "";
+    if (CONFIG.checklist){
+      var stepRowsHtml = steps.map(function(s, si){
+        return '<div class="task-row'+(s.done?" is-done":"")+'" data-step-idx="'+si+'">'
+          + '<input type="checkbox" data-field="step-done"'+(s.done?" checked":"")+' aria-label="Step done">'
+          + '<input type="text" class="cell-input" data-field="step-text" value="'+escAttr(s.text)+'" placeholder="Step" aria-label="Step description">'
+          + '<button type="button" class="icon-btn danger" data-act="step-remove" aria-label="Remove step">&times;</button>'
+          + '</div>';
+      }).join("") || '<div class="task-empty">No steps yet</div>';
+      stepsBlockHtml = ''
+        + '<div class="tasks-block">'
+        +   '<div class="tasks-head"><span>'+escapeHtml(CONFIG.checklistLabel)+'</span><button type="button" class="icon-btn" data-act="step-add" aria-label="Add step">+</button></div>'
+        +   '<div class="task-list">' + stepRowsHtml + '</div>'
+        + '</div>';
+    }
+
+    var detailRow = ''
+      + '<tr class="detail-row" data-idx="'+idx+'"'+(expanded?"":" hidden")+'>'
+      +   '<td colspan="7"><div class="detail-grid">'
+      +     detailFieldsHtml
+      +     '<label class="field span2"><span>'+escapeHtml(CONFIG.notesLabel)+'</span><textarea data-field="notes" rows="2">'+escapeHtml(r.notes)+'</textarea></label>'
+      +   '</div>'
+      +   stepsBlockHtml
+      +   '</td>'
+      + '</tr>';
+
+    return mainRow + detailRow;
+  }
+
+  function renderStats(){
+    document.getElementById("statTotal").textContent = String(state.rows.length);
+    CONFIG.statusOptions.forEach(function(s, i){
+      var el = document.getElementById("statStatus" + i);
+      if (el) el.textContent = String(state.rows.filter(function(r){ return r.status === s.value; }).length);
+    });
+  }
+
+  function renderTable(rows){
+    rowsBody.innerHTML = rows.map(function(r, i){ return rowHTML(r, i, rows.length, !!expandedIds[r.id]); }).join("");
+    renderStats();
+  }
+
+  function makeId(){
+    var base;
+    do {
+      base = CONFIG.idPrefix + "-" + Math.random().toString(36).slice(2,7);
+    } while (state.rows.some(function(r){ return r.id === base; }));
+    return base;
+  }
+
+  document.getElementById("addRowBtn").addEventListener("click", function(){
+    try {
+      var row = {
+        id: makeId(), title: CONFIG.newRowTitle, category: CONFIG.categoryOptions[0].value,
+        status: CONFIG.statusOptions[0].value, owner: "", notes: ""
+      };
+      CONFIG.detailFields.forEach(function(f){ row[f.key] = ""; });
+      if (CONFIG.checklist) row.steps = [];
+      state.rows.push(row);
+      renderTable(state.rows);
+      scheduleSave();
+      var rows2 = rowsBody.querySelectorAll("tr.phase-row");
+      var lastRow = rows2[rows2.length - 1];
+      if (lastRow){ var titleInput = lastRow.querySelector('[data-field="title"]'); if (titleInput){ titleInput.focus(); titleInput.select(); } }
+    } catch (e) { showDiag((e && e.message) ? e.message : String(e)); }
+  });
+
+  rowsBody.addEventListener("input", function(e){
+    try {
+      var t = e.target;
+      var field = t.getAttribute("data-field");
+      if (!field) return;
+      var row = t.closest("tr[data-idx]");
+      if (!row) return;
+      var idx = +row.getAttribute("data-idx");
+      var r = state.rows[idx];
+      if (!r) return;
+      if (field === "step-text"){
+        var stepRow = t.closest("[data-step-idx]");
+        if (!stepRow) return;
+        var si = +stepRow.getAttribute("data-step-idx");
+        if (!r.steps || !r.steps[si]) return;
+        r.steps[si].text = t.value;
+        scheduleSave();
+        return;
+      }
+      var isDetailField = CONFIG.detailFields.some(function(f){ return f.key === field && f.type === "text"; });
+      if (field === "title" || field === "owner" || field === "notes" || isDetailField){
+        r[field] = t.value;
+      } else {
+        return;
+      }
+      scheduleSave();
+    } catch (e) { showDiag((e && e.message) ? e.message : String(e)); }
+  });
+
+  rowsBody.addEventListener("change", function(e){
+    try {
+      var t = e.target;
+      var field = t.getAttribute("data-field");
+      if (!field) return;
+      var row = t.closest("tr[data-idx]");
+      if (!row) return;
+      var idx = +row.getAttribute("data-idx");
+      var r = state.rows[idx];
+      if (!r) return;
+      if (field === "step-done"){
+        var stepRow2 = t.closest("[data-step-idx]");
+        if (!stepRow2) return;
+        var si2 = +stepRow2.getAttribute("data-step-idx");
+        if (!r.steps || !r.steps[si2]) return;
+        r.steps[si2].done = t.checked;
+        stepRow2.classList.toggle("is-done", t.checked);
+        var doneCount2 = r.steps.filter(function(x){ return x.done; }).length;
+        var badge = rowsBody.querySelector('tr.phase-row[data-idx="'+idx+'"] .task-count');
+        if (badge) badge.textContent = doneCount2 + "/" + r.steps.length;
+        scheduleSave();
+        return;
+      }
+      var isDateField = CONFIG.detailFields.some(function(f){ return f.key === field && f.type === "date"; });
+      if (field === "category"){
+        r.category = t.value;
+      } else if (field === "status"){
+        r.status = t.value;
+        var dot = row.querySelector(".status-dot");
+        if (dot) dot.style.background = "var(--" + statusColorVar(r.status) + ")";
+      } else if (isDateField){
+        r[field] = t.value;
+      } else {
+        return;
+      }
+      renderStats();
+      scheduleSave();
+    } catch (e) { showDiag((e && e.message) ? e.message : String(e)); }
+  });
+
+  rowsBody.addEventListener("click", function(e){
+    try {
+      var btn = e.target.closest("[data-act]");
+      if (!btn) return;
+      var row = btn.closest("tr[data-idx]");
+      if (!row) return;
+      var idx = +row.getAttribute("data-idx");
+      var act = btn.getAttribute("data-act");
+      var r = state.rows[idx];
+      if (!r) return;
+      if (act === "toggle"){
+        expandedIds[r.id] = !expandedIds[r.id];
+        renderTable(state.rows);
+        return;
+      }
+      if (act === "step-add"){
+        if (!r.steps) r.steps = [];
+        r.steps.push({ text:"", done:false });
+        renderTable(state.rows);
+        scheduleSave();
+        var newInput = rowsBody.querySelector('tr.detail-row[data-idx="'+idx+'"] .task-row:last-child [data-field="step-text"]');
+        if (newInput) newInput.focus();
+        return;
+      }
+      if (act === "step-remove"){
+        var stepRow3 = btn.closest("[data-step-idx]");
+        if (!stepRow3 || !r.steps) return;
+        var si3 = +stepRow3.getAttribute("data-step-idx");
+        r.steps.splice(si3, 1);
+        renderTable(state.rows);
+        scheduleSave();
+        return;
+      }
+      if (act === "remove"){
+        delete expandedIds[r.id];
+        state.rows.splice(idx, 1);
+      } else if (act === "up" && idx > 0){
+        var tmp = state.rows[idx-1]; state.rows[idx-1] = state.rows[idx]; state.rows[idx] = tmp;
+      } else if (act === "down" && idx < state.rows.length - 1){
+        var tmp2 = state.rows[idx+1]; state.rows[idx+1] = state.rows[idx]; state.rows[idx] = tmp2;
+      } else {
+        return;
+      }
+      renderTable(state.rows);
+      scheduleSave();
+    } catch (e) { showDiag((e && e.message) ? e.message : String(e)); }
+  });
+
+  var saveStatusEl = document.getElementById("saveStatus");
+  var saveStatusText = document.getElementById("saveStatusText");
+  function setSaveStatus(kind){
+    saveStatusEl.className = "save-status" + (kind === "saved" ? " is-saved" : kind === "pending" || kind === "saving" ? " is-pending" : kind === "error" ? " is-error" : "");
+    var labels = {
+      saved: "All changes saved", pending: "Unsaved changes\u2026", saving: "Saving\u2026",
+      error: "Couldn't save \u2014 will retry on the next edit", local: "Editing locally \u2014 changes aren't saved", loading: "Loading\u2026"
+    };
+    saveStatusText.textContent = labels[kind] || "";
+  }
+
+  function scheduleSave(){
+    if (!dbDocRef) { setSaveStatus("local"); return; }
+    setSaveStatus("pending");
+    if (saveTimer) clearTimeout(saveTimer);
+    saveTimer = setTimeout(doSave, 700);
+  }
+
+  function doSave(){
+    if (!dbDocRef) { setSaveStatus("local"); return; }
+    setSaveStatus("saving");
+    var payload = { rows: state.rows.map(cloneDeep), updatedAt: new Date().toISOString() };
+    dbDocRef.set(payload).then(function(){
+      setSaveStatus("saved");
+    }).catch(function(){
+      setSaveStatus("error");
+    });
+  }
+
+  function applySnapshot(rows){
+    // Snapshot data from the db is frozen/read-only — clone it into plain,
+    // mutable objects before treating it as live editable state.
+    state.rows = rows.map(cloneDeep);
+    renderTable(state.rows);
+  }
+
+  function init(){
+    renderTable(state.rows);
+    setSaveStatus("loading");
+
+    if (!window.claude || typeof window.claude.use !== "function"){
+      setSaveStatus("local");
+      document.getElementById("readonlyBanner").hidden = false;
+      return;
+    }
+
+    window.claude.use("db").then(function(db){
+      if (!db){
+        setSaveStatus("local");
+        document.getElementById("readonlyBanner").hidden = false;
+        return;
+      }
+      dbDocRef = db.doc(CONFIG.dbDoc);
+      dbDocRef.onSnapshot(function(snap){
+        if (snap.exists){
+          var data = snap.data();
+          if (data && Array.isArray(data.rows) && data.rows.length){
+            applySnapshot(data.rows);
+            setSaveStatus(snap.metadata.hasPendingWrites ? "saving" : "saved");
+            firstSnapshotHandled = true;
+            return;
+          }
+        }
+        if (!firstSnapshotHandled){
+          setSaveStatus("saved");
+          firstSnapshotHandled = true;
+        }
+      }, function(){
+        dbDocRef = null;
+        setSaveStatus("local");
+        document.getElementById("readonlyBanner").hidden = false;
+      });
+    }).catch(function(){
+      setSaveStatus("local");
+      document.getElementById("readonlyBanner").hidden = false;
+    });
+  }
+
+  init();
+
+  } catch (e) { showDiag((e && e.message) ? e.message : String(e)); }
+})();
+</script>

@@ -1,0 +1,856 @@
+<title>L3 Technical Ticketing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    /* Same dark-only Onsor system as the roadmap timeline, hub, and other project pages. */
+    color-scheme: dark;
+    --bg:#121212;
+    --surface:#19191F;
+    --surface-2:#202027;
+    --border:#302F3B;
+    --text:#F2F1F5;
+    --text-muted:#A4A4AE;
+    --text-faint:#6E6D7A;
+    --main:#8377F7;
+    --main-soft:#241F3D;
+    --eng:#63C2B4;
+    --eng-soft:#1D3733;
+    --supply:#D79770;
+    --supply-soft:#3A2A20;
+    --milestone:#E3B655;
+    --milestone-soft:#3B301A;
+    --today:#E4685A;
+    --focus:#8377F7;
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 12px 28px -14px rgba(0,0,0,.6);
+  }
+
+  *{ box-sizing:border-box; }
+  [hidden]{ display:none !important; }
+  html,body{ margin:0; }
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:"IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+    padding-inline:20px;
+    padding-block:28px 60px;
+  }
+  .wrap{ max-width:1200px; margin:0 auto; display:flex; flex-direction:column; gap:22px; }
+  .mono{ font-family:"IBM Plex Mono", ui-monospace, "SF Mono", monospace; }
+  .tabular{ font-variant-numeric: tabular-nums; }
+
+  .back-link{
+    align-self:flex-start; display:inline-flex; align-items:center; gap:6px;
+    font-family:"IBM Plex Mono",monospace; font-size:12px; font-weight:500; letter-spacing:.01em;
+    color:var(--text-faint); text-decoration:none;
+  }
+  .back-link:hover{ color:var(--main); }
+  .back-link:focus-visible{ outline:2px solid var(--focus); outline-offset:2px; border-radius:4px; }
+
+  header{ display:flex; flex-direction:column; gap:10px; }
+  .eyebrow{
+    font-family:"IBM Plex Mono", monospace;
+    font-size:11.5px; font-weight:600; letter-spacing:.11em; text-transform:uppercase;
+    color:var(--main);
+  }
+  h1{ margin:0; font-size:clamp(24px,4vw,32px); font-weight:700; letter-spacing:-.01em; text-wrap:balance; }
+  .lede{ margin:0; color:var(--text-muted); font-size:14.5px; max-width:70ch; }
+  .lede a{ color:var(--main); }
+
+  .stat-strip{ display:flex; flex-wrap:wrap; gap:8px 22px; margin-top:2px; }
+  .stat{ display:flex; align-items:baseline; gap:6px; }
+  .stat b{ font-family:"IBM Plex Mono",monospace; font-size:15px; color:var(--text); }
+  .stat span{ font-size:12px; color:var(--text-faint); text-transform:uppercase; letter-spacing:.05em; }
+
+  .editor-toolbar{ display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+  .toolbar-actions{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .save-status{ font-size:12.5px; color:var(--text-faint); display:flex; align-items:center; gap:7px; }
+  .save-status .dot{ width:7px; height:7px; border-radius:50%; background:var(--text-faint); flex:none; }
+  .save-status.is-saved .dot{ background:var(--eng); }
+  .save-status.is-pending .dot{ background:var(--milestone); }
+  .save-status.is-error .dot{ background:var(--today); }
+
+  .btn{
+    appearance:none; border:1px solid var(--border); background:var(--surface); color:var(--text);
+    font-family:inherit; font-size:13px; font-weight:600; padding:8px 14px; border-radius:8px; cursor:pointer;
+  }
+  .btn:hover{ border-color:var(--text-faint); }
+  .btn:focus-visible{ outline:2px solid var(--focus); outline-offset:2px; }
+  .btn:disabled{ opacity:.45; cursor:not-allowed; }
+  .btn-primary{ background:var(--main); border-color:var(--main); color:#fff; }
+  .btn-primary:hover{ filter:brightness(1.08); border-color:var(--main); }
+  .btn-sm{ padding:6px 11px; font-size:12px; }
+
+  .readonly-banner{
+    font-size:12.5px; color:var(--milestone); background:var(--milestone-soft);
+    border:1px solid var(--border); padding:9px 12px; border-radius:8px;
+  }
+
+  .card{ background:var(--surface); border:1px solid var(--border); border-radius:12px; box-shadow:var(--shadow); overflow:hidden; }
+  .table-scroll{ overflow-x:auto; }
+  table.phase-table{ width:100%; border-collapse:collapse; min-width:1080px; }
+  table.phase-table thead th{
+    text-align:left; font-size:10.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--text-faint);
+    padding:10px; border-bottom:1px solid var(--border); background:var(--surface-2); white-space:nowrap; font-weight:600;
+  }
+  table.phase-table td{ padding:10px; border-bottom:1px solid var(--border); vertical-align:middle; font-size:13.5px; }
+  table.phase-table tr.phase-row:hover td{ background:var(--surface-2); }
+  table.phase-table tr.detail-row td{ background:var(--surface-2); padding:16px 18px; }
+  .col-id{ width:76px; }
+  .col-id a{ font-family:"IBM Plex Mono",monospace; font-size:11px; color:var(--text-faint); text-decoration:none; }
+  .col-id a:hover{ color:var(--main); text-decoration:underline; }
+  .col-component{ width:130px; color:var(--text-muted); }
+  .col-priority{ width:150px; }
+  .col-status{ width:180px; }
+  .col-tech{ width:170px; color:var(--text-muted); }
+  .col-actions{ width:44px; white-space:nowrap; text-align:right; }
+  .issue-cell{ max-width:340px; }
+
+  .icon-btn{
+    appearance:none; border:1px solid var(--border); background:var(--surface-2); color:var(--text-muted);
+    width:26px; height:26px; border-radius:7px; cursor:pointer; font-size:12.5px; line-height:1;
+    display:inline-flex; align-items:center; justify-content:center;
+  }
+  .icon-btn:hover{ color:var(--text); }
+  .icon-btn:focus-visible{ outline:2px solid var(--focus); outline-offset:2px; }
+
+  .status-cell{ display:flex; align-items:center; gap:7px; }
+  .status-dot{ width:8px; height:8px; border-radius:50%; flex:none; }
+  .muted{ color:var(--text-faint); }
+
+  .field{ display:flex; flex-direction:column; gap:5px; font-size:10.5px; color:var(--text-faint); text-transform:uppercase; letter-spacing:.05em; }
+  .field.span2{ grid-column:span 2; }
+  .field.span4{ grid-column:1 / -1; }
+
+  .cell-input{
+    width:100%; font-family:inherit; font-size:13.5px; color:var(--text); background:var(--surface);
+    border:1px solid var(--border); border-radius:7px; padding:7px 9px; text-transform:none; letter-spacing:normal;
+  }
+  .cell-input:focus{ outline:2px solid var(--focus); outline-offset:1px; }
+  select.cell-input{ background:var(--surface); }
+  textarea.cell-input{ resize:vertical; min-height:52px; }
+
+  .field-foot{ display:flex; align-items:center; justify-content:space-between; gap:8px; min-height:14px; margin-top:1px; }
+  .field-status{ font-size:10.5px; text-transform:none; letter-spacing:normal; color:var(--text-faint); }
+  .field-status.is-saving{ color:var(--milestone); }
+  .field-status.is-saved{ color:var(--eng); }
+  .field-status.is-error{ color:var(--today); }
+
+  .tech-checks{ display:flex; flex-wrap:wrap; gap:8px 14px; padding:2px 0; }
+  .tech-check{ display:flex; align-items:center; gap:6px; font-size:12.5px; color:var(--text); text-transform:none; letter-spacing:normal; cursor:pointer; }
+  .tech-check input{ width:14px; height:14px; accent-color:var(--main); cursor:pointer; }
+
+  .status-select-wrap .status-dot{ margin-right:2px; }
+  .status-edit-row{ display:flex; align-items:center; gap:8px; }
+
+  .detail-grid{ display:grid; grid-template-columns:repeat(4, 1fr); gap:14px 12px; }
+  @media (max-width:760px){ .detail-grid{ grid-template-columns:repeat(2,1fr); } }
+
+  .comments-block{ margin-top:16px; border-top:1px solid var(--border); padding-top:14px; }
+  .comments-head{ font-size:10.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--text-faint); margin-bottom:10px; }
+  .comment-list{ display:flex; flex-direction:column; gap:9px; max-height:220px; overflow-y:auto; margin-bottom:12px; }
+  .comment-item{ background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:8px 10px; font-size:13px; }
+  .comment-meta{ font-size:11px; color:var(--text-faint); margin-bottom:3px; display:flex; gap:8px; }
+  .comment-body{ color:var(--text); white-space:pre-wrap; word-break:break-word; }
+  .comment-empty{ font-size:12.5px; color:var(--text-faint); font-style:italic; }
+  .add-comment-row{ display:flex; gap:8px; align-items:flex-start; }
+  .add-comment-row textarea{ flex:1; min-height:44px; }
+
+  footer{ text-align:center; font-size:11.5px; color:var(--text-faint); }
+
+  .empty-state{ padding:34px 20px; text-align:center; color:var(--text-faint); font-size:13.5px; }
+
+  .diag-banner{
+    background:#3B1A1A; border:1px solid #7A3B3B; color:#F5C8C8;
+    font-family:"IBM Plex Mono",monospace; font-size:12.5px; line-height:1.5;
+    padding:12px 14px; border-radius:8px; white-space:pre-wrap; word-break:break-word;
+  }
+</style>
+
+<div class="wrap">
+
+  <div class="diag-banner" id="diagBanner" hidden></div>
+
+  <a class="back-link" href="l3-dashboard.html">&larr; L3 Ticketing dashboard</a>
+
+  <header>
+    <div class="eyebrow">Onsor · Technical Support</div>
+    <h1>L3 Technical Ticketing</h1>
+    <p class="lede">Live mirror of Jira project <a href="https://onsor.atlassian.net/browse/PPIER" target="_blank" rel="noopener">PPIER — Product Issue Escalation &amp; Resolution</a>. Data refreshes automatically from Jira each time this page is open. Expand a ticket to edit it &mdash; changes save straight back to the real Jira issue, and to whatever Jira permits from this account.</p>
+    <div class="stat-strip" id="statStrip"></div>
+  </header>
+
+  <div class="editor-toolbar">
+    <div class="save-status" id="syncStatus"><span class="dot"></span><span id="syncStatusText">Connecting to Jira&hellip;</span></div>
+    <div class="toolbar-actions">
+      <button type="button" class="btn" id="refreshBtn">&#8635; Refresh now</button>
+    </div>
+  </div>
+  <div id="errorBanner" class="readonly-banner" hidden></div>
+
+  <div class="card">
+    <div class="table-scroll">
+      <table class="phase-table">
+        <thead>
+          <tr>
+            <th class="col-id">ID</th>
+            <th>Issue</th>
+            <th class="col-component">Product Model</th>
+            <th class="col-priority">Priority</th>
+            <th class="col-priority">Severity</th>
+            <th class="col-status">Status</th>
+            <th class="col-tech">Technician</th>
+            <th class="col-actions"></th>
+          </tr>
+        </thead>
+        <tbody id="rowsBody"><!-- built by JS --></tbody>
+      </table>
+    </div>
+  </div>
+  <footer>Click … on a ticket to expand it — edit any field, change status, or add a comment · edits write straight to Jira · this view polls Jira roughly every 5 minutes while open.</footer>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  function showDiag(msg){
+    try {
+      var b = document.getElementById("diagBanner");
+      if (!b) return;
+      b.hidden = false;
+      b.textContent = "Something went wrong on this page: " + msg + "\n\nPlease screenshot this message and share it so it can be fixed.";
+    } catch (ignored) { /* nothing more we can do */ }
+  }
+  window.addEventListener("error", function(e){ showDiag(e && e.message ? e.message : "unknown script error"); });
+  window.addEventListener("unhandledrejection", function(e){
+    var reason = e && e.reason;
+    showDiag(reason && reason.message ? reason.message : String(reason));
+  });
+
+  try {
+
+  var JIRA_SITE = "https://onsor.atlassian.net";
+  var JIRA_PROJECT_KEY = "PPIER";
+  var CLOUD_ID = "d9878be2-7e60-48cc-92d9-e41084f9982c";
+  var MCP_SERVER = "Atlassian Rovo";
+  var SEARCH_TOOL = "searchJiraIssuesUsingJql";
+  var EDIT_TOOL = "editJiraIssue";
+  var TRANSITION_TOOL = "transitionJiraIssue";
+  var TRANSITIONS_TOOL = "getTransitionsForJiraIssue";
+  var COMMENT_TOOL = "addCommentToJiraIssue";
+  var JQL = "project = " + JIRA_PROJECT_KEY + " ORDER BY created ASC";
+  var FIELDS = ["summary","status","reporter","assignee","created","comment",
+    "customfield_10767","customfield_10772","customfield_10773",
+    "customfield_12076","customfield_12077","customfield_12078","customfield_12079",
+    "customfield_12091","customfield_12094","customfield_12095"];
+  var SEARCH_INPUT = {
+    cloudId: CLOUD_ID,
+    jql: JQL,
+    fields: FIELDS,
+    maxResults: 100,
+    responseContentFormat: "markdown"
+  };
+  var REFRESH_MS = 300000; // ~5 min poll while the page stays open
+
+  // Field id -> option lists, taken from Jira's own field schema for this
+  // project (PPIER / "New Ticket Request"), so selects only ever offer
+  // values Jira itself allows.
+  var PRODUCT_MODEL_OPTIONS = [
+    { id: "11675", value: "T1420i" }, { id: "11676", value: "T1610i" },
+    { id: "11677", value: "MN1410i" }, { id: "11678", value: "MT1210i" },
+    { id: "11679", value: "M14U10i" }, { id: "11680", value: "K1410i" },
+    { id: "11682", value: "K1120i" }, { id: "11683", value: "HAB2410i" },
+    { id: "11684", value: "HAB2710i" }, { id: "11685", value: "HDU10i" },
+    { id: "11686", value: "HDM10i" }, { id: "11687", value: "HDT10i" },
+    { id: "11688", value: "AMAD 14" }, { id: "11681", value: "KiTAB 11.6 (Gen 1)" },
+    { id: "11701", value: "MOUJ-R" }, { id: "11674", value: "TURS-T" },
+    { id: "11702", value: "TURS-A" }, { id: "11703", value: "TURS-R" },
+    { id: "11704", value: "TURS 15.6" }
+  ];
+  var PRIORITY_OPTIONS = [
+    { id: "11693", value: "P3 (Low)" }, { id: "11694", value: "P2 (Standard)" },
+    { id: "11695", value: "P1 (Urgent)" }, { id: "11696", value: "P0 (Immediate)" }
+  ];
+  var SEVERITY_OPTIONS = [
+    { id: "11697", value: "S1 Cosmetic" }, { id: "11698", value: "S2 Minor" },
+    { id: "11699", value: "S3 Major" }, { id: "11700", value: "S4 Critical" }
+  ];
+  var WARRANTY_OPTIONS = [
+    { id: "14011", value: "In Warranty" }, { id: "14012", value: "Out of Warranty" }
+  ];
+  var PROBLEM_FOUND_OPTIONS = [
+    { id: "14059", value: "Hardware issue" }, { id: "14060", value: "Software issue" },
+    { id: "14061", value: "Physical damage" }, { id: "14062", value: "No fault found" }
+  ];
+  var FINAL_STATUS_OPTIONS = [
+    { id: "14046", value: "Repaired and returned" }, { id: "14047", value: "Sent for supplier repair" },
+    { id: "14048", value: "Replacement required" }, { id: "14049", value: "Not repairable" }
+  ];
+  var TECHNICIAN_OPTIONS = [
+    { id: "14063", value: "Abdulmajeed Al Mawali" }, { id: "14064", value: "Ahmed Al Hadhrami" },
+    { id: "14065", value: "Murshid Al Habsi" }, { id: "14066", value: "Ali Al Kindi" },
+    { id: "14067", value: "Muhannad Al Raisi" }
+  ];
+
+  function escapeHtml(s){
+    return String(s == null ? "" : s).replace(/[&<>]/g, function(c){
+      return c === "&" ? "&amp;" : (c === "<" ? "&lt;" : "&gt;");
+    });
+  }
+  function escAttr(s){ return escapeHtml(s).replace(/"/g, "&quot;"); }
+
+  function cleanCommentText(s){
+    if (!s) return "";
+    return String(s).replace(/!\[[^\]]*\]\([^)]*\)/g, "").trim();
+  }
+
+  function optRaw(field){
+    return (field && typeof field === "object" && field.id) ? { id: String(field.id), value: field.value || "" } : null;
+  }
+  function optArrayRaw(field){
+    if (!field || !Array.isArray(field) || !field.length) return [];
+    return field.map(function(o){ return o && o.id ? { id: String(o.id), value: o.value || "" } : null; }).filter(Boolean);
+  }
+  function personName(p){
+    if (!p || typeof p !== "object") return "";
+    return p.displayName || p.name || "";
+  }
+
+  function statusColorVar(categoryColorName){
+    switch (categoryColorName){
+      case "green": return "eng";
+      case "yellow": return "milestone";
+      case "blue-gray": return "text-faint";
+      case "brown": return "supply";
+      case "red": return "today";
+      default: return "text-faint";
+    }
+  }
+  function priorityColorVar(val){
+    if (!val) return "text-faint";
+    if (val.indexOf("P0") === 0) return "today";
+    if (val.indexOf("P1") === 0) return "supply";
+    if (val.indexOf("P2") === 0) return "milestone";
+    if (val.indexOf("P3") === 0) return "main";
+    return "text-faint";
+  }
+  function severityColorVar(val){
+    if (!val) return "text-faint";
+    if (val.indexOf("S4") === 0) return "today";
+    if (val.indexOf("S3") === 0) return "supply";
+    if (val.indexOf("S2") === 0) return "milestone";
+    if (val.indexOf("S1") === 0) return "main";
+    return "text-faint";
+  }
+
+  function normalizeIssue(node){
+    var f = (node && node.fields) || {};
+    var priorityRaw = optArrayRaw(f.customfield_10772);
+    var severityRaw = optArrayRaw(f.customfield_10773);
+    var technicianRaw = optArrayRaw(f.customfield_12095);
+    var comments = (f.comment && Array.isArray(f.comment.comments)) ? f.comment.comments : [];
+    var statusName = f.status && f.status.name ? f.status.name : "Unknown";
+    var statusId = f.status && f.status.id ? String(f.status.id) : "";
+    var statusCat = f.status && f.status.statusCategory ? f.status.statusCategory.colorName : "";
+    return {
+      id: node && node.id ? String(node.id) : "",
+      key: node && node.key ? node.key : "",
+      webUrl: (node && node.webUrl) ? node.webUrl : (JIRA_SITE + "/browse/" + (node && node.key ? node.key : "")),
+      summary: f.summary || "",
+      statusId: statusId,
+      statusName: statusName,
+      statusColor: statusColorVar(statusCat),
+      productModelRaw: optRaw(f.customfield_10767),
+      priorityRaw: priorityRaw,
+      severityRaw: severityRaw,
+      technicianRaw: technicianRaw,
+      priority: priorityRaw.map(function(o){ return o.value; }).join(", "),
+      severity: severityRaw.map(function(o){ return o.value; }).join(", "),
+      technician: technicianRaw.map(function(o){ return o.value; }).join(", "),
+      reporter: personName(f.reporter),
+      assignee: personName(f.assignee),
+      warrantyRaw: optRaw(f.customfield_12078),
+      customerReport: f.customfield_12079 || "",
+      problemFoundRaw: optRaw(f.customfield_12094),
+      finalStatusRaw: optRaw(f.customfield_12091),
+      serial: f.customfield_12076 || "",
+      ticketNo: f.customfield_12077 || "",
+      created: f.created ? String(f.created).slice(0, 10) : "",
+      comments: comments.map(function(c){
+        return {
+          id: c.id,
+          author: c.author && (c.author.displayName || c.author.name) ? (c.author.displayName || c.author.name) : "",
+          created: c.created ? String(c.created).slice(0, 10) : "",
+          body: cleanCommentText(c.body)
+        };
+      })
+    };
+  }
+
+  var rowsBody = document.getElementById("rowsBody");
+  var statStrip = document.getElementById("statStrip");
+  var syncStatusEl = document.getElementById("syncStatus");
+  var syncStatusText = document.getElementById("syncStatusText");
+  var errorBanner = document.getElementById("errorBanner");
+  var refreshBtn = document.getElementById("refreshBtn");
+
+  var expandedIds = {};
+  var mcpNs = null;
+  var lastRows = [];
+  var rowsByKey = {};
+  var transitionsCache = {}; // key -> array of {id, name} or "loading" or "error"
+
+  function renderStats(rows){
+    var total = rows.length;
+    var counts = {};
+    var order = [];
+    rows.forEach(function(r){
+      if (!(r.statusName in counts)) { counts[r.statusName] = 0; order.push(r.statusName); }
+      counts[r.statusName]++;
+    });
+    var html = '<div class="stat"><b class="tabular">' + total + '</b><span>Tickets</span></div>';
+    order.forEach(function(name){
+      html += '<div class="stat"><b class="tabular">' + counts[name] + '</b><span>' + escapeHtml(name) + '</span></div>';
+    });
+    statStrip.innerHTML = html;
+  }
+
+  // ---------- field-level write status (per ticket key + field name) ----------
+  function fieldStatusId(key, field){ return "fs-" + key + "-" + field; }
+  function setFieldStatus(key, field, kind, text){
+    var el = document.getElementById(fieldStatusId(key, field));
+    if (!el) return;
+    el.className = "field-status" + (kind === "saving" ? " is-saving" : kind === "saved" ? " is-saved" : kind === "error" ? " is-error" : "");
+    el.textContent = text || "";
+  }
+
+  // ---------- select builders ----------
+  function selectOptionsHtml(options, currentId, includeUnset){
+    var html = "";
+    if (includeUnset) html += '<option value=""' + (!currentId ? " selected" : "") + '>Not set</option>';
+    options.forEach(function(o){
+      html += '<option value="' + escAttr(o.id) + '"' + (o.id === currentId ? " selected" : "") + '>' + escapeHtml(o.value) + '</option>';
+    });
+    return html;
+  }
+
+  function fieldWrap(label, key, field, innerHtml, span){
+    return ''
+      + '<div class="field' + (span ? " span" + span : "") + '">'
+      +   '<span>' + escapeHtml(label) + '</span>'
+      +   innerHtml
+      +   '<div class="field-foot"><span class="field-status" id="' + fieldStatusId(key, field) + '"></span></div>'
+      + '</div>';
+  }
+
+  function selectFieldHtml(label, key, field, options, currentId, span){
+    var inner = '<select class="cell-input" data-edit-field="' + field + '" data-key="' + escAttr(key) + '">'
+      + selectOptionsHtml(options, currentId, true) + '</select>';
+    return fieldWrap(label, key, field, inner, span);
+  }
+
+  function textFieldHtml(label, key, field, value, span){
+    var inner = '<input type="text" class="cell-input" data-edit-field="' + field + '" data-key="' + escAttr(key) + '" value="' + escAttr(value) + '">';
+    return fieldWrap(label, key, field, inner, span);
+  }
+
+  function textareaFieldHtml(label, key, field, value, span){
+    var inner = '<textarea class="cell-input" data-edit-field="' + field + '" data-key="' + escAttr(key) + '">' + escapeHtml(value) + '</textarea>';
+    return fieldWrap(label, key, field, inner, span);
+  }
+
+  function statusFieldHtml(r){
+    var cached = transitionsCache[r.key];
+    var inner;
+    if (cached === "loading"){
+      inner = '<div class="status-edit-row"><span class="status-dot" style="background:var(--' + r.statusColor + ')"></span>' + escapeHtml(r.statusName) + ' <span class="muted">&middot; loading transitions&hellip;</span></div>';
+    } else if (cached === "error"){
+      inner = '<div class="status-edit-row"><span class="status-dot" style="background:var(--' + r.statusColor + ')"></span>' + escapeHtml(r.statusName) + ' <span class="muted">&middot; couldn’t load transitions</span> <button type="button" class="icon-btn" data-act="retry-transitions" data-key="' + escAttr(r.key) + '" aria-label="Retry">&#8635;</button></div>';
+    } else if (Array.isArray(cached)){
+      var opts = '<option value="" selected>' + escapeHtml(r.statusName) + ' (current)</option>'
+        + cached.map(function(t){ return '<option value="' + escAttr(t.id) + '">' + escapeHtml(t.name) + '</option>'; }).join("");
+      inner = '<select class="cell-input" data-edit-field="status" data-key="' + escAttr(r.key) + '">' + opts + '</select>';
+    } else {
+      inner = '<div class="status-edit-row"><span class="status-dot" style="background:var(--' + r.statusColor + ')"></span>' + escapeHtml(r.statusName) + '</div>';
+    }
+    return fieldWrap("Status", r.key, "status", inner, null);
+  }
+
+  function technicianFieldHtml(r){
+    var checkedIds = {};
+    r.technicianRaw.forEach(function(o){ checkedIds[o.id] = true; });
+    var inner = '<div class="tech-checks" data-key="' + escAttr(r.key) + '">' + TECHNICIAN_OPTIONS.map(function(o){
+      return '<label class="tech-check"><input type="checkbox" data-tech-id="' + escAttr(o.id) + '" data-key="' + escAttr(r.key) + '"' + (checkedIds[o.id] ? " checked" : "") + '>' + escapeHtml(o.value) + '</label>';
+    }).join("") + '</div>';
+    return fieldWrap("Technician", r.key, "technician", inner, 2);
+  }
+
+  function commentsBlockHtml(r){
+    var list = r.comments.length
+      ? r.comments.map(function(c){
+          return '<div class="comment-item"><div class="comment-meta"><span>' + escapeHtml(c.author || "Unknown") + '</span><span>' + escapeHtml(c.created) + '</span></div><div class="comment-body">' + escapeHtml(c.body) + '</div></div>';
+        }).join("")
+      : '<div class="comment-empty">No comments yet.</div>';
+    return ''
+      + '<div class="comments-block">'
+      +   '<div class="comments-head">Comments</div>'
+      +   '<div class="comment-list">' + list + '</div>'
+      +   '<div class="add-comment-row">'
+      +     '<textarea class="cell-input" data-add-comment="' + escAttr(r.key) + '" placeholder="Add a comment…"></textarea>'
+      +     '<button type="button" class="btn btn-sm btn-primary" data-act="add-comment" data-key="' + escAttr(r.key) + '">Post</button>'
+      +   '</div>'
+      +   '<div class="field-foot"><span class="field-status" id="' + fieldStatusId(r.key, "comment") + '"></span></div>'
+      + '</div>';
+  }
+
+  function rowHTML(r, expanded){
+    var idCell = r.webUrl
+      ? '<a href="' + escAttr(r.webUrl) + '" target="_blank" rel="noopener">' + escapeHtml(r.key) + '</a>'
+      : escapeHtml(r.key);
+    var mainRow = ''
+      + '<tr class="phase-row" data-key="' + escAttr(r.key) + '">'
+      +   '<td class="col-id">' + idCell + '</td>'
+      +   '<td class="issue-cell">' + escapeHtml(r.summary) + '</td>'
+      +   '<td class="col-component">' + (r.productModelRaw ? escapeHtml(r.productModelRaw.value) : '<span class="muted">&mdash;</span>') + '</td>'
+      +   '<td class="col-priority"><div class="status-cell"><span class="status-dot" style="background:var(--' + priorityColorVar(r.priority) + ')"></span>' + (r.priority ? escapeHtml(r.priority) : '<span class="muted">Not set</span>') + '</div></td>'
+      +   '<td class="col-priority"><div class="status-cell"><span class="status-dot" style="background:var(--' + severityColorVar(r.severity) + ')"></span>' + (r.severity ? escapeHtml(r.severity) : '<span class="muted">Not set</span>') + '</div></td>'
+      +   '<td class="col-status"><div class="status-cell"><span class="status-dot" style="background:var(--' + r.statusColor + ')"></span>' + escapeHtml(r.statusName) + '</div></td>'
+      +   '<td class="col-tech">' + (r.technician ? escapeHtml(r.technician) : '<span class="muted">&mdash;</span>') + '</td>'
+      +   '<td class="col-actions"><button type="button" class="icon-btn" data-act="toggle" aria-label="Edit ticket" aria-expanded="' + (expanded ? "true" : "false") + '">&hellip;</button></td>'
+      + '</tr>';
+
+    var detailRow = "";
+    if (expanded){
+      detailRow = ''
+        + '<tr class="detail-row" data-key="' + escAttr(r.key) + '">'
+        +   '<td colspan="8"><div class="detail-grid">'
+        +     selectFieldHtml("Product Model", r.key, "productModel", PRODUCT_MODEL_OPTIONS, r.productModelRaw ? r.productModelRaw.id : "")
+        +     selectFieldHtml("Priority", r.key, "priority", PRIORITY_OPTIONS, r.priorityRaw[0] ? r.priorityRaw[0].id : "")
+        +     selectFieldHtml("Severity", r.key, "severity", SEVERITY_OPTIONS, r.severityRaw[0] ? r.severityRaw[0].id : "")
+        +     statusFieldHtml(r)
+        +     technicianFieldHtml(r)
+        +     selectFieldHtml("Warranty", r.key, "warranty", WARRANTY_OPTIONS, r.warrantyRaw ? r.warrantyRaw.id : "")
+        +     selectFieldHtml("Problem Found", r.key, "problemFound", PROBLEM_FOUND_OPTIONS, r.problemFoundRaw ? r.problemFoundRaw.id : "")
+        +     selectFieldHtml("Final Status", r.key, "finalStatus", FINAL_STATUS_OPTIONS, r.finalStatusRaw ? r.finalStatusRaw.id : "")
+        +     textFieldHtml("Serial number(s)", r.key, "serial", r.serial, 2)
+        +     textFieldHtml("Ticket number(s)", r.key, "ticketNo", r.ticketNo, 2)
+        +     textareaFieldHtml("Customer reported", r.key, "customerReport", r.customerReport, 4)
+        +   '</div>'
+        +   commentsBlockHtml(r)
+        +   '</td>'
+        + '</tr>';
+      if (!(r.key in transitionsCache)) loadTransitions(r.key);
+    }
+
+    return mainRow + detailRow;
+  }
+
+  function renderTable(rows){
+    rowsByKey = {};
+    rows.forEach(function(r){ rowsByKey[r.key] = r; });
+    if (!rows.length){
+      rowsBody.innerHTML = '<tr><td colspan="8"><div class="empty-state">No tickets to show yet.</div></td></tr>';
+    } else {
+      rowsBody.innerHTML = rows.map(function(r){ return rowHTML(r, !!expandedIds[r.key]); }).join("");
+    }
+    renderStats(rows);
+  }
+
+  // ---------- expand/collapse ----------
+  rowsBody.addEventListener("click", function(e){
+    try {
+      var toggleBtn = e.target.closest('[data-act="toggle"]');
+      if (toggleBtn){
+        var row = toggleBtn.closest("tr[data-key]");
+        if (!row) return;
+        var key = row.getAttribute("data-key");
+        expandedIds[key] = !expandedIds[key];
+        renderTable(lastRows);
+        return;
+      }
+      var retryBtn = e.target.closest('[data-act="retry-transitions"]');
+      if (retryBtn){
+        var rkey = retryBtn.getAttribute("data-key");
+        delete transitionsCache[rkey];
+        renderTable(lastRows);
+        return;
+      }
+      var commentBtn = e.target.closest('[data-act="add-comment"]');
+      if (commentBtn){
+        var ckey = commentBtn.getAttribute("data-key");
+        var ta = rowsBody.querySelector('[data-add-comment="' + CSS.escape(ckey) + '"]');
+        var text = ta ? ta.value.trim() : "";
+        if (!text) return;
+        postComment(ckey, text, ta);
+        return;
+      }
+    } catch (e2) { showDiag((e2 && e2.message) ? e2.message : String(e2)); }
+  });
+
+  // ---------- transitions ----------
+  function loadTransitions(key){
+    if (!mcpNs) return;
+    transitionsCache[key] = "loading";
+    mcpNs.callTool(MCP_SERVER, TRANSITIONS_TOOL, { cloudId: CLOUD_ID, issueIdOrKey: key }).then(function(result){
+      var payload = result && result.payload;
+      var list = (payload && Array.isArray(payload.transitions)) ? payload.transitions : [];
+      transitionsCache[key] = list.map(function(t){ return { id: t.id, name: (t.to && t.to.name) ? t.to.name : t.name }; });
+      if (expandedIds[key]) renderTable(lastRows);
+    }).catch(function(){
+      transitionsCache[key] = "error";
+      if (expandedIds[key]) renderTable(lastRows);
+    });
+  }
+
+  // ---------- writes ----------
+  function afterWriteSettle(key){
+    // Pull the true state back from Jira so the row never drifts from
+    // whatever Jira actually accepted (workflow rules, permissions, etc).
+    if (mcpNs) mcpNs.invalidate(MCP_SERVER, SEARCH_TOOL, SEARCH_INPUT).catch(function(){});
+  }
+
+  function writeErrorMessage(err){
+    var code = err && err.code;
+    switch (code){
+      case "needs_reauth": return "Reconnect " + MCP_SERVER + " in claude.ai Settings to save changes.";
+      case "server_not_connected": return "Add " + MCP_SERVER + " in claude.ai Settings to save changes.";
+      case "blocked_by_policy": return "Your organization blocks writes to " + MCP_SERVER + ".";
+      case "not_in_manifest": return "This view isn't allowed to write to " + MCP_SERVER + ".";
+      case "approval_required": return "This write needs approval in claude.ai first.";
+      case "server_unavailable": return "Jira didn't respond — check Jira before retrying (the change may or may not have gone through).";
+      case "cancelled": return "Save didn't complete — check Jira before retrying.";
+      case "tool_error": return "Jira rejected this change" + (err && err.message ? ": " + err.message : ".");
+      default: return "Couldn't save" + (code ? " (" + code + ")" : "") + ".";
+    }
+  }
+
+  function doEdit(key, field, fields){
+    if (!mcpNs){ setFieldStatus(key, field, "error", "Not connected"); return; }
+    setFieldStatus(key, field, "saving", "Saving…");
+    mcpNs.callTool(MCP_SERVER, EDIT_TOOL, { cloudId: CLOUD_ID, issueIdOrKey: key, fields: fields }).then(function(){
+      setFieldStatus(key, field, "saved", "Saved");
+      afterWriteSettle(key);
+    }).catch(function(err){
+      setFieldStatus(key, field, "error", writeErrorMessage(err));
+    });
+  }
+
+  function doTransition(key, transitionId){
+    if (!mcpNs){ setFieldStatus(key, "status", "error", "Not connected"); return; }
+    setFieldStatus(key, "status", "saving", "Saving…");
+    mcpNs.callTool(MCP_SERVER, TRANSITION_TOOL, { cloudId: CLOUD_ID, issueIdOrKey: key, transition: { id: transitionId } }).then(function(){
+      setFieldStatus(key, "status", "saved", "Saved");
+      delete transitionsCache[key]; // valid next-transitions change once status changes
+      afterWriteSettle(key);
+    }).catch(function(err){
+      setFieldStatus(key, "status", "error", writeErrorMessage(err));
+    });
+  }
+
+  function postComment(key, text, textareaEl){
+    setFieldStatus(key, "comment", "saving", "Posting…");
+    mcpNs.callTool(MCP_SERVER, COMMENT_TOOL, { cloudId: CLOUD_ID, issueIdOrKey: key, commentBody: text, contentFormat: "markdown" }).then(function(){
+      setFieldStatus(key, "comment", "saved", "Posted");
+      if (textareaEl) textareaEl.value = "";
+      afterWriteSettle(key);
+    }).catch(function(err){
+      setFieldStatus(key, "comment", "error", writeErrorMessage(err));
+    });
+  }
+
+  var SINGLE_OPTION_FIELD_MAP = {
+    productModel: "customfield_10767",
+    warranty: "customfield_12078",
+    problemFound: "customfield_12094",
+    finalStatus: "customfield_12091"
+  };
+  var MULTI_OPTION_FIELD_MAP = {
+    priority: "customfield_10772",
+    severity: "customfield_10773"
+  };
+  var TEXT_FIELD_MAP = {
+    serial: "customfield_12076",
+    ticketNo: "customfield_12077",
+    customerReport: "customfield_12079"
+  };
+
+  rowsBody.addEventListener("change", function(e){
+    try {
+      var t = e.target;
+      var field = t.getAttribute("data-edit-field");
+      if (field){
+        var key = t.getAttribute("data-key");
+        if (field === "status"){
+          if (!t.value) return; // "(current)" placeholder re-selected — no-op
+          doTransition(key, t.value);
+          return;
+        }
+        if (field in SINGLE_OPTION_FIELD_MAP){
+          var jiraField = SINGLE_OPTION_FIELD_MAP[field];
+          var fields = {};
+          fields[jiraField] = t.value ? { id: t.value } : null;
+          doEdit(key, field, fields);
+          return;
+        }
+        if (field in MULTI_OPTION_FIELD_MAP){
+          var jiraField2 = MULTI_OPTION_FIELD_MAP[field];
+          var fields2 = {};
+          fields2[jiraField2] = t.value ? [{ id: t.value }] : [];
+          doEdit(key, field, fields2);
+          return;
+        }
+        return;
+      }
+      var techBox = t.closest("[data-tech-id]");
+      if (techBox){
+        var tkey = techBox.getAttribute("data-key");
+        var wrap = techBox.closest(".tech-checks");
+        var checked = Array.prototype.slice.call(wrap.querySelectorAll("input[data-tech-id]:checked")).map(function(cb){
+          return { id: cb.getAttribute("data-tech-id") };
+        });
+        doEdit(tkey, "technician", { customfield_12095: checked });
+        return;
+      }
+    } catch (e2) { showDiag((e2 && e2.message) ? e2.message : String(e2)); }
+  });
+
+  rowsBody.addEventListener("blur", function(e){
+    try {
+      var t = e.target;
+      var field = t.getAttribute("data-edit-field");
+      if (!field || !(field in TEXT_FIELD_MAP)) return;
+      var key = t.getAttribute("data-key");
+      var jiraField = TEXT_FIELD_MAP[field];
+      var fields = {};
+      fields[jiraField] = t.value;
+      doEdit(key, field, fields);
+    } catch (e2) { showDiag((e2 && e2.message) ? e2.message : String(e2)); }
+  }, true);
+
+  function setSyncStatus(kind, text){
+    syncStatusEl.className = "save-status" + (kind === "ok" ? " is-saved" : kind === "pending" ? " is-pending" : kind === "error" ? " is-error" : "");
+    syncStatusText.textContent = text;
+  }
+
+  function showError(message){
+    errorBanner.hidden = false;
+    errorBanner.textContent = message;
+  }
+  function clearError(){
+    errorBanner.hidden = true;
+    errorBanner.textContent = "";
+  }
+
+  function formatStoredAt(ms){
+    if (!ms) return "";
+    try { return new Date(ms).toLocaleString(); } catch (e) { return ""; }
+  }
+
+  function handleToolResult(result){
+    var payload = result && result.payload;
+    var nodes = (payload && payload.issues && Array.isArray(payload.issues.nodes)) ? payload.issues.nodes : [];
+    lastRows = nodes.map(normalizeIssue);
+    renderTable(lastRows);
+    clearError();
+    var storedAt = (result && result.cache && result.cache.storedAt) ? result.cache.storedAt : Date.now();
+    var revalidating = !!(result && result.cache && result.cache.revalidating);
+    setSyncStatus("ok", (revalidating ? "Refreshing… last synced " : "Synced from Jira · ") + formatStoredAt(storedAt));
+  }
+
+  var RETRACTING_CODES = {
+    needs_reauth: 1, server_not_connected: 1, blocked_by_policy: 1,
+    approval_required: 1, not_in_manifest: 1, consent_required: 1, user_changed: 1
+  };
+
+  function friendlyErrorMessage(err){
+    var code = err && err.code;
+    switch (code){
+      case "needs_reauth":
+        return "Your " + MCP_SERVER + " connection needs to be reconnected — go to claude.ai Settings → Connectors to reconnect.";
+      case "server_not_connected":
+        return "Add " + MCP_SERVER + " in claude.ai Settings → Connectors to see live ticket data here.";
+      case "selection_required":
+        return "More than one " + MCP_SERVER + " connection is available — choose one when prompted, then reload this page.";
+      case "not_in_manifest":
+        return "This view isn't allowed to read " + MCP_SERVER + " data.";
+      case "blocked_by_policy":
+        return "Your organization's policy blocks this page from reading " + MCP_SERVER + " data.";
+      case "approval_required":
+        return "This Jira query needs approval before it can run — check claude.ai for a pending approval.";
+      case "server_unavailable":
+        return "Jira is temporarily unreachable — retrying automatically.";
+      case "consent_required":
+        return "Allow " + MCP_SERVER + " for this page when prompted to see live ticket data.";
+      case "not_granted":
+      case "capability_disabled":
+      case "capability_removed":
+        return "Live Jira sync isn't available in this view.";
+      case "user_changed":
+        return "The signed-in account changed — reload this page.";
+      default:
+        return "Couldn't reach Jira right now" + (code ? " (" + code + ")" : "") + " — will retry automatically.";
+    }
+  }
+
+  function handleWatchEvent(ev){
+    try {
+      if (ev.type === "data"){
+        handleToolResult(ev.result);
+        return;
+      }
+      var err = ev.error || {};
+      var msg = friendlyErrorMessage(err);
+      if (RETRACTING_CODES[err.code]){
+        lastRows = [];
+        renderTable(lastRows);
+        setSyncStatus("error", "Not connected to Jira");
+      } else {
+        setSyncStatus("error", "Sync issue — showing last known data");
+      }
+      showError(msg);
+    } catch (e) { showDiag((e && e.message) ? e.message : String(e)); }
+  }
+
+  function startWatch(mcp){
+    setSyncStatus("pending", "Connecting to Jira…");
+    mcp.watchTool(MCP_SERVER, SEARCH_TOOL, SEARCH_INPUT, handleWatchEvent, { refetchInterval: REFRESH_MS });
+  }
+
+  refreshBtn.addEventListener("click", function(){
+    try {
+      if (!mcpNs) return;
+      setSyncStatus("pending", "Refreshing…");
+      mcpNs.invalidate(MCP_SERVER, SEARCH_TOOL, SEARCH_INPUT).catch(function(){ /* watch will surface any error */ });
+    } catch (e) { showDiag((e && e.message) ? e.message : String(e)); }
+  });
+
+  function noMcpFallback(){
+    setSyncStatus("error", "Live Jira sync isn't available in this view");
+    showError("This view can't reach your connectors. Open this page inside claude.ai to see live ticket data from Jira.");
+    refreshBtn.disabled = true;
+  }
+
+  function init(){
+    renderTable([]);
+    setSyncStatus("pending", "Connecting to Jira…");
+
+    if (!window.claude || typeof window.claude.use !== "function"){
+      noMcpFallback();
+      return;
+    }
+
+    window.claude.use("mcp").then(function(mcp){
+      if (!mcp){ noMcpFallback(); return; }
+      mcpNs = mcp;
+      startWatch(mcp);
+    }).catch(function(){ noMcpFallback(); });
+  }
+
+  init();
+
+  } catch (e) { showDiag((e && e.message) ? e.message : String(e)); }
+})();
+</script>

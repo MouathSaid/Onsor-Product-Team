@@ -1,0 +1,527 @@
+<title>L3 Technical Ticketing — Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    color-scheme: dark;
+    --bg:#121212;
+    --surface:#19191F;
+    --surface-2:#202027;
+    --border:#302F3B;
+    --text:#F2F1F5;
+    --text-muted:#A4A4AE;
+    --text-faint:#6E6D7A;
+    --main:#8377F7;
+    --main-soft:#241F3D;
+    --eng:#63C2B4;
+    --eng-soft:#1D3733;
+    --supply:#D79770;
+    --supply-soft:#3A2A20;
+    --milestone:#E3B655;
+    --milestone-soft:#3B301A;
+    --today:#E4685A;
+    --focus:#8377F7;
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 12px 28px -14px rgba(0,0,0,.6);
+  }
+
+  *{ box-sizing:border-box; }
+  [hidden]{ display:none !important; }
+  html,body{ margin:0; }
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:"IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+    padding-inline:20px;
+    padding-block:28px 60px;
+  }
+  .wrap{ max-width:1200px; margin:0 auto; display:flex; flex-direction:column; gap:24px; }
+  .mono{ font-family:"IBM Plex Mono", ui-monospace, "SF Mono", monospace; }
+  .tabular{ font-variant-numeric: tabular-nums; }
+
+  .back-link{
+    align-self:flex-start; display:inline-flex; align-items:center; gap:6px;
+    font-family:"IBM Plex Mono",monospace; font-size:12px; font-weight:500; letter-spacing:.01em;
+    color:var(--text-faint); text-decoration:none;
+  }
+  .back-link:hover{ color:var(--main); }
+  .back-link:focus-visible{ outline:2px solid var(--focus); outline-offset:2px; border-radius:4px; }
+
+  header{ display:flex; flex-direction:column; gap:10px; }
+  .eyebrow{
+    font-family:"IBM Plex Mono", monospace;
+    font-size:11.5px; font-weight:600; letter-spacing:.11em; text-transform:uppercase;
+    color:var(--main);
+  }
+  h1{ margin:0; font-size:clamp(24px,4vw,32px); font-weight:700; letter-spacing:-.01em; text-wrap:balance; }
+  .lede{ margin:0; color:var(--text-muted); font-size:14.5px; max-width:70ch; }
+  .lede a{ color:var(--main); }
+
+  .editor-toolbar{ display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+  .toolbar-actions{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .save-status{ font-size:12.5px; color:var(--text-faint); display:flex; align-items:center; gap:7px; }
+  .save-status .dot{ width:7px; height:7px; border-radius:50%; background:var(--text-faint); flex:none; }
+  .save-status.is-saved .dot{ background:var(--eng); }
+  .save-status.is-pending .dot{ background:var(--milestone); }
+  .save-status.is-error .dot{ background:var(--today); }
+
+  .btn{
+    appearance:none; border:1px solid var(--border); background:var(--surface); color:var(--text);
+    font-family:inherit; font-size:13px; font-weight:600; padding:8px 14px; border-radius:8px; cursor:pointer;
+    text-decoration:none; display:inline-flex; align-items:center; gap:6px;
+  }
+  .btn:hover{ border-color:var(--text-faint); }
+  .btn:focus-visible{ outline:2px solid var(--focus); outline-offset:2px; }
+  .btn:disabled{ opacity:.45; cursor:not-allowed; }
+  .btn-primary{ background:var(--main); border-color:var(--main); color:#fff; }
+  .btn-primary:hover{ filter:brightness(1.08); border-color:var(--main); }
+
+  .readonly-banner{
+    font-size:12.5px; color:var(--milestone); background:var(--milestone-soft);
+    border:1px solid var(--border); padding:9px 12px; border-radius:8px;
+  }
+
+  .card{ background:var(--surface); border:1px solid var(--border); border-radius:12px; box-shadow:var(--shadow); padding:18px 20px; }
+  .card h2{ margin:0 0 14px; font-size:13px; text-transform:uppercase; letter-spacing:.06em; color:var(--text-faint); font-weight:600; }
+
+  .metric-grid{ display:grid; grid-template-columns:repeat(4, 1fr); gap:14px; }
+  @media (max-width:760px){ .metric-grid{ grid-template-columns:repeat(2,1fr); } }
+  .metric-card{
+    background:var(--surface); border:1px solid var(--border); border-radius:12px;
+    padding:16px 18px; display:flex; flex-direction:column; gap:4px; box-shadow:var(--shadow);
+  }
+  .metric-card.accent{ background:var(--milestone-soft); border-color:var(--milestone); }
+  .metric-card .num{ font-family:"IBM Plex Mono",monospace; font-size:30px; font-weight:700; letter-spacing:-.01em; }
+  .metric-card.accent .num{ color:var(--milestone); }
+  .metric-card .label{ font-size:11.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--text-faint); }
+  .metric-card.accent .label{ color:var(--milestone); }
+
+  .split-grid{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  @media (max-width:820px){ .split-grid{ grid-template-columns:1fr; } }
+
+  .bar-list{ display:flex; flex-direction:column; gap:11px; }
+  .bar-row{ display:grid; grid-template-columns:158px 1fr 34px; align-items:center; gap:10px; font-size:13px; }
+  @media (max-width:480px){ .bar-row{ grid-template-columns:110px 1fr 30px; } }
+  .bar-label{ color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .bar-track{ background:var(--surface-2); border-radius:6px; height:9px; overflow:hidden; }
+  .bar-fill{ height:100%; border-radius:6px; min-width:3px; }
+  .bar-count{ text-align:right; font-family:"IBM Plex Mono",monospace; color:var(--text-faint); font-size:12px; }
+  .bar-empty{ font-size:12.5px; color:var(--text-faint); font-style:italic; }
+
+  .table-scroll{ overflow-x:auto; }
+  table.mini-table{ width:100%; border-collapse:collapse; min-width:640px; }
+  table.mini-table thead th{
+    text-align:left; font-size:10.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--text-faint);
+    padding:9px 10px; border-bottom:1px solid var(--border); white-space:nowrap; font-weight:600;
+  }
+  table.mini-table td{ padding:9px 10px; border-bottom:1px solid var(--border); vertical-align:middle; font-size:13.5px; }
+  table.mini-table tr:last-child td{ border-bottom:none; }
+  table.mini-table tr:hover td{ background:var(--surface-2); }
+  .id-link{ font-family:"IBM Plex Mono",monospace; font-size:11px; color:var(--text-faint); text-decoration:none; }
+  .id-link:hover{ color:var(--main); text-decoration:underline; }
+  .status-cell{ display:flex; align-items:center; gap:7px; }
+  .status-dot{ width:8px; height:8px; border-radius:50%; flex:none; }
+  .cta-row{ display:flex; justify-content:center; }
+
+  footer{ text-align:center; font-size:11.5px; color:var(--text-faint); }
+  .empty-state{ padding:24px 10px; text-align:center; color:var(--text-faint); font-size:13px; }
+
+  .diag-banner{
+    background:#3B1A1A; border:1px solid #7A3B3B; color:#F5C8C8;
+    font-family:"IBM Plex Mono",monospace; font-size:12.5px; line-height:1.5;
+    padding:12px 14px; border-radius:8px; white-space:pre-wrap; word-break:break-word;
+  }
+</style>
+
+<div class="wrap">
+
+  <div class="diag-banner" id="diagBanner" hidden></div>
+
+  <a class="back-link" href="group-technical-support.html">&larr; Technical Support</a>
+
+  <header>
+    <div class="eyebrow">Onsor · Technical Support</div>
+    <h1>L3 Technical Ticketing</h1>
+    <p class="lede">Live overview of Jira project <a href="https://onsor.atlassian.net/browse/PPIER" target="_blank" rel="noopener">PPIER — Product Issue Escalation &amp; Resolution</a>. Refreshes automatically from Jira each time this page is open.</p>
+  </header>
+
+  <div class="editor-toolbar">
+    <div class="save-status" id="syncStatus"><span class="dot"></span><span id="syncStatusText">Connecting to Jira&hellip;</span></div>
+    <div class="toolbar-actions">
+      <button type="button" class="btn" id="refreshBtn">&#8635; Refresh now</button>
+      <a class="btn btn-primary" href="l3-tickets.html">View all tickets &rarr;</a>
+    </div>
+  </div>
+  <div id="errorBanner" class="readonly-banner" hidden></div>
+
+  <div class="metric-grid" id="metricGrid"></div>
+
+  <div class="split-grid">
+    <div class="card">
+      <h2>By Status</h2>
+      <div class="bar-list" id="statusBars"></div>
+    </div>
+    <div class="card">
+      <h2>By Product Model</h2>
+      <div class="bar-list" id="modelBars"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>By Technician</h2>
+    <div class="bar-list" id="techBars"></div>
+  </div>
+
+  <div class="card">
+    <h2>Most Recent Tickets</h2>
+    <div class="table-scroll">
+      <table class="mini-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Issue</th>
+            <th>Status</th>
+            <th>Product Model</th>
+            <th>Created</th>
+          </tr>
+        </thead>
+        <tbody id="recentBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="cta-row">
+    <a class="btn btn-primary" href="l3-tickets.html">View all tickets in table &rarr;</a>
+  </div>
+
+  <footer>This dashboard and the ticket table both pull live from the same Jira project · polls roughly every 5 minutes while open.</footer>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  function showDiag(msg){
+    try {
+      var b = document.getElementById("diagBanner");
+      if (!b) return;
+      b.hidden = false;
+      b.textContent = "Something went wrong on this page: " + msg + "\n\nPlease screenshot this message and share it so it can be fixed.";
+    } catch (ignored) { /* nothing more we can do */ }
+  }
+  window.addEventListener("error", function(e){ showDiag(e && e.message ? e.message : "unknown script error"); });
+  window.addEventListener("unhandledrejection", function(e){
+    var reason = e && e.reason;
+    showDiag(reason && reason.message ? reason.message : String(reason));
+  });
+
+  try {
+
+  var JIRA_SITE = "https://onsor.atlassian.net";
+  var JIRA_PROJECT_KEY = "PPIER";
+  var CLOUD_ID = "d9878be2-7e60-48cc-92d9-e41084f9982c";
+  var MCP_SERVER = "Atlassian Rovo";
+  var MCP_TOOL = "searchJiraIssuesUsingJql";
+  var JQL = "project = " + JIRA_PROJECT_KEY + " ORDER BY created ASC";
+  var FIELDS = ["summary","status","reporter","assignee","created","comment",
+    "customfield_10767","customfield_10772","customfield_10773",
+    "customfield_12076","customfield_12077","customfield_12078","customfield_12079",
+    "customfield_12091","customfield_12094","customfield_12095"];
+  var TOOL_INPUT = {
+    cloudId: CLOUD_ID,
+    jql: JQL,
+    fields: FIELDS,
+    maxResults: 100,
+    responseContentFormat: "markdown"
+  };
+  var REFRESH_MS = 300000; // ~5 min poll while the page stays open
+  var TICKETS_URL = "l3-tickets.html";
+
+  function escapeHtml(s){
+    return String(s == null ? "" : s).replace(/[&<>]/g, function(c){
+      return c === "&" ? "&amp;" : (c === "<" ? "&lt;" : "&gt;");
+    });
+  }
+  function escAttr(s){ return escapeHtml(s).replace(/"/g, "&quot;"); }
+
+  function optValue(field){
+    return (field && typeof field === "object" && field.value) ? field.value : "";
+  }
+  function optArrayValues(field){
+    if (!field || !Array.isArray(field) || !field.length) return [];
+    return field.map(function(o){ return o && o.value; }).filter(Boolean);
+  }
+
+  function statusColorVar(categoryColorName){
+    switch (categoryColorName){
+      case "green": return "eng";
+      case "yellow": return "milestone";
+      case "blue-gray": return "text-faint";
+      case "brown": return "supply";
+      case "red": return "today";
+      default: return "text-faint";
+    }
+  }
+
+  var MODEL_PALETTE = ["main", "eng", "supply", "milestone", "today"];
+
+  function normalizeIssue(node){
+    var f = (node && node.fields) || {};
+    var priorities = optArrayValues(f.customfield_10772);
+    var severities = optArrayValues(f.customfield_10773);
+    var technicians = optArrayValues(f.customfield_12095);
+    var statusName = f.status && f.status.name ? f.status.name : "Unknown";
+    var statusCat = f.status && f.status.statusCategory ? f.status.statusCategory.colorName : "";
+    return {
+      key: node && node.key ? node.key : "",
+      webUrl: (node && node.webUrl) ? node.webUrl : (JIRA_SITE + "/browse/" + (node && node.key ? node.key : "")),
+      summary: f.summary || "",
+      statusName: statusName,
+      statusCategory: statusCat,
+      statusColor: statusColorVar(statusCat),
+      productModel: optValue(f.customfield_10767),
+      priorities: priorities,
+      severities: severities,
+      technicians: technicians,
+      created: f.created ? String(f.created).slice(0, 10) : "",
+      createdRaw: f.created || ""
+    };
+  }
+
+  var syncStatusEl = document.getElementById("syncStatus");
+  var syncStatusText = document.getElementById("syncStatusText");
+  var errorBanner = document.getElementById("errorBanner");
+  var refreshBtn = document.getElementById("refreshBtn");
+  var metricGrid = document.getElementById("metricGrid");
+  var statusBars = document.getElementById("statusBars");
+  var modelBars = document.getElementById("modelBars");
+  var techBars = document.getElementById("techBars");
+  var recentBody = document.getElementById("recentBody");
+
+  var mcpNs = null;
+
+  function countBy(rows, getKeys){
+    var counts = {};
+    var order = [];
+    rows.forEach(function(r){
+      var keys = getKeys(r);
+      (Array.isArray(keys) ? keys : [keys]).forEach(function(k){
+        if (!k) return;
+        if (!(k in counts)) { counts[k] = 0; order.push(k); }
+        counts[k]++;
+      });
+    });
+    return order.map(function(k){ return { key: k, count: counts[k] }; }).sort(function(a, b){ return b.count - a.count; });
+  }
+
+  function renderBarList(el, entries, colorFn){
+    if (!entries.length){
+      el.innerHTML = '<div class="bar-empty">No data yet</div>';
+      return;
+    }
+    var max = entries.reduce(function(m, e){ return Math.max(m, e.count); }, 1);
+    el.innerHTML = entries.map(function(e){
+      var pct = Math.max(4, Math.round((e.count / max) * 100));
+      var color = colorFn ? colorFn(e.key) : "main";
+      return ''
+        + '<div class="bar-row">'
+        +   '<div class="bar-label" title="' + escAttr(e.key) + '">' + escapeHtml(e.key) + '</div>'
+        +   '<div class="bar-track"><div class="bar-fill" style="width:' + pct + '%;background:var(--' + color + ')"></div></div>'
+        +   '<div class="bar-count tabular">' + e.count + '</div>'
+        + '</div>';
+    }).join("");
+  }
+
+  function renderMetrics(rows){
+    var total = rows.length;
+    // statusCategory here is the Jira status-category colorName: "green" = Done,
+    // everything else ("yellow" in progress, "blue-gray" to do, etc.) counts as active
+    // so Active + Closed always adds up to Total, whatever workflow statuses exist.
+    var done = rows.filter(function(r){ return r.statusCategory === "green"; }).length;
+    var active = total - done;
+    var needsTriage = rows.filter(function(r){ return !r.priorities.length && !r.severities.length; }).length;
+
+    var cards = [
+      { num: total, label: "Total Tickets", accent: false },
+      { num: active, label: "Active", accent: false },
+      { num: done, label: "Closed", accent: false },
+      { num: needsTriage, label: "Needs Priority/Severity", accent: needsTriage > 0 }
+    ];
+    metricGrid.innerHTML = cards.map(function(c){
+      return '<div class="metric-card' + (c.accent ? " accent" : "") + '"><div class="num tabular">' + c.num + '</div><div class="label">' + escapeHtml(c.label) + '</div></div>';
+    }).join("");
+  }
+
+  function renderRecent(rows){
+    var sorted = rows.slice().sort(function(a, b){
+      return (b.createdRaw || "").localeCompare(a.createdRaw || "");
+    }).slice(0, 5);
+    if (!sorted.length){
+      recentBody.innerHTML = '<tr><td colspan="5"><div class="empty-state">No tickets to show yet.</div></td></tr>';
+      return;
+    }
+    recentBody.innerHTML = sorted.map(function(r){
+      var idCell = r.webUrl
+        ? '<a class="id-link" href="' + escAttr(r.webUrl) + '" target="_blank" rel="noopener">' + escapeHtml(r.key) + '</a>'
+        : escapeHtml(r.key);
+      return ''
+        + '<tr>'
+        +   '<td>' + idCell + '</td>'
+        +   '<td>' + escapeHtml(r.summary) + '</td>'
+        +   '<td><div class="status-cell"><span class="status-dot" style="background:var(--' + r.statusColor + ')"></span>' + escapeHtml(r.statusName) + '</div></td>'
+        +   '<td>' + (r.productModel ? escapeHtml(r.productModel) : '&mdash;') + '</td>'
+        +   '<td class="mono">' + escapeHtml(r.created) + '</td>'
+        + '</tr>';
+    }).join("");
+  }
+
+  function render(rows){
+    renderMetrics(rows);
+    renderBarList(statusBars, countBy(rows, function(r){ return r.statusName; }), function(name){
+      var match = rows.find(function(r){ return r.statusName === name; });
+      return match ? match.statusColor : "text-faint";
+    });
+    renderBarList(modelBars, countBy(rows, function(r){ return r.productModel; }), function(key, idx){
+      return "main";
+    });
+    // color model bars by rotating palette based on rank
+    (function(){
+      var entries = countBy(rows, function(r){ return r.productModel; });
+      var max = entries.reduce(function(m, e){ return Math.max(m, e.count); }, 1);
+      modelBars.innerHTML = entries.length ? entries.map(function(e, i){
+        var pct = Math.max(4, Math.round((e.count / max) * 100));
+        var color = MODEL_PALETTE[i % MODEL_PALETTE.length];
+        return ''
+          + '<div class="bar-row">'
+          +   '<div class="bar-label" title="' + escAttr(e.key) + '">' + escapeHtml(e.key) + '</div>'
+          +   '<div class="bar-track"><div class="bar-fill" style="width:' + pct + '%;background:var(--' + color + ')"></div></div>'
+          +   '<div class="bar-count tabular">' + e.count + '</div>'
+          + '</div>';
+      }).join("") : '<div class="bar-empty">No data yet</div>';
+    })();
+    renderBarList(techBars, countBy(rows, function(r){ return r.technicians; }), function(){ return "eng"; });
+    renderRecent(rows);
+  }
+
+  function setSyncStatus(kind, text){
+    syncStatusEl.className = "save-status" + (kind === "ok" ? " is-saved" : kind === "pending" ? " is-pending" : kind === "error" ? " is-error" : "");
+    syncStatusText.textContent = text;
+  }
+  function showError(message){
+    errorBanner.hidden = false;
+    errorBanner.textContent = message;
+  }
+  function clearError(){
+    errorBanner.hidden = true;
+    errorBanner.textContent = "";
+  }
+  function formatStoredAt(ms){
+    if (!ms) return "";
+    try { return new Date(ms).toLocaleString(); } catch (e) { return ""; }
+  }
+
+  function handleToolResult(result){
+    var payload = result && result.payload;
+    var nodes = (payload && payload.issues && Array.isArray(payload.issues.nodes)) ? payload.issues.nodes : [];
+    var rows = nodes.map(normalizeIssue);
+    render(rows);
+    clearError();
+    var storedAt = (result && result.cache && result.cache.storedAt) ? result.cache.storedAt : Date.now();
+    var revalidating = !!(result && result.cache && result.cache.revalidating);
+    setSyncStatus("ok", (revalidating ? "Refreshing… last synced " : "Synced from Jira · ") + formatStoredAt(storedAt));
+  }
+
+  var RETRACTING_CODES = {
+    needs_reauth: 1, server_not_connected: 1, blocked_by_policy: 1,
+    approval_required: 1, not_in_manifest: 1, consent_required: 1, user_changed: 1
+  };
+
+  function friendlyErrorMessage(err){
+    var code = err && err.code;
+    switch (code){
+      case "needs_reauth":
+        return "Your " + MCP_SERVER + " connection needs to be reconnected — go to claude.ai Settings → Connectors to reconnect.";
+      case "server_not_connected":
+        return "Add " + MCP_SERVER + " in claude.ai Settings → Connectors to see live ticket data here.";
+      case "selection_required":
+        return "More than one " + MCP_SERVER + " connection is available — choose one when prompted, then reload this page.";
+      case "not_in_manifest":
+        return "This view isn't allowed to read " + MCP_SERVER + " data.";
+      case "blocked_by_policy":
+        return "Your organization's policy blocks this page from reading " + MCP_SERVER + " data.";
+      case "approval_required":
+        return "This Jira query needs approval before it can run — check claude.ai for a pending approval.";
+      case "server_unavailable":
+        return "Jira is temporarily unreachable — retrying automatically.";
+      case "consent_required":
+        return "Allow " + MCP_SERVER + " for this page when prompted to see live ticket data.";
+      case "not_granted":
+      case "capability_disabled":
+      case "capability_removed":
+        return "Live Jira sync isn't available in this view.";
+      case "user_changed":
+        return "The signed-in account changed — reload this page.";
+      default:
+        return "Couldn't reach Jira right now" + (code ? " (" + code + ")" : "") + " — will retry automatically.";
+    }
+  }
+
+  function handleWatchEvent(ev){
+    try {
+      if (ev.type === "data"){
+        handleToolResult(ev.result);
+        return;
+      }
+      var err = ev.error || {};
+      var msg = friendlyErrorMessage(err);
+      if (RETRACTING_CODES[err.code]){
+        render([]);
+        setSyncStatus("error", "Not connected to Jira");
+      } else {
+        setSyncStatus("error", "Sync issue — showing last known data");
+      }
+      showError(msg);
+    } catch (e) { showDiag((e && e.message) ? e.message : String(e)); }
+  }
+
+  function startWatch(mcp){
+    setSyncStatus("pending", "Connecting to Jira…");
+    mcp.watchTool(MCP_SERVER, MCP_TOOL, TOOL_INPUT, handleWatchEvent, { refetchInterval: REFRESH_MS });
+  }
+
+  refreshBtn.addEventListener("click", function(){
+    try {
+      if (!mcpNs) return;
+      setSyncStatus("pending", "Refreshing…");
+      mcpNs.invalidate(MCP_SERVER, MCP_TOOL, TOOL_INPUT).catch(function(){ /* watch will surface any error */ });
+    } catch (e) { showDiag((e && e.message) ? e.message : String(e)); }
+  });
+
+  function noMcpFallback(){
+    setSyncStatus("error", "Live Jira sync isn't available in this view");
+    showError("This view can't reach your connectors. Open this page inside claude.ai to see live ticket data from Jira.");
+    refreshBtn.disabled = true;
+  }
+
+  function init(){
+    render([]);
+    setSyncStatus("pending", "Connecting to Jira…");
+
+    if (!window.claude || typeof window.claude.use !== "function"){
+      noMcpFallback();
+      return;
+    }
+
+    window.claude.use("mcp").then(function(mcp){
+      if (!mcp){ noMcpFallback(); return; }
+      mcpNs = mcp;
+      startWatch(mcp);
+    }).catch(function(){ noMcpFallback(); });
+  }
+
+  init();
+
+  } catch (e) { showDiag((e && e.message) ? e.message : String(e)); }
+})();
+</script>

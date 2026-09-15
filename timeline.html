@@ -1,0 +1,1366 @@
+<title>Laptops Roadmap Timeline</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  :root{
+    /* Onsor is a dark-only brand — Onsor_Algeria_Manufacturing_EN.pdf has no light variant,
+       so this page commits to the same single dark world: #121212 + the sampled indigo accent. */
+    color-scheme: dark;
+    --bg:#121212;
+    --surface:#19191F;
+    --surface-2:#202027;
+    --border:#302F3B;
+    --text:#F2F1F5;
+    --text-muted:#A4A4AE;
+    --text-faint:#6E6D7A;
+    --main:#8377F7;
+    --main-soft:#241F3D;
+    --eng:#63C2B4;
+    --eng-soft:#1D3733;
+    --supply:#D79770;
+    --supply-soft:#3A2A20;
+    --milestone:#E3B655;
+    --milestone-soft:#3B301A;
+    --today:#E4685A;
+    --focus:#8377F7;
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 12px 28px -14px rgba(0,0,0,.6);
+  }
+
+  *{ box-sizing:border-box; }
+  [hidden]{ display:none !important; }
+  html,body{ margin:0; }
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:"IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+    padding-inline:20px;
+    padding-block:28px 60px;
+  }
+  .wrap{ max-width:1240px; margin:0 auto; display:flex; flex-direction:column; gap:22px; }
+  .mono{ font-family:"IBM Plex Mono", ui-monospace, "SF Mono", monospace; }
+  .tabular{ font-variant-numeric: tabular-nums; }
+
+  /* ---------- Back link ---------- */
+  .back-link{
+    align-self:flex-start; display:inline-flex; align-items:center; gap:6px;
+    font-family:"IBM Plex Mono",monospace; font-size:12px; font-weight:500; letter-spacing:.01em;
+    color:var(--text-faint); text-decoration:none;
+  }
+  .back-link:hover{ color:var(--main); }
+  .back-link:focus-visible{ outline:2px solid var(--focus); outline-offset:2px; border-radius:4px; }
+
+  /* ---------- Header ---------- */
+  header{ display:flex; flex-direction:column; gap:10px; }
+  .eyebrow{
+    font-family:"IBM Plex Mono", monospace;
+    font-size:11.5px; font-weight:600; letter-spacing:.11em; text-transform:uppercase;
+    color:var(--main);
+  }
+  h1{
+    margin:0; font-size:clamp(24px,4vw,32px); font-weight:700; letter-spacing:-.01em;
+    text-wrap:balance;
+  }
+  .lede{ margin:0; color:var(--text-muted); font-size:14.5px; max-width:64ch; }
+
+  .stat-strip{
+    display:flex; flex-wrap:wrap; gap:8px 22px; margin-top:2px;
+  }
+  .stat{ display:flex; align-items:baseline; gap:6px; }
+  .stat b{ font-family:"IBM Plex Mono",monospace; font-size:15px; color:var(--text); }
+  .stat span{ font-size:12px; color:var(--text-faint); text-transform:uppercase; letter-spacing:.05em; }
+
+  /* ---------- View tabs ---------- */
+  .view-tabs{ display:flex; gap:18px; border-bottom:1px solid var(--border); }
+  .view-tab{
+    appearance:none; border:none; background:none; color:var(--text-muted);
+    font-family:inherit; font-size:13.5px; font-weight:600; letter-spacing:.01em;
+    padding:10px 2px; cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-1px;
+  }
+  .view-tab:hover{ color:var(--text); }
+  .view-tab[aria-selected="true"]{ color:var(--text); border-bottom-color:var(--main); }
+  .view-tab:focus-visible{ outline:2px solid var(--focus); outline-offset:2px; }
+
+  section.view{ display:flex; flex-direction:column; gap:22px; }
+
+  /* ---------- Controls ---------- */
+  .controls{
+    display:flex; flex-wrap:wrap; align-items:center; gap:8px;
+    padding:10px 12px; background:var(--surface); border:1px solid var(--border); border-radius:10px;
+  }
+  .controls-label{ font-size:11.5px; color:var(--text-faint); text-transform:uppercase; letter-spacing:.06em; margin-right:2px; }
+  .chip{
+    appearance:none; border:1px solid var(--border); background:var(--surface);
+    color:var(--text-muted); font-family:inherit; font-size:13px; font-weight:500;
+    padding:6px 12px; border-radius:999px; cursor:pointer; display:inline-flex; align-items:center; gap:7px;
+    transition:background .15s, color .15s, border-color .15s;
+  }
+  .chip .dot{ width:8px; height:8px; border-radius:50%; background:var(--dotcolor,var(--text-faint)); flex:none; }
+  .chip[aria-pressed="true"]{ background:var(--surface-2); color:var(--text); border-color:var(--dotcolor, var(--border)); }
+  .chip:hover{ color:var(--text); }
+  .chip:focus-visible{ outline:2px solid var(--focus); outline-offset:2px; }
+
+  /* ---------- Card shell (shared by Gantt + table) ---------- */
+  .card{
+    background:var(--surface); border:1px solid var(--border); border-radius:12px;
+    box-shadow:var(--shadow); overflow:hidden;
+  }
+
+  /* ---------- Gantt card ---------- */
+  .gantt-scroll{ overflow-x:auto; overflow-y:hidden; }
+  .gantt-grid{
+    display:grid; grid-template-columns: 236px 1560px;
+    position:relative;
+  }
+  .g-label, .g-track{ border-bottom:1px solid var(--border); }
+  .g-label{
+    position:sticky; left:0; z-index:2; background:var(--surface);
+    padding:9px 14px; display:flex; flex-direction:column; justify-content:center; gap:2px;
+    border-right:1px solid var(--border);
+    min-width:0;
+  }
+  .g-label .pid{ font-family:"IBM Plex Mono",monospace; font-size:10.5px; color:var(--text-faint); letter-spacing:.03em; }
+  .g-label .pname{ font-size:12.8px; font-weight:500; line-height:1.25; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .g-label-top{ display:flex; align-items:center; gap:6px; }
+  .g-expand-btn{
+    appearance:none; border:none; background:none; color:var(--text-faint); cursor:pointer;
+    font-size:9px; width:15px; height:15px; padding:0; flex:none; border-radius:4px;
+    display:inline-flex; align-items:center; justify-content:center;
+    transition:transform .12s, color .12s;
+  }
+  .g-expand-btn:hover{ color:var(--text); }
+  .g-expand-btn.is-open{ transform:rotate(90deg); }
+  .g-expand-btn:focus-visible{ outline:2px solid var(--focus); outline-offset:1px; }
+  .g-task-badge{ font-family:"IBM Plex Mono",monospace; font-size:10px; color:var(--text-faint); margin-left:auto; white-space:nowrap; padding-left:6px; }
+  .g-row.is-today .g-label{ box-shadow: inset 3px 0 0 var(--today); }
+  .g-row.is-today .g-label .pname{ color:var(--text); font-weight:600; }
+  .g-label.dim{ opacity:.32; }
+  .g-track.dim .bar, .g-track.dim .milestone{ opacity:.28; }
+
+  .g-sublabel{
+    position:sticky; left:0; z-index:2; background:var(--surface);
+    padding:5px 14px 5px 28px; border-right:1px solid var(--border); border-bottom:1px solid var(--border);
+    display:flex; align-items:center; min-width:0;
+  }
+  .g-sublabel label{ display:flex; align-items:center; gap:7px; width:100%; min-width:0; cursor:pointer; }
+  .g-sublabel input[type="checkbox"]{ width:13px; height:13px; accent-color:var(--main); flex:none; cursor:pointer; }
+  .g-sublabel .subtask-text{ font-size:11.5px; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .g-sublabel.is-done .subtask-text{ color:var(--text-faint); text-decoration:line-through; }
+  .g-subtrack{ height:26px; background:var(--surface-2); border-bottom:1px solid var(--border); }
+  .g-sublabel.dim, .g-subtrack.dim{ opacity:.32; }
+
+  .g-head .g-label{ background:var(--surface); z-index:3; }
+  .g-head-months{ position:relative; height:34px; }
+  .month-tick{ position:absolute; top:0; bottom:-1px; border-left:1px solid var(--border); }
+  .month-tick span{
+    position:absolute; top:17px; left:6px; font-family:"IBM Plex Mono",monospace;
+    font-size:10.5px; color:var(--text-faint); letter-spacing:.02em; white-space:nowrap;
+  }
+
+  .g-track{ position:relative; height:42px; }
+  .row-grid{ position:absolute; inset:0; }
+  .row-grid .gl{ position:absolute; top:0; bottom:0; border-left:1px solid var(--border); opacity:.5; }
+
+  .bar{
+    position:absolute; top:9px; height:24px; border-radius:6px; cursor:pointer;
+    display:flex; align-items:center; padding-inline:8px; overflow:hidden;
+    border:1px solid rgba(0,0,0,.08);
+    transition:filter .12s, transform .12s;
+  }
+  .bar:hover{ filter:brightness(1.06); transform:translateY(-1px); }
+  .bar:focus-visible{ outline:2px solid var(--focus); outline-offset:2px; }
+  .bar .bar-label{
+    font-family:"IBM Plex Mono",monospace; font-size:10.5px; color:#fff; white-space:nowrap;
+    text-shadow:0 1px 1px rgba(0,0,0,.25);
+  }
+  .bar.track-main{ background:var(--main); }
+  .bar.track-eng{ background:var(--eng); }
+  .bar.track-supply{ background:var(--supply); }
+
+  .milestone{
+    position:absolute; top:11px; width:20px; height:20px; margin-left:-10px;
+    background:var(--milestone); transform:rotate(45deg); border-radius:3px;
+    cursor:pointer; border:1px solid rgba(0,0,0,.12);
+    transition:filter .12s, transform .12s;
+  }
+  .milestone:hover{ filter:brightness(1.08); transform:rotate(45deg) scale(1.12); }
+  .milestone:focus-visible{ outline:2px solid var(--focus); outline-offset:3px; }
+
+  .today-line{
+    position:absolute; top:0; bottom:0; width:0; border-left:2px dashed var(--today);
+    pointer-events:none; z-index:1;
+  }
+  .today-line .tag{
+    position:absolute; top:2px; left:6px; background:var(--today); color:#fff;
+    font-family:"IBM Plex Mono",monospace; font-size:9.5px; font-weight:600; letter-spacing:.04em;
+    padding:2px 6px; border-radius:4px; white-space:nowrap; text-transform:uppercase;
+  }
+
+  .card-foot{
+    display:flex; flex-wrap:wrap; gap:14px; align-items:center; justify-content:space-between;
+    padding:12px 16px; border-top:1px solid var(--border); background:var(--surface-2);
+    font-size:12px; color:var(--text-faint);
+  }
+  .legend{ display:flex; flex-wrap:wrap; gap:14px; }
+  .legend-item{ display:flex; align-items:center; gap:6px; }
+  .legend-swatch{ width:11px; height:11px; border-radius:3px; flex:none; }
+  .legend-swatch.diamond{ transform:rotate(45deg); border-radius:2px; }
+
+  /* ---------- Editor toolbar ---------- */
+  .editor-toolbar{
+    display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;
+  }
+  .toolbar-actions{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .import-status{
+    font-size:12.5px; padding:9px 12px; border-radius:8px; border:1px solid var(--border);
+    background:var(--surface-2); color:var(--text-muted); white-space:pre-wrap; line-height:1.5;
+  }
+  .import-status.is-error{ color:var(--today); background:var(--supply-soft); border-color:var(--today); }
+  .import-status.is-success{ color:var(--eng); background:var(--eng-soft); border-color:var(--eng); }
+  .save-status{ font-size:12.5px; color:var(--text-faint); display:flex; align-items:center; gap:7px; }
+  .save-status .dot{ width:7px; height:7px; border-radius:50%; background:var(--text-faint); flex:none; }
+  .save-status.is-saved .dot{ background:var(--eng); }
+  .save-status.is-pending .dot{ background:var(--milestone); }
+  .save-status.is-error .dot{ background:var(--today); }
+
+  .btn{
+    appearance:none; border:1px solid var(--border); background:var(--surface); color:var(--text);
+    font-family:inherit; font-size:13px; font-weight:600; padding:8px 14px; border-radius:8px; cursor:pointer;
+  }
+  .btn:hover{ border-color:var(--text-faint); }
+  .btn:focus-visible{ outline:2px solid var(--focus); outline-offset:2px; }
+  .btn-primary{ background:var(--main); border-color:var(--main); color:#fff; }
+  .btn-primary:hover{ filter:brightness(1.08); border-color:var(--main); }
+
+  .readonly-banner{
+    font-size:12.5px; color:var(--milestone); background:var(--milestone-soft);
+    border:1px solid var(--border); padding:9px 12px; border-radius:8px;
+  }
+
+  /* ---------- Phase table ---------- */
+  .table-scroll{ overflow-x:auto; }
+  table.phase-table{ width:100%; border-collapse:collapse; min-width:840px; }
+  table.phase-table thead th{
+    text-align:left; font-size:10.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--text-faint);
+    padding:10px; border-bottom:1px solid var(--border); background:var(--surface-2); white-space:nowrap; font-weight:600;
+  }
+  table.phase-table td{ padding:6px 10px; border-bottom:1px solid var(--border); vertical-align:middle; }
+  table.phase-table tr.phase-row:hover td{ background:var(--surface-2); }
+  table.phase-table tr.detail-row td{ background:var(--surface-2); padding:14px 16px; }
+  .col-order{ width:56px; }
+  .col-id{ width:66px; font-family:"IBM Plex Mono",monospace; font-size:11.5px; color:var(--text-faint); }
+  .col-track{ width:150px; }
+  .col-date{ width:150px; }
+  .col-actions{ width:78px; white-space:nowrap; }
+  .order-btns{ display:flex; gap:3px; }
+
+  .icon-btn{
+    appearance:none; border:1px solid var(--border); background:var(--surface-2); color:var(--text-muted);
+    width:26px; height:26px; border-radius:7px; cursor:pointer; font-size:12.5px; line-height:1;
+    display:inline-flex; align-items:center; justify-content:center;
+  }
+  .icon-btn:hover{ color:var(--text); }
+  .icon-btn:disabled{ opacity:.32; cursor:not-allowed; }
+  .icon-btn.danger:hover{ color:var(--today); border-color:var(--today); }
+  .icon-btn:focus-visible{ outline:2px solid var(--focus); outline-offset:2px; }
+
+  .cell-input{
+    width:100%; font-family:inherit; font-size:13.5px; color:var(--text); background:transparent;
+    border:1px solid transparent; border-radius:6px; padding:6px 7px;
+  }
+  .cell-input:hover{ border-color:var(--border); }
+  .cell-input:focus{ outline:none; border-color:var(--focus); background:var(--surface-2); }
+  .cell-input:disabled{ opacity:.4; }
+  select.cell-input{ background:var(--surface-2); border-color:var(--border); }
+
+  .field{
+    display:flex; flex-direction:column; gap:5px; font-size:10.5px; color:var(--text-faint);
+    text-transform:uppercase; letter-spacing:.05em;
+  }
+  .field.span2{ grid-column:span 2; }
+  .field input, .field textarea{
+    font-family:inherit; font-size:13.5px; color:var(--text); background:var(--surface);
+    border:1px solid var(--border); border-radius:7px; padding:7px 9px;
+    text-transform:none; letter-spacing:normal;
+  }
+  .field textarea{ resize:vertical; min-height:42px; }
+  .field input:focus, .field textarea:focus{ outline:2px solid var(--focus); outline-offset:1px; }
+
+  .detail-grid{ display:grid; grid-template-columns:repeat(4, 1fr); gap:10px 12px; }
+  @media (max-width:760px){ .detail-grid{ grid-template-columns:repeat(2,1fr); } }
+
+  .task-count{ font-family:"IBM Plex Mono",monospace; font-size:10.5px; color:var(--text-faint); margin-right:4px; white-space:nowrap; }
+
+  .tasks-block{ margin-top:14px; }
+  .tasks-head{
+    display:flex; align-items:center; justify-content:space-between;
+    font-size:10.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--text-faint); margin-bottom:8px;
+  }
+  .task-list{ display:flex; flex-direction:column; gap:6px; }
+  .task-row{ display:flex; align-items:center; gap:8px; }
+  .task-row input[type="checkbox"]{ width:15px; height:15px; accent-color:var(--main); flex:none; cursor:pointer; }
+  .task-row input[type="text"]{ flex:1; }
+  .task-row.is-done input[type="text"]{ color:var(--text-faint); text-decoration:line-through; }
+  .task-empty{ font-size:12.5px; color:var(--text-faint); font-style:italic; }
+
+  /* ---------- Modal ---------- */
+  .backdrop{
+    position:fixed; inset:0; background:rgba(10,12,15,.5); backdrop-filter:blur(1px);
+    display:flex; align-items:flex-end; justify-content:center; padding:0;
+    opacity:0; pointer-events:none; transition:opacity .16s ease; z-index:10;
+  }
+  .backdrop.open{ opacity:1; pointer-events:auto; }
+  @media (min-width:640px){
+    .backdrop{ align-items:center; padding:24px; }
+  }
+  .dialog{
+    background:var(--surface); width:100%; max-width:520px;
+    border-radius:16px 16px 0 0; border:1px solid var(--border); border-bottom:none;
+    box-shadow:var(--shadow); padding:22px 22px 24px;
+    transform:translateY(16px); transition:transform .16s ease;
+    max-height:86vh; overflow-y:auto;
+  }
+  @media (min-width:640px){
+    .dialog{ border-radius:16px; border-bottom:1px solid var(--border); }
+  }
+  .backdrop.open .dialog{ transform:translateY(0); }
+
+  .dialog-top{ display:flex; align-items:flex-start; justify-content:space-between; gap:12px; }
+  .dialog-id{
+    display:inline-flex; align-items:center; gap:8px; font-family:"IBM Plex Mono",monospace;
+    font-size:12px; font-weight:600; padding:4px 9px; border-radius:6px; letter-spacing:.03em;
+  }
+  .dialog-close{
+    appearance:none; border:none; background:var(--surface-2); color:var(--text-muted);
+    width:30px; height:30px; border-radius:8px; font-size:16px; cursor:pointer; flex:none;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .dialog-close:hover{ color:var(--text); }
+  .dialog h2{ margin:12px 0 4px; font-size:20px; font-weight:700; text-wrap:balance; }
+
+  .status-pill{
+    display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:600;
+    padding:4px 10px; border-radius:999px; margin-top:2px;
+  }
+  .status-pill .dot{ width:7px; height:7px; border-radius:50%; }
+  .status-upcoming{ background:var(--surface-2); color:var(--text-muted); }
+  .status-upcoming .dot{ background:var(--text-faint); }
+  .status-active{ background:var(--milestone-soft); color:var(--milestone); }
+  .status-active .dot{ background:var(--milestone); }
+  .status-done{ background:var(--eng-soft); color:var(--eng); }
+  .status-done .dot{ background:var(--eng); }
+
+  .dialog-meta{
+    display:grid; grid-template-columns:1fr 1fr; gap:12px 18px; margin:16px 0;
+    padding:14px; background:var(--surface-2); border-radius:10px;
+  }
+  .dialog-meta div{ display:flex; flex-direction:column; gap:2px; }
+  .dialog-meta .k{ font-size:10.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--text-faint); }
+  .dialog-meta .v{ font-family:"IBM Plex Mono",monospace; font-size:13px; color:var(--text); }
+
+  .dialog-section{ margin-top:16px; }
+  .dialog-section .k{ font-size:10.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--text-faint); margin-bottom:6px; display:block; }
+  .dialog-section p{ margin:0; font-size:14px; line-height:1.55; color:var(--text); }
+  .dlg-tasks{ display:flex; flex-direction:column; gap:7px; }
+  .dlg-task{ display:flex; align-items:flex-start; gap:9px; font-size:13.5px; color:var(--text); cursor:pointer; }
+  .dlg-task input[type="checkbox"]{ width:15px; height:15px; margin-top:2px; accent-color:var(--main); flex:none; cursor:pointer; }
+  .dlg-task.is-done span{ color:var(--text-faint); text-decoration:line-through; }
+  .deps{ display:flex; flex-wrap:wrap; gap:6px; }
+  .dep-chip{
+    font-family:"IBM Plex Mono",monospace; font-size:11.5px; padding:4px 9px; border-radius:6px;
+    background:var(--surface-2); border:1px solid var(--border); color:var(--text-muted); cursor:pointer;
+  }
+  .dep-chip:hover{ color:var(--text); border-color:var(--text-faint); }
+
+  footer{ text-align:center; font-size:11.5px; color:var(--text-faint); }
+
+  .diag-banner{
+    background:#3B1A1A; border:1px solid #7A3B3B; color:#F5C8C8;
+    font-family:"IBM Plex Mono",monospace; font-size:12.5px; line-height:1.5;
+    padding:12px 14px; border-radius:8px; white-space:pre-wrap; word-break:break-word;
+  }
+</style>
+
+<div class="wrap">
+
+  <div class="diag-banner" id="diagBanner" hidden></div>
+
+  <a class="back-link" href="group-project-management.html">&larr; Project Management</a>
+
+  <header>
+    <div class="eyebrow">Onsor &middot; Hardware Roadmap</div>
+    <h1>Laptops Roadmap Timeline</h1>
+    <p class="lede">Technology exploration through mass production and shipment readiness &mdash; click any bar or milestone for the phase brief, or switch to Phase Table to edit dates and add phases.</p>
+    <div class="stat-strip">
+      <div class="stat"><b class="tabular" id="statWindow">&nbsp;</b><span>Window</span></div>
+      <div class="stat"><b class="tabular" id="statDays">&nbsp;</b><span>Days</span></div>
+      <div class="stat"><b class="tabular" id="statWorkstreams">&nbsp;</b><span>Workstreams</span></div>
+      <div class="stat"><b class="tabular" id="statMilestones">&nbsp;</b><span>Milestones</span></div>
+    </div>
+  </header>
+
+  <div class="view-tabs" role="tablist" aria-label="View">
+    <button type="button" class="view-tab" id="tabTimeline" data-view="timeline" role="tab" aria-selected="true">Timeline</button>
+    <button type="button" class="view-tab" id="tabEditor" data-view="editor" role="tab" aria-selected="false">Phase Table</button>
+  </div>
+
+  <section class="view" id="viewTimeline" role="tabpanel">
+    <div class="controls" role="group" aria-label="Filter by workstream">
+      <span class="controls-label">Show</span>
+      <button class="chip" data-filter="all" aria-pressed="true" style="--dotcolor:var(--text)"><span class="dot"></span>All</button>
+      <button class="chip" data-filter="main" aria-pressed="true" style="--dotcolor:var(--main)"><span class="dot"></span>Main path</button>
+      <button class="chip" data-filter="eng" aria-pressed="true" style="--dotcolor:var(--eng)"><span class="dot"></span>Engineering</button>
+      <button class="chip" data-filter="supply" aria-pressed="true" style="--dotcolor:var(--supply)"><span class="dot"></span>Supply chain</button>
+      <button class="chip" data-filter="milestone" aria-pressed="true" style="--dotcolor:var(--milestone)"><span class="dot"></span>Milestones</button>
+    </div>
+
+    <div class="card">
+      <div class="gantt-scroll">
+        <div class="gantt-grid" id="ganttGrid">
+          <!-- built by JS -->
+        </div>
+      </div>
+      <div class="card-foot">
+        <div class="legend">
+          <div class="legend-item"><span class="legend-swatch" style="background:var(--main)"></span>Main path</div>
+          <div class="legend-item"><span class="legend-swatch" style="background:var(--eng)"></span>Engineering validation</div>
+          <div class="legend-item"><span class="legend-swatch" style="background:var(--supply)"></span>Supply chain</div>
+          <div class="legend-item"><span class="legend-swatch diamond" style="background:var(--milestone)"></span>Milestone</div>
+        </div>
+        <div class="tabular mono" id="todayLabel"></div>
+      </div>
+    </div>
+
+    <footer>Dates as provided by the project owner &middot; durations are planning estimates until confirmed by contract/PO.</footer>
+  </section>
+
+  <section class="view" id="viewEditor" role="tabpanel" hidden>
+    <div class="editor-toolbar">
+      <div class="save-status" id="saveStatus"><span class="dot"></span><span id="saveStatusText">Loading&hellip;</span></div>
+      <div class="toolbar-actions">
+        <button type="button" class="btn" id="importBtn">&#8593; Import from Excel</button>
+        <input type="file" id="importFile" accept=".xlsx,.xls" hidden>
+        <button type="button" class="btn btn-primary" id="addPhaseBtn">+ Add phase</button>
+      </div>
+    </div>
+    <div id="importStatus" class="import-status" hidden></div>
+    <div id="readonlyBanner" class="readonly-banner" hidden>Live sync isn&rsquo;t available in this view, so edits here stay local to this browser tab and won&rsquo;t be saved or reflected for other viewers.</div>
+
+    <div class="card">
+      <div class="table-scroll">
+        <table class="phase-table">
+          <thead>
+            <tr>
+              <th class="col-order"></th>
+              <th class="col-id">Phase</th>
+              <th>Task</th>
+              <th class="col-track">Workstream</th>
+              <th class="col-date">Start date</th>
+              <th class="col-date">End date</th>
+              <th class="col-actions"></th>
+            </tr>
+          </thead>
+          <tbody id="phaseTableBody"><!-- built by JS --></tbody>
+        </table>
+      </div>
+    </div>
+    <footer>Click &hellip; on a row for owner, dependencies and notes &middot; changes reflect on the Timeline tab instantly and autosave a moment later.</footer>
+  </section>
+
+</div>
+
+<div class="backdrop" id="backdrop" role="dialog" aria-modal="true" aria-labelledby="dlgTitle">
+  <div class="dialog" id="dialog">
+    <div class="dialog-top">
+      <span class="dialog-id" id="dlgId"></span>
+      <button class="dialog-close" id="dlgClose" aria-label="Close">&times;</button>
+    </div>
+    <h2 id="dlgTitle"></h2>
+    <span class="status-pill" id="dlgStatus"><span class="dot"></span><span id="dlgStatusText"></span></span>
+
+    <div class="dialog-meta">
+      <div><span class="k">Start</span><span class="v tabular" id="dlgStart"></span></div>
+      <div><span class="k">End</span><span class="v tabular" id="dlgEnd"></span></div>
+      <div><span class="k">Duration</span><span class="v tabular" id="dlgDuration"></span></div>
+      <div><span class="k">Owner</span><span class="v" id="dlgOwner"></span></div>
+    </div>
+
+    <div class="dialog-section">
+      <span class="k">Notes</span>
+      <p id="dlgNotes"></p>
+    </div>
+
+    <div class="dialog-section" id="dlgTasksWrap">
+      <span class="k">Tasks</span>
+      <div class="dlg-tasks" id="dlgTasks"></div>
+    </div>
+
+    <div class="dialog-section" id="dlgDepsWrap">
+      <span class="k">Depends on</span>
+      <div class="deps" id="dlgDeps"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  function showDiag(msg){
+    try {
+      var b = document.getElementById("diagBanner");
+      if (!b) return;
+      b.hidden = false;
+      b.textContent = "Something went wrong on this page: " + msg + "\n\nPlease screenshot this message and share it so it can be fixed.";
+    } catch (ignored) { /* nothing more we can do */ }
+  }
+  window.addEventListener("error", function(e){ showDiag(e && e.message ? e.message : "unknown script error"); });
+  window.addEventListener("unhandledrejection", function(e){
+    var reason = e && e.reason;
+    showDiag(reason && reason.message ? reason.message : String(reason));
+  });
+
+  try {
+
+  var TRACK_META = {
+    main:      { label:"Main path",   soft:"main-soft" },
+    eng:       { label:"Engineering", soft:"eng-soft" },
+    supply:    { label:"Supply chain",soft:"supply-soft" },
+    milestone: { label:"Milestone",   soft:"milestone-soft" }
+  };
+
+  var DEFAULT_PHASES = [
+    {id:"P1",  name:"Technology Exploration", track:"main", start:"2026-09-01", end:"2026-09-05", owner:"Product / Engineering", deps:[], notes:"Explore new laptop production technology; the roadmap's scope now shifts to focus on laptops."},
+    {id:"P2",  name:"Device Specs & Persona Definition", track:"main", start:"2026-09-05", end:"2026-09-30", owner:"Product Management", deps:["P1"], notes:"Build out device specs, gather user feedback, and decide each device's persona and target customers."},
+    {id:"P3",  name:"ODM/SI RFI & Device Recommendation", track:"main", start:"2026-10-01", end:"2026-10-31", owner:"Sourcing / Procurement", deps:["P2"], notes:"Float technical and non-technical requirements to laptop ODMs/SIs and request recommended devices that fit the requirements."},
+    {id:"P4",  name:"Offer Evaluation", track:"main", start:"2026-10-31", end:"2026-11-15", owner:"Sourcing / Procurement", deps:["P3"], notes:"Evaluate the offers and recommended devices received from ODMs/SIs."},
+    {id:"P5",  name:"Device Customization & Functionality Testing", track:"main", start:"2026-11-15", end:"2026-12-15", owner:"Engineering", deps:["P4"], notes:"Customize the selected devices while conducting device functionality testing in parallel."},
+    {id:"P6",  name:"First Order Placement", track:"milestone", start:"2026-12-31", end:"2026-12-31", owner:"Procurement", deps:["P5"], notes:"Milestone: place the first purchase order with the selected ODM/SI."},
+    {id:"P7",  name:"Tooling Customization", track:"main", start:"2027-01-01", end:"2027-02-12", owner:"Engineering / ODM", deps:["P6"], notes:"Six weeks of tooling customization, running in parallel with DVT and EVT."},
+    {id:"P7b", name:"DVT — Design Validation Testing", track:"eng", start:"2027-01-01", end:"2027-02-12", owner:"Quality / Engineering", deps:["P6"], notes:"Runs concurrently with tooling customization and EVT."},
+    {id:"P7c", name:"EVT — Engineering Validation Testing", track:"eng", start:"2027-01-01", end:"2027-02-12", owner:"Quality / Engineering", deps:["P6"], notes:"Runs concurrently with tooling customization and DVT."},
+    {id:"P8",  name:"PVT — Production Validation Testing", track:"main", start:"2027-02-12", end:"2027-02-19", owner:"Quality / Engineering", deps:["P7"], notes:"One week of production validation testing, starting once tooling is ready."},
+    {id:"P8b", name:"T0 / T1 / T2 Tooling Trials", track:"eng", start:"2027-02-12", end:"2027-02-19", owner:"Engineering / ODM", deps:["P7"], notes:"Contingent tooling trial rounds run alongside PVT — only if required."},
+    {id:"P9",  name:"Cases Order", track:"supply", start:"2027-02-19", end:"2027-04-02", owner:"Procurement", deps:["P8"], notes:"Six-week case order placed with the tooling supplier once PVT/tooling is complete."},
+    {id:"P9b", name:"PCB Order", track:"supply", start:"2027-02-19", end:"2027-04-02", owner:"Procurement", deps:["P8"], notes:"Placed with the PCB supplier at the same time as the cases order."},
+    {id:"P10", name:"Material Preparation (BOM)", track:"supply", start:"2027-02-19", end:"2027-04-02", owner:"Supply Chain", deps:["P8"], notes:"Six weeks to prepare every bill-of-materials item, running in parallel with the cases/PCB orders."},
+    {id:"P11", name:"Trial Mass Production + Testing", track:"main", start:"2027-04-02", end:"2027-04-09", owner:"Manufacturing", deps:["P9","P9b","P10"], notes:"Trial MP build, followed by one week of testing on the trial run's output."},
+    {id:"P12", name:"Mass Production (MP)", track:"main", start:"2027-04-09", end:"2027-04-23", owner:"Manufacturing", deps:["P11"], notes:"Two weeks of full mass production."},
+    {id:"P13", name:"Inspection", track:"main", start:"2027-04-23", end:"2027-04-25", owner:"Quality", deps:["P12"], notes:"Two days of final quality inspection."},
+    {id:"P14", name:"Goods Ready to Ship", track:"milestone", start:"2027-04-25", end:"2027-04-25", owner:"Logistics", deps:["P13"], notes:"Milestone: devices pass inspection and are ready to ship — end of the roadmap."}
+  ];
+
+  var state = { phases: DEFAULT_PHASES.map(cloneDeep) };
+  var expandedIds = {};
+  var ganttExpandedIds = {};
+  var dbDocRef = null;
+  var saveTimer = null;
+  var firstSnapshotHandled = false;
+
+  function cloneDeep(p){
+    return {
+      id:p.id, name:p.name, track:p.track, start:p.start, end:p.end, owner:p.owner,
+      deps:p.deps.slice(), notes:p.notes,
+      tasks:(p.tasks || []).map(function(t){ return { text:t.text, done:!!t.done }; })
+    };
+  }
+
+  function escapeHtml(s){
+    return String(s == null ? "" : s).replace(/[&<>]/g, function(c){
+      return c === "&" ? "&amp;" : (c === "<" ? "&lt;" : "&gt;");
+    });
+  }
+  function escAttr(s){ return escapeHtml(s).replace(/"/g, "&quot;"); }
+
+  var DAY_MS = 86400000;
+  function toDate(s){ var p=s.split("-"); return new Date(Date.UTC(+p[0],+p[1]-1,+p[2])); }
+  function dayDiff(a,b){ return Math.round((toDate(b)-toDate(a))/DAY_MS); }
+  function addDays(iso, n){ var d=toDate(iso); d.setUTCDate(d.getUTCDate()+n); return d.toISOString().slice(0,10); }
+  function fmtDate(s){
+    return toDate(s).toLocaleDateString("en-GB",{ day:"2-digit", month:"short", year:"numeric", timeZone:"UTC" });
+  }
+  function todayISO(){
+    var now = new Date();
+    return new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate())).toISOString().slice(0,10);
+  }
+
+  var TRACK_W = 1560;               // px, matches grid-template-columns column 2
+  var PROJECT_START = "2026-09-01";
+  var PROJECT_END   = "2027-04-25";
+  var totalDays = 1;
+  var pxPerDay = 1;
+  function xOf(dateStr){ return dayDiff(PROJECT_START, dateStr) * pxPerDay; }
+
+  function computeBounds(phases){
+    if (!phases.length){ var t = todayISO(); return { start:t, end:addDays(t,1) }; }
+    var start = phases[0].start, end = phases[0].end;
+    phases.forEach(function(p){
+      if (p.start < start) start = p.start;
+      if (p.end > end) end = p.end;
+    });
+    if (end <= start) end = addDays(start, 1);
+    return { start:start, end:end };
+  }
+
+  function monthTicks(){
+    var ticks = [];
+    var d = toDate(PROJECT_START);
+    var cursor = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), 1));
+    var end = toDate(PROJECT_END);
+    while (cursor <= end){
+      var iso = cursor.toISOString().slice(0,10);
+      var label = cursor.toLocaleDateString("en-GB",{ month:"short", year:"2-digit", timeZone:"UTC" });
+      ticks.push({ x: Math.max(0, xOf(iso)), label: label });
+      cursor = new Date(Date.UTC(cursor.getUTCFullYear(), cursor.getUTCMonth()+1, 1));
+    }
+    return ticks;
+  }
+
+  function phaseStatus(p){
+    var t = todayISO();
+    if (t < p.start) return "upcoming";
+    if (t > p.end) return "done";
+    return "active";
+  }
+
+  var grid = document.getElementById("ganttGrid");
+  var phaseTableBody = document.getElementById("phaseTableBody");
+
+  // ---------------- Timeline rendering ----------------
+  function renderTimeline(phases){
+    var bounds = computeBounds(phases);
+    PROJECT_START = bounds.start;
+    PROJECT_END = bounds.end;
+    totalDays = Math.max(dayDiff(PROJECT_START, PROJECT_END), 1);
+    pxPerDay = TRACK_W / totalDays;
+
+    var html = "";
+    html += '<div class="g-label g-head-corner" style="grid-column:1"></div>';
+    html += '<div class="g-head-months" style="grid-column:2">';
+    monthTicks().forEach(function(t){
+      html += '<div class="month-tick" style="left:'+t.x.toFixed(1)+'px"><span>'+t.label+'</span></div>';
+    });
+    html += '</div>';
+
+    phases.forEach(function(p, i){
+      var isMilestone = p.track === "milestone";
+      var tasks = p.tasks || [];
+      var hasTasks = tasks.length > 0;
+      var isOpen = hasTasks && !!ganttExpandedIds[p.id];
+      var doneCount = tasks.filter(function(t){ return t.done; }).length;
+
+      html += '<div class="g-label" data-row="'+i+'">';
+      html += '<div class="g-label-top">';
+      html += '<span class="pid mono">'+escapeHtml(p.id)+'</span>';
+      if (hasTasks){
+        html += '<button type="button" class="g-expand-btn'+(isOpen?" is-open":"")+'" data-toggle-tasks="'+escAttr(p.id)+'" aria-expanded="'+(isOpen?"true":"false")+'" aria-label="'+(isOpen?"Hide":"Show")+' tasks for '+escAttr(p.name)+'">&#9656;</button>';
+        html += '<span class="g-task-badge">'+doneCount+'/'+tasks.length+'</span>';
+      }
+      html += '</div>';
+      html += '<div class="pname">'+escapeHtml(p.name)+'</div>';
+      html += '</div>';
+      html += '<div class="g-track" data-row="'+i+'" style="grid-column:2">';
+      html += '<div class="row-grid">';
+      monthTicks().forEach(function(t){
+        html += '<div class="gl" style="left:'+t.x.toFixed(1)+'px"></div>';
+      });
+      html += '</div>';
+      if (isMilestone){
+        var mx = xOf(p.start);
+        html += '<div class="milestone" tabindex="0" role="button" aria-label="'+escAttr(p.name)+'" style="left:'+mx.toFixed(1)+'px" data-id="'+escAttr(p.id)+'"></div>';
+      } else {
+        var bx = xOf(p.start), bw = Math.max(xOf(p.end) - bx, 6);
+        var dur = dayDiff(p.start, p.end);
+        html += '<div class="bar track-'+p.track+'" tabindex="0" role="button" aria-label="'+escAttr(p.name)+'" style="left:'+bx.toFixed(1)+'px;width:'+bw.toFixed(1)+'px" data-id="'+escAttr(p.id)+'">';
+        if (bw > 46) html += '<span class="bar-label">'+dur+'d</span>';
+        html += '</div>';
+      }
+      html += '</div>';
+
+      if (isOpen){
+        tasks.forEach(function(t, ti){
+          html += '<div class="g-sublabel'+(t.done?" is-done":"")+'" data-parent-row="'+i+'">'
+            + '<label>'
+            + '<input type="checkbox" data-gantt-phase-id="'+escAttr(p.id)+'" data-gantt-task-idx="'+ti+'"'+(t.done?" checked":"")+'>'
+            + '<span class="subtask-text">'+escapeHtml(t.text || "Untitled task")+'</span>'
+            + '</label>'
+            + '</div>';
+          html += '<div class="g-subtrack" data-parent-row="'+i+'" style="grid-column:2"></div>';
+        });
+      }
+    });
+
+    grid.innerHTML = html;
+
+    var todayX = xOf(todayISO());
+    var todayInRange = todayISO() >= PROJECT_START && todayISO() <= PROJECT_END;
+    if (todayInRange){
+      var line = document.createElement("div");
+      line.className = "today-line";
+      line.style.gridColumn = "2";
+      line.style.gridRow = "1 / -1";
+      line.style.left = todayX.toFixed(1) + "px";
+      line.innerHTML = '<span class="tag">Today</span>';
+      grid.appendChild(line);
+    }
+
+    document.getElementById("todayLabel").textContent = "Today — " + fmtDate(todayISO());
+    document.getElementById("statWindow").textContent = fmtDate(PROJECT_START) + " → " + fmtDate(PROJECT_END);
+    document.getElementById("statDays").textContent = String(totalDays);
+    document.getElementById("statWorkstreams").textContent = String(phases.filter(function(p){ return p.track !== "milestone"; }).length);
+    document.getElementById("statMilestones").textContent = String(phases.filter(function(p){ return p.track === "milestone"; }).length);
+
+    applyFilters();
+  }
+
+  // ---------------- Phase detail dialog ----------------
+  var backdrop = document.getElementById("backdrop");
+  var lastFocused = null;
+  var currentDialogPhaseId = null;
+  var STATUS_LABEL = { upcoming:"Not started", active:"In progress", done:"Complete" };
+  var STATUS_CLASS  = { upcoming:"status-upcoming", active:"status-active", done:"status-done" };
+
+  function findPhase(id){
+    var found = null;
+    state.phases.forEach(function(p){ if (p.id === id) found = p; });
+    return found;
+  }
+
+  function openPhase(id){
+    var p = findPhase(id);
+    if (!p) return;
+    currentDialogPhaseId = id;
+    var meta = TRACK_META[p.track] || TRACK_META.main;
+    var status = phaseStatus(p);
+    var isMilestone = p.track === "milestone";
+
+    var idEl = document.getElementById("dlgId");
+    idEl.textContent = p.id + " · " + meta.label;
+    idEl.style.background = "var(--" + meta.soft + ")";
+    idEl.style.color = "var(--" + p.track + ")";
+
+    document.getElementById("dlgTitle").textContent = p.name;
+
+    var statusPill = document.getElementById("dlgStatus");
+    statusPill.className = "status-pill " + STATUS_CLASS[status];
+    document.getElementById("dlgStatusText").textContent = STATUS_LABEL[status];
+
+    document.getElementById("dlgStart").textContent = fmtDate(p.start);
+    document.getElementById("dlgEnd").textContent = fmtDate(p.end);
+    var dur = dayDiff(p.start, p.end);
+    document.getElementById("dlgDuration").textContent = isMilestone ? "Milestone" : (dur + (dur===1?" day":" days"));
+    document.getElementById("dlgOwner").textContent = p.owner || "—";
+    document.getElementById("dlgNotes").textContent = p.notes || "—";
+
+    var tasksWrap = document.getElementById("dlgTasksWrap");
+    var tasksEl = document.getElementById("dlgTasks");
+    if (p.tasks && p.tasks.length){
+      tasksWrap.style.display = "";
+      tasksEl.innerHTML = p.tasks.map(function(t, ti){
+        return '<label class="dlg-task'+(t.done?" is-done":"")+'" data-task-idx="'+ti+'">'
+          + '<input type="checkbox"'+(t.done?" checked":"")+'>'
+          + '<span>'+escapeHtml(t.text || "Untitled task")+'</span>'
+          + '</label>';
+      }).join("");
+    } else {
+      tasksWrap.style.display = "none";
+    }
+
+    var depsWrap = document.getElementById("dlgDepsWrap");
+    var depsEl = document.getElementById("dlgDeps");
+    if (p.deps.length){
+      depsWrap.style.display = "";
+      depsEl.innerHTML = p.deps.map(function(d){ return '<button class="dep-chip mono" data-id="'+escAttr(d)+'">'+escapeHtml(d)+'</button>'; }).join("");
+    } else {
+      depsWrap.style.display = "none";
+    }
+
+    lastFocused = document.activeElement;
+    backdrop.classList.add("open");
+    document.getElementById("dlgClose").focus();
+  }
+
+  function closeDialog(){
+    backdrop.classList.remove("open");
+    if (lastFocused && lastFocused.focus) lastFocused.focus();
+  }
+
+  grid.addEventListener("click", function(e){
+    try {
+      var toggle = e.target.closest("[data-toggle-tasks]");
+      if (toggle){
+        var pid = toggle.getAttribute("data-toggle-tasks");
+        ganttExpandedIds[pid] = !ganttExpandedIds[pid];
+        renderTimeline(state.phases);
+        return;
+      }
+      var t = e.target.closest("[data-id]");
+      if (t) openPhase(t.getAttribute("data-id"));
+    } catch (err) { showDiag((err && err.message) ? err.message : String(err)); }
+  });
+  grid.addEventListener("keydown", function(e){
+    if (e.key !== "Enter" && e.key !== " ") return;
+    var toggle = e.target.closest("[data-toggle-tasks]");
+    if (toggle){ e.preventDefault(); toggle.click(); return; }
+    var t = e.target.closest("[data-id]");
+    if (t){ e.preventDefault(); openPhase(t.getAttribute("data-id")); }
+  });
+  grid.addEventListener("change", function(e){
+    try {
+      var cb = e.target;
+      if (cb.type !== "checkbox" || !cb.hasAttribute("data-gantt-phase-id")) return;
+      var phaseId = cb.getAttribute("data-gantt-phase-id");
+      var ti = +cb.getAttribute("data-gantt-task-idx");
+      var p = findPhase(phaseId);
+      if (!p || !p.tasks || !p.tasks[ti]) return;
+      p.tasks[ti].done = cb.checked;
+      renderTimeline(state.phases);
+      scheduleSave();
+    } catch (err) { showDiag((err && err.message) ? err.message : String(err)); }
+  });
+
+  document.getElementById("dlgDeps").addEventListener("click", function(e){
+    var t = e.target.closest("[data-id]");
+    if (t) openPhase(t.getAttribute("data-id"));
+  });
+
+  document.getElementById("dlgTasks").addEventListener("change", function(e){
+    try {
+      var t = e.target;
+      if (t.type !== "checkbox") return;
+      var label = t.closest("[data-task-idx]");
+      if (!label) return;
+      var ti = +label.getAttribute("data-task-idx");
+      var p = findPhase(currentDialogPhaseId);
+      if (!p || !p.tasks[ti]) return;
+      p.tasks[ti].done = t.checked;
+      label.classList.toggle("is-done", t.checked);
+      scheduleSave();
+    } catch (e) { showDiag((e && e.message) ? e.message : String(e)); }
+  });
+
+  document.getElementById("dlgClose").addEventListener("click", closeDialog);
+  backdrop.addEventListener("click", function(e){ if (e.target === backdrop) closeDialog(); });
+  document.addEventListener("keydown", function(e){
+    if (e.key === "Escape" && backdrop.classList.contains("open")) closeDialog();
+  });
+
+  // ---------------- filters ----------------
+  var chips = Array.prototype.slice.call(document.querySelectorAll(".chip"));
+  var active = { all:true, main:true, eng:true, supply:true, milestone:true };
+
+  function applyFilters(){
+    var anySingleOff = !active.main || !active.eng || !active.supply || !active.milestone;
+    document.querySelector('[data-filter="all"]').setAttribute("aria-pressed", String(!anySingleOff));
+    state.phases.forEach(function(p, i){
+      var on = active[p.track];
+      var label = grid.querySelector('.g-label[data-row="'+i+'"]');
+      var track = grid.querySelector('.g-track[data-row="'+i+'"]');
+      [label, track].forEach(function(el){ if (el) el.classList.toggle("dim", !on); });
+      var subEls = grid.querySelectorAll('[data-parent-row="'+i+'"]');
+      for (var s = 0; s < subEls.length; s++) subEls[s].classList.toggle("dim", !on);
+    });
+  }
+
+  chips.forEach(function(chip){
+    chip.addEventListener("click", function(){
+      var f = chip.getAttribute("data-filter");
+      if (f === "all"){
+        active = { all:true, main:true, eng:true, supply:true, milestone:true };
+        chips.forEach(function(c){ c.setAttribute("aria-pressed","true"); });
+      } else {
+        active[f] = !active[f];
+        chip.setAttribute("aria-pressed", String(active[f]));
+      }
+      applyFilters();
+    });
+  });
+
+  // ---------------- View tabs ----------------
+  var tabTimeline = document.getElementById("tabTimeline");
+  var tabEditor = document.getElementById("tabEditor");
+  var viewTimeline = document.getElementById("viewTimeline");
+  var viewEditor = document.getElementById("viewEditor");
+
+  function selectView(v){
+    tabTimeline.setAttribute("aria-selected", String(v === "timeline"));
+    tabEditor.setAttribute("aria-selected", String(v === "editor"));
+    viewTimeline.hidden = v !== "timeline";
+    viewEditor.hidden = v !== "editor";
+  }
+  tabTimeline.addEventListener("click", function(){ selectView("timeline"); });
+  tabEditor.addEventListener("click", function(){ selectView("editor"); renderEditor(state.phases); });
+
+  // ---------------- Phase table (editor) ----------------
+  function trackOptions(current){
+    return ["main","eng","supply","milestone"].map(function(k){
+      return '<option value="'+k+'"'+(k===current?" selected":"")+'>'+TRACK_META[k].label+'</option>';
+    }).join("");
+  }
+
+  function phaseRowHTML(p, idx, total, expanded){
+    var isMilestone = p.track === "milestone";
+    var tasks = p.tasks || [];
+    var doneCount = tasks.filter(function(t){ return t.done; }).length;
+    var taskBadge = tasks.length
+      ? '<span class="task-count" title="'+doneCount+' of '+tasks.length+' tasks done">'+doneCount+'/'+tasks.length+'</span>'
+      : '';
+    var mainRow = ''
+      + '<tr class="phase-row" data-idx="'+idx+'">'
+      +   '<td class="col-order"><div class="order-btns">'
+      +     '<button type="button" class="icon-btn" data-act="up" aria-label="Move up"'+(idx===0?" disabled":"")+'>&uarr;</button>'
+      +     '<button type="button" class="icon-btn" data-act="down" aria-label="Move down"'+(idx===total-1?" disabled":"")+'>&darr;</button>'
+      +   '</div></td>'
+      +   '<td class="col-id">'+escapeHtml(p.id)+'</td>'
+      +   '<td><input type="text" class="cell-input" data-field="name" value="'+escAttr(p.name)+'" aria-label="Task"></td>'
+      +   '<td class="col-track"><select class="cell-input" data-field="track" aria-label="Workstream">'+trackOptions(p.track)+'</select></td>'
+      +   '<td class="col-date"><input type="date" class="cell-input" data-field="start" value="'+escAttr(p.start)+'" aria-label="Start date"></td>'
+      +   '<td class="col-date"><input type="date" class="cell-input" data-field="end" value="'+escAttr(p.end)+'"'+(isMilestone?" disabled":"")+' aria-label="End date"></td>'
+      +   '<td class="col-actions">'
+      +     taskBadge
+      +     '<button type="button" class="icon-btn" data-act="toggle" aria-label="More details" aria-expanded="'+(expanded?"true":"false")+'">&hellip;</button>'
+      +     '<button type="button" class="icon-btn danger" data-act="remove" aria-label="Remove phase">&times;</button>'
+      +   '</td>'
+      + '</tr>';
+    var taskRowsHtml = tasks.map(function(t, ti){
+      return '<div class="task-row'+(t.done?" is-done":"")+'" data-task-idx="'+ti+'">'
+        + '<input type="checkbox" data-field="task-done"'+(t.done?" checked":"")+' aria-label="Task done">'
+        + '<input type="text" class="cell-input" data-field="task-text" value="'+escAttr(t.text)+'" placeholder="Task" aria-label="Task description">'
+        + '<button type="button" class="icon-btn danger" data-act="task-remove" aria-label="Remove task">&times;</button>'
+        + '</div>';
+    }).join("") || '<div class="task-empty">No tasks yet</div>';
+    var detailRow = ''
+      + '<tr class="detail-row" data-idx="'+idx+'"'+(expanded?"":" hidden")+'>'
+      +   '<td colspan="7"><div class="detail-grid">'
+      +     '<label class="field"><span>Owner</span><input type="text" data-field="owner" value="'+escAttr(p.owner)+'"></label>'
+      +     '<label class="field span2"><span>Depends on (IDs, comma-separated)</span><input type="text" data-field="deps" value="'+escAttr(p.deps.join(", "))+'"></label>'
+      +     '<label class="field span2"><span>Notes</span><textarea data-field="notes" rows="2">'+escapeHtml(p.notes)+'</textarea></label>'
+      +   '</div>'
+      +   '<div class="tasks-block">'
+      +     '<div class="tasks-head"><span>Tasks</span><button type="button" class="icon-btn" data-act="task-add" aria-label="Add task">+</button></div>'
+      +     '<div class="task-list">' + taskRowsHtml + '</div>'
+      +   '</div>'
+      +   '</td>'
+      + '</tr>';
+    return mainRow + detailRow;
+  }
+
+  function renderEditor(phases){
+    phaseTableBody.innerHTML = phases.map(function(p, i){
+      return phaseRowHTML(p, i, phases.length, !!expandedIds[p.id]);
+    }).join("");
+  }
+
+  function makeId(){
+    var base;
+    do {
+      base = "phase-" + Math.random().toString(36).slice(2,7);
+    } while (state.phases.some(function(p){ return p.id === base; }));
+    return base;
+  }
+
+  document.getElementById("addPhaseBtn").addEventListener("click", function(){
+    try {
+      var today = todayISO();
+      state.phases.push({ id:makeId(), name:"New Phase", track:"main", start:today, end:addDays(today,7), owner:"", deps:[], notes:"" });
+      renderEditor(state.phases);
+      renderTimeline(state.phases);
+      scheduleSave();
+      var rows = phaseTableBody.querySelectorAll("tr.phase-row");
+      var lastRow = rows[rows.length - 1];
+      if (lastRow){ var nameInput = lastRow.querySelector('[data-field="name"]'); if (nameInput){ nameInput.focus(); nameInput.select(); } }
+    } catch (e) { showDiag((e && e.message) ? e.message : String(e)); }
+  });
+
+  // ---------------- Excel import ----------------
+  var importStatusEl = document.getElementById("importStatus");
+  function showImportStatus(kind, msg){
+    importStatusEl.hidden = false;
+    importStatusEl.className = "import-status" + (kind === "error" ? " is-error" : kind === "success" ? " is-success" : "");
+    importStatusEl.textContent = msg;
+  }
+
+  var FIELD_PATTERNS = {
+    id:    [/^phase\s*#$/i, /^id$/i, /^phase\s*no\.?$/i],
+    name:  [/phase\s*\/\s*milestone/i, /^task$/i, /^phase\s*\/\s*task$/i, /^name$/i, /^milestone$/i, /^phase$/i],
+    track: [/workstream/i, /^track$/i],
+    start: [/start\s*date/i, /^start$/i],
+    end:   [/end\s*date/i, /^end$/i, /finish/i],
+    owner: [/^owner$/i],
+    deps:  [/depends?\s*on/i, /dependenc/i],
+    notes: [/^notes?$/i, /description/i],
+    tasks: [/^tasks$/i, /checklist/i, /sub-?tasks?/i, /to-?do/i]
+  };
+  var FIELD_ORDER = ["id","name","track","start","end","owner","deps","notes","tasks"];
+
+  function findHeaderRow(rows){
+    for (var i = 0; i < Math.min(rows.length, 15); i++){
+      var cells = (rows[i] || []).map(function(c){ return String(c == null ? "" : c).toLowerCase(); });
+      var hasName = cells.some(function(c){ return /phase|task|name|milestone/.test(c); });
+      var hasStart = cells.some(function(c){ return /start/.test(c); });
+      var hasEnd = cells.some(function(c){ return /end|finish/.test(c); });
+      if (hasName && hasStart && hasEnd) return i;
+    }
+    return -1;
+  }
+
+  function mapColumns(headerRow){
+    var map = {};
+    headerRow.forEach(function(cell, colIdx){
+      var text = String(cell == null ? "" : cell).trim();
+      if (!text) return;
+      for (var i = 0; i < FIELD_ORDER.length; i++){
+        var field = FIELD_ORDER[i];
+        if (map[field] !== undefined) continue;
+        var patterns = FIELD_PATTERNS[field];
+        for (var j = 0; j < patterns.length; j++){
+          if (patterns[j].test(text)){ map[field] = colIdx; break; }
+        }
+        if (map[field] !== undefined) break;
+      }
+    });
+    return map;
+  }
+
+  function normalizeTrack(v){
+    var s = String(v == null ? "" : v).toLowerCase();
+    if (/milestone/.test(s)) return "milestone";
+    if (/supply/.test(s)) return "supply";
+    if (/eng/.test(s)) return "eng";
+    return "main";
+  }
+
+  function parseDateCell(v){
+    if (v == null || v === "") return null;
+    if (v instanceof Date){
+      if (isNaN(v.getTime())) return null;
+      return v.toISOString().slice(0,10);
+    }
+    if (typeof v === "number"){
+      var ms = Math.round((v - 25569) * 86400000);
+      var d = new Date(ms);
+      if (isNaN(d.getTime())) return null;
+      return d.toISOString().slice(0,10);
+    }
+    var s = String(v).trim();
+    if (!s) return null;
+    var isoMatch = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (isoMatch) return isoMatch[0].slice(0,10);
+    var parsed = new Date(s);
+    if (!isNaN(parsed.getTime())) return parsed.toISOString().slice(0,10);
+    return null;
+  }
+
+  function importWorkbook(arrayBuffer, filename){
+    if (typeof XLSX === "undefined"){
+      showImportStatus("error", "The Excel reader didn't load (offline or blocked). Please check your connection and try again.");
+      return;
+    }
+    var wb;
+    try {
+      wb = XLSX.read(arrayBuffer, { type:"array", cellDates:true });
+    } catch (e){
+      showImportStatus("error", "Couldn't open \"" + filename + "\" — is it a valid .xlsx/.xls file?");
+      return;
+    }
+    var sheetName = wb.SheetNames.filter(function(n){ return /project\s*plan/i.test(n); })[0] || wb.SheetNames[0];
+    if (!sheetName){ showImportStatus("error", "That workbook doesn't have any sheets."); return; }
+    var ws = wb.Sheets[sheetName];
+    var rows = XLSX.utils.sheet_to_json(ws, { header:1, defval:"" });
+    var headerIdx = findHeaderRow(rows);
+    if (headerIdx === -1){
+      showImportStatus("error", "Couldn't find a header row with phase name, start date and end date columns on sheet \"" + sheetName + "\". Expected column headers like Task/Phase, Start Date, End Date.");
+      return;
+    }
+    var cols = mapColumns(rows[headerIdx]);
+    var missing = ["name","start","end"].filter(function(f){ return cols[f] === undefined; });
+    if (missing.length){
+      showImportStatus("error", "Missing required column(s): " + missing.join(", ") + ". Recognized headers: Phase #, Task/Phase/Milestone, Workstream, Start Date, End Date, Owner, Depends On, Notes, Tasks.");
+      return;
+    }
+
+    var imported = [];
+    var skipped = 0;
+    var usedIds = {};
+    for (var i = headerIdx + 1; i < rows.length; i++){
+      var r = rows[i] || [];
+      var name = cols.name !== undefined ? String(r[cols.name] || "").trim() : "";
+      var start = cols.start !== undefined ? parseDateCell(r[cols.start]) : null;
+      var end = cols.end !== undefined ? parseDateCell(r[cols.end]) : null;
+      if (!name && !start && !end) continue; // blank row
+      if (!name || !start || !end){ skipped++; continue; }
+      if (end < start) end = start;
+
+      var rawId = cols.id !== undefined ? String(r[cols.id] || "").trim() : "";
+      var id = rawId || ("P" + (imported.length + 1));
+      while (usedIds[id]){ id = id + "-2"; }
+      usedIds[id] = true;
+
+      var track = cols.track !== undefined ? normalizeTrack(r[cols.track]) : "main";
+      var owner = cols.owner !== undefined ? String(r[cols.owner] || "").trim() : "";
+      var depsRaw = cols.deps !== undefined ? String(r[cols.deps] || "").trim() : "";
+      var deps = depsRaw ? depsRaw.split(/[,;]/).map(function(s){ return s.trim(); }).filter(Boolean) : [];
+      var notes = cols.notes !== undefined ? String(r[cols.notes] || "").trim() : "";
+      var tasksRaw = cols.tasks !== undefined ? String(r[cols.tasks] || "").trim() : "";
+      var tasks = tasksRaw
+        ? tasksRaw.split(/[\n;]+/).map(function(s){ return s.trim(); }).filter(Boolean).map(function(s){ return { text:s, done:false }; })
+        : [];
+
+      imported.push({ id:id, name:name, track:track, start:start, end:end, owner:owner, deps:deps, notes:notes, tasks:tasks });
+    }
+
+    if (!imported.length){
+      showImportStatus("error", "Found the header row on sheet \"" + sheetName + "\" but no usable phase rows underneath it (each row needs a name, start date and end date).");
+      return;
+    }
+
+    expandedIds = {};
+    state.phases = imported;
+    renderEditor(state.phases);
+    renderTimeline(state.phases);
+    scheduleSave();
+
+    var msg = "Imported " + imported.length + " phase" + (imported.length===1?"":"s") + " from \"" + filename + "\" (sheet \"" + sheetName + "\"), replacing the current roadmap.";
+    if (skipped) msg += " Skipped " + skipped + " row" + (skipped===1?"":"s") + " missing a name, start or end date.";
+    showImportStatus("success", msg);
+  }
+
+  var importBtn = document.getElementById("importBtn");
+  var importFile = document.getElementById("importFile");
+  importBtn.addEventListener("click", function(){ importFile.click(); });
+  importFile.addEventListener("change", function(e){
+    try {
+      var file = e.target.files && e.target.files[0];
+      importFile.value = ""; // allow re-selecting the same file later
+      if (!file) return;
+      var reader = new FileReader();
+      reader.onerror = function(){ showImportStatus("error", "Couldn't read that file."); };
+      reader.onload = function(evt){
+        try {
+          importWorkbook(new Uint8Array(evt.target.result), file.name);
+        } catch (e){ showDiag((e && e.message) ? e.message : String(e)); }
+      };
+      reader.readAsArrayBuffer(file);
+    } catch (e){ showDiag((e && e.message) ? e.message : String(e)); }
+  });
+
+  phaseTableBody.addEventListener("input", function(e){
+   try {
+    var t = e.target;
+    var field = t.getAttribute("data-field");
+    if (!field) return;
+    var row = t.closest("tr[data-idx]");
+    if (!row) return;
+    var idx = +row.getAttribute("data-idx");
+    var p = state.phases[idx];
+    if (!p) return;
+    if (field === "task-text"){
+      var taskRow1 = t.closest("[data-task-idx]");
+      if (!taskRow1) return;
+      var ti1 = +taskRow1.getAttribute("data-task-idx");
+      if (!p.tasks || !p.tasks[ti1]) return;
+      p.tasks[ti1].text = t.value;
+      scheduleSave();
+      return;
+    }
+    if (field === "deps"){
+      p.deps = t.value.split(",").map(function(s){ return s.trim(); }).filter(Boolean);
+    } else if (field === "name" || field === "owner" || field === "notes"){
+      p[field] = t.value;
+    } else {
+      return;
+    }
+    renderTimeline(state.phases);
+    scheduleSave();
+   } catch (e) { showDiag((e && e.message) ? e.message : String(e)); }
+  });
+
+  phaseTableBody.addEventListener("change", function(e){
+   try {
+    var t = e.target;
+    var field = t.getAttribute("data-field");
+    if (!field) return;
+    var row = t.closest("tr[data-idx]");
+    if (!row) return;
+    var idx = +row.getAttribute("data-idx");
+    var p = state.phases[idx];
+    if (!p) return;
+    if (field === "task-done"){
+      var taskRow2 = t.closest("[data-task-idx]");
+      if (!taskRow2) return;
+      var ti2 = +taskRow2.getAttribute("data-task-idx");
+      if (!p.tasks || !p.tasks[ti2]) return;
+      p.tasks[ti2].done = t.checked;
+      taskRow2.classList.toggle("is-done", t.checked);
+      var doneCount2 = p.tasks.filter(function(x){ return x.done; }).length;
+      var badge = phaseTableBody.querySelector('tr.phase-row[data-idx="'+idx+'"] .task-count');
+      if (badge) badge.textContent = doneCount2 + "/" + p.tasks.length;
+      scheduleSave();
+      return;
+    }
+    if (field === "track"){
+      p.track = t.value;
+      if (p.track === "milestone") p.end = p.start;
+    } else if (field === "start"){
+      if (!t.value) return;
+      p.start = t.value;
+      if (p.track === "milestone") p.end = p.start;
+    } else if (field === "end"){
+      if (!t.value) return;
+      p.end = t.value;
+    } else {
+      return;
+    }
+    renderEditor(state.phases);
+    renderTimeline(state.phases);
+    scheduleSave();
+   } catch (e) { showDiag((e && e.message) ? e.message : String(e)); }
+  });
+
+  phaseTableBody.addEventListener("click", function(e){
+   try {
+    var btn = e.target.closest("[data-act]");
+    if (!btn) return;
+    var row = btn.closest("tr[data-idx]");
+    if (!row) return;
+    var idx = +row.getAttribute("data-idx");
+    var act = btn.getAttribute("data-act");
+    var p = state.phases[idx];
+    if (!p) return;
+    if (act === "toggle"){
+      expandedIds[p.id] = !expandedIds[p.id];
+      renderEditor(state.phases);
+      return;
+    }
+    if (act === "task-add"){
+      if (!p.tasks) p.tasks = [];
+      p.tasks.push({ text:"", done:false });
+      renderEditor(state.phases);
+      scheduleSave();
+      var newTaskInput = phaseTableBody.querySelector('tr.detail-row[data-idx="'+idx+'"] .task-row:last-child [data-field="task-text"]');
+      if (newTaskInput) newTaskInput.focus();
+      return;
+    }
+    if (act === "task-remove"){
+      var taskRow3 = btn.closest("[data-task-idx]");
+      if (!taskRow3 || !p.tasks) return;
+      var ti3 = +taskRow3.getAttribute("data-task-idx");
+      p.tasks.splice(ti3, 1);
+      renderEditor(state.phases);
+      scheduleSave();
+      return;
+    }
+    if (act === "remove"){
+      delete expandedIds[p.id];
+      state.phases.splice(idx, 1);
+    } else if (act === "up" && idx > 0){
+      var tmp = state.phases[idx-1]; state.phases[idx-1] = state.phases[idx]; state.phases[idx] = tmp;
+    } else if (act === "down" && idx < state.phases.length - 1){
+      var tmp2 = state.phases[idx+1]; state.phases[idx+1] = state.phases[idx]; state.phases[idx] = tmp2;
+    } else {
+      return;
+    }
+    renderEditor(state.phases);
+    renderTimeline(state.phases);
+    scheduleSave();
+   } catch (e) { showDiag((e && e.message) ? e.message : String(e)); }
+  });
+
+  // ---------------- Save status ----------------
+  var saveStatusEl = document.getElementById("saveStatus");
+  var saveStatusText = document.getElementById("saveStatusText");
+  function setSaveStatus(kind){
+    saveStatusEl.className = "save-status" + (kind === "saved" ? " is-saved" : kind === "pending" || kind === "saving" ? " is-pending" : kind === "error" ? " is-error" : "");
+    var labels = {
+      saved: "All changes saved",
+      pending: "Unsaved changes…",
+      saving: "Saving…",
+      error: "Couldn't save — will retry on the next edit",
+      local: "Editing locally — changes aren't saved",
+      loading: "Loading…"
+    };
+    saveStatusText.textContent = labels[kind] || "";
+  }
+
+  // ---------------- db wiring ----------------
+  function scheduleSave(){
+    if (!dbDocRef) { setSaveStatus("local"); return; }
+    setSaveStatus("pending");
+    if (saveTimer) clearTimeout(saveTimer);
+    saveTimer = setTimeout(doSave, 700);
+  }
+
+  function doSave(){
+    if (!dbDocRef) { setSaveStatus("local"); return; }
+    setSaveStatus("saving");
+    var payload = { phases: state.phases.map(cloneDeep), updatedAt: new Date().toISOString() };
+    dbDocRef.set(payload).then(function(){
+      setSaveStatus("saved");
+    }).catch(function(){
+      setSaveStatus("error");
+    });
+  }
+
+  function applySnapshot(phases){
+    // Snapshot data from the db is frozen/read-only — clone it into plain,
+    // mutable objects before treating it as the live editable state,
+    // otherwise pushing/editing later throws "object is not extensible".
+    state.phases = phases.map(cloneDeep);
+    renderTimeline(state.phases);
+    var active = document.activeElement;
+    var editingNow = active && phaseTableBody.contains(active);
+    if (!editingNow) renderEditor(state.phases);
+  }
+
+  function init(){
+    renderTimeline(state.phases);
+    renderEditor(state.phases);
+    setSaveStatus("loading");
+
+    if (!window.claude || typeof window.claude.use !== "function"){
+      setSaveStatus("local");
+      document.getElementById("readonlyBanner").hidden = false;
+      return;
+    }
+
+    window.claude.use("db").then(function(db){
+      if (!db){
+        setSaveStatus("local");
+        document.getElementById("readonlyBanner").hidden = false;
+        return;
+      }
+      dbDocRef = db.doc("roadmap/phases");
+      dbDocRef.onSnapshot(function(snap){
+        if (snap.exists){
+          var data = snap.data();
+          if (data && Array.isArray(data.phases) && data.phases.length){
+            applySnapshot(data.phases);
+            setSaveStatus(snap.metadata.hasPendingWrites ? "saving" : "saved");
+            firstSnapshotHandled = true;
+            return;
+          }
+        }
+        if (!firstSnapshotHandled){
+          setSaveStatus("saved");
+          firstSnapshotHandled = true;
+        }
+      }, function(){
+        dbDocRef = null;
+        setSaveStatus("local");
+        document.getElementById("readonlyBanner").hidden = false;
+      });
+    }).catch(function(){
+      setSaveStatus("local");
+      document.getElementById("readonlyBanner").hidden = false;
+    });
+  }
+
+  init();
+
+  } catch (e) {
+    showDiag((e && e.message) ? e.message : String(e));
+  }
+
+})();
+</script>
