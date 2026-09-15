@@ -65,11 +65,12 @@
 
   .editor-toolbar{ display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
   .toolbar-actions{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
-  .save-status{ font-size:12.5px; color:var(--text-faint); display:flex; align-items:center; gap:7px; }
+  .save-status{ font-size:12.5px; color:var(--text-faint); display:flex; align-items:center; gap:7px; flex-wrap:wrap; }
   .save-status .dot{ width:7px; height:7px; border-radius:50%; background:var(--text-faint); flex:none; }
   .save-status.is-saved .dot{ background:var(--eng); }
   .save-status.is-pending .dot{ background:var(--milestone); }
   .save-status.is-error .dot{ background:var(--today); }
+  .checked-text{ color:var(--text-faint); opacity:.7; }
 
   .btn{
     appearance:none; border:1px solid var(--border); background:var(--surface); color:var(--text);
@@ -182,7 +183,7 @@
   </header>
 
   <div class="editor-toolbar">
-    <div class="save-status" id="syncStatus"><span class="dot"></span><span id="syncStatusText">Loading ticket data&hellip;</span></div>
+    <div class="save-status" id="syncStatus"><span class="dot"></span><span id="syncStatusText">Loading ticket data&hellip;</span> <span id="checkedText" class="checked-text"></span></div>
     <div class="toolbar-actions">
       <button type="button" class="btn" id="refreshBtn">&#8635; Refresh now</button>
     </div>
@@ -326,6 +327,7 @@
   var statStrip = document.getElementById("statStrip");
   var syncStatusEl = document.getElementById("syncStatus");
   var syncStatusText = document.getElementById("syncStatusText");
+  var checkedTextEl = document.getElementById("checkedText");
   var errorBanner = document.getElementById("errorBanner");
   var refreshBtn = document.getElementById("refreshBtn");
 
@@ -447,6 +449,11 @@
     if (!ms) return "";
     try { return new Date(ms).toLocaleString(); } catch (e) { return ""; }
   }
+  function markChecked(){
+    if (!checkedTextEl) return;
+    try { checkedTextEl.textContent = "(checked " + new Date().toLocaleTimeString() + ")"; }
+    catch (e) { /* ignore */ }
+  }
 
   function handleData(data){
     var nodes = (data && data.issues && Array.isArray(data.issues.nodes)) ? data.issues.nodes : [];
@@ -458,6 +465,7 @@
     } else {
       setSyncStatus("pending", "Waiting for the first scheduled sync from Jira…");
     }
+    markChecked();
   }
 
   function loadData(){
@@ -467,6 +475,7 @@
       .catch(function(err){
         setSyncStatus("error", "Couldn't load ticket data");
         showError("Couldn't load the synced ticket data" + (err && err.message ? " (" + err.message + ")" : "") + ". It may not have finished syncing yet — try again in a few minutes.");
+        markChecked();
       });
   }
 
