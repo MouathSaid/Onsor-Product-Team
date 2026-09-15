@@ -142,11 +142,11 @@
   <header>
     <div class="eyebrow">Onsor · Technical Support</div>
     <h1>L3 Technical Ticketing</h1>
-    <p class="lede">Live overview of Jira project <a href="https://onsor.atlassian.net/browse/PPIER" target="_blank" rel="noopener">PPIER — Product Issue Escalation &amp; Resolution</a>. Refreshes automatically from Jira each time this page is open.</p>
+    <p class="lede">Overview of Jira project <a href="https://onsor.atlassian.net/browse/PPIER" target="_blank" rel="noopener">PPIER — Product Issue Escalation &amp; Resolution</a>. Ticket data is synced from Jira on a schedule (roughly every 15&ndash;30 minutes), not instantly.</p>
   </header>
 
   <div class="editor-toolbar">
-    <div class="save-status" id="syncStatus"><span class="dot"></span><span id="syncStatusText">Connecting to Jira&hellip;</span></div>
+    <div class="save-status" id="syncStatus"><span class="dot"></span><span id="syncStatusText">Loading ticket data&hellip;</span></div>
     <div class="toolbar-actions">
       <button type="button" class="btn" id="refreshBtn">&#8635; Refresh now</button>
       <a class="btn btn-primary" href="l3-tickets.html">View all tickets &rarr;</a>
@@ -194,7 +194,7 @@
     <a class="btn btn-primary" href="l3-tickets.html">View all tickets in table &rarr;</a>
   </div>
 
-  <footer>This dashboard and the ticket table both pull live from the same Jira project · polls roughly every 5 minutes while open.</footer>
+  <footer>This dashboard and the ticket table both read a periodically-synced snapshot of the same Jira project · this page re-checks for a newer snapshot every 5 minutes while open.</footer>
 
 </div>
 
@@ -219,23 +219,8 @@
   try {
 
   var JIRA_SITE = "https://onsor.atlassian.net";
-  var JIRA_PROJECT_KEY = "PPIER";
-  var CLOUD_ID = "d9878be2-7e60-48cc-92d9-e41084f9982c";
-  var MCP_SERVER = "Atlassian Rovo";
-  var MCP_TOOL = "searchJiraIssuesUsingJql";
-  var JQL = "project = " + JIRA_PROJECT_KEY + " ORDER BY created ASC";
-  var FIELDS = ["summary","status","reporter","assignee","created","comment",
-    "customfield_10767","customfield_10772","customfield_10773",
-    "customfield_12076","customfield_12077","customfield_12078","customfield_12079",
-    "customfield_12091","customfield_12094","customfield_12095"];
-  var TOOL_INPUT = {
-    cloudId: CLOUD_ID,
-    jql: JQL,
-    fields: FIELDS,
-    maxResults: 100,
-    responseContentFormat: "markdown"
-  };
-  var REFRESH_MS = 300000; // ~5 min poll while the page stays open
+  var DATA_URL = "data/tickets.json";
+  var REFRESH_MS = 300000; // re-check the synced snapshot every ~5 min while open
   var TICKETS_URL = "l3-tickets.html";
 
   function escapeHtml(s){
@@ -299,8 +284,6 @@
   var techBars = document.getElementById("techBars");
   var recentBody = document.getElementById("recentBody");
 
-  var mcpNs = null;
-
   function countBy(rows, getKeys){
     var counts = {};
     var order = [];
@@ -335,9 +318,6 @@
 
   function renderMetrics(rows){
     var total = rows.length;
-    // statusCategory here is the Jira status-category colorName: "green" = Done,
-    // everything else ("yellow" in progress, "blue-gray" to do, etc.) counts as active
-    // so Active + Closed always adds up to Total, whatever workflow statuses exist.
     var done = rows.filter(function(r){ return r.statusCategory === "green"; }).length;
     var active = total - done;
     var needsTriage = rows.filter(function(r){ return !r.priorities.length && !r.severities.length; }).length;
@@ -382,10 +362,6 @@
       var match = rows.find(function(r){ return r.statusName === name; });
       return match ? match.statusColor : "text-faint";
     });
-    renderBarList(modelBars, countBy(rows, function(r){ return r.productModel; }), function(key, idx){
-      return "main";
-    });
-    // color model bars by rotating palette based on rank
     (function(){
       var entries = countBy(rows, function(r){ return r.productModel; });
       var max = entries.reduce(function(m, e){ return Math.max(m, e.count); }, 1);
@@ -421,103 +397,40 @@
     try { return new Date(ms).toLocaleString(); } catch (e) { return ""; }
   }
 
-  function handleToolResult(result){
-    var payload = result && result.payload;
-    var nodes = (payload && payload.issues && Array.isArray(payload.issues.nodes)) ? payload.issues.nodes : [];
+  function handleData(data){
+    var nodes = (data && data.issues && Array.isArray(data.issues.nodes)) ? data.issues.nodes : [];
     var rows = nodes.map(normalizeIssue);
     render(rows);
     clearError();
-    var storedAt = (result && result.cache && result.cache.storedAt) ? result.cache.storedAt : Date.now();
-    var revalidating = !!(result && result.cache && result.cache.revalidating);
-    setSyncStatus("ok", (revalidating ? "Refreshing… last synced " : "Synced from Jira · ") + formatStoredAt(storedAt));
-  }
-
-  var RETRACTING_CODES = {
-    needs_reauth: 1, server_not_connected: 1, blocked_by_policy: 1,
-    approval_required: 1, not_in_manifest: 1, consent_required: 1, user_changed: 1
-  };
-
-  function friendlyErrorMessage(err){
-    var code = err && err.code;
-    switch (code){
-      case "needs_reauth":
-        return "Your " + MCP_SERVER + " connection needs to be reconnected — go to claude.ai Settings → Connectors to reconnect.";
-      case "server_not_connected":
-        return "Add " + MCP_SERVER + " in claude.ai Settings → Connectors to see live ticket data here.";
-      case "selection_required":
-        return "More than one " + MCP_SERVER + " connection is available — choose one when prompted, then reload this page.";
-      case "not_in_manifest":
-        return "This view isn't allowed to read " + MCP_SERVER + " data.";
-      case "blocked_by_policy":
-        return "Your organization's policy blocks this page from reading " + MCP_SERVER + " data.";
-      case "approval_required":
-        return "This Jira query needs approval before it can run — check claude.ai for a pending approval.";
-      case "server_unavailable":
-        return "Jira is temporarily unreachable — retrying automatically.";
-      case "consent_required":
-        return "Allow " + MCP_SERVER + " for this page when prompted to see live ticket data.";
-      case "not_granted":
-      case "capability_disabled":
-      case "capability_removed":
-        return "Live Jira sync isn't available in this view.";
-      case "user_changed":
-        return "The signed-in account changed — reload this page.";
-      default:
-        return "Couldn't reach Jira right now" + (code ? " (" + code + ")" : "") + " — will retry automatically.";
+    if (data && data.fetchedAt){
+      setSyncStatus("ok", "Synced from Jira \u00b7 " + formatStoredAt(Date.parse(data.fetchedAt)));
+    } else {
+      setSyncStatus("pending", "Waiting for the first scheduled sync from Jira\u2026");
     }
   }
 
-  function handleWatchEvent(ev){
-    try {
-      if (ev.type === "data"){
-        handleToolResult(ev.result);
-        return;
-      }
-      var err = ev.error || {};
-      var msg = friendlyErrorMessage(err);
-      if (RETRACTING_CODES[err.code]){
-        render([]);
-        setSyncStatus("error", "Not connected to Jira");
-      } else {
-        setSyncStatus("error", "Sync issue — showing last known data");
-      }
-      showError(msg);
-    } catch (e) { showDiag((e && e.message) ? e.message : String(e)); }
-  }
-
-  function startWatch(mcp){
-    setSyncStatus("pending", "Connecting to Jira…");
-    mcp.watchTool(MCP_SERVER, MCP_TOOL, TOOL_INPUT, handleWatchEvent, { refetchInterval: REFRESH_MS });
+  function loadData(){
+    fetch(DATA_URL + "?t=" + Date.now(), { cache: "no-store" })
+      .then(function(r){ if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+      .then(handleData)
+      .catch(function(err){
+        setSyncStatus("error", "Couldn't load ticket data");
+        showError("Couldn't load the synced ticket data" + (err && err.message ? " (" + err.message + ")" : "") + ". It may not have finished syncing yet \u2014 try again in a few minutes.");
+      });
   }
 
   refreshBtn.addEventListener("click", function(){
     try {
-      if (!mcpNs) return;
-      setSyncStatus("pending", "Refreshing…");
-      mcpNs.invalidate(MCP_SERVER, MCP_TOOL, TOOL_INPUT).catch(function(){ /* watch will surface any error */ });
+      setSyncStatus("pending", "Refreshing\u2026");
+      loadData();
     } catch (e) { showDiag((e && e.message) ? e.message : String(e)); }
   });
 
-  function noMcpFallback(){
-    setSyncStatus("error", "Live Jira sync isn't available in this view");
-    showError("This view can't reach your connectors. Open this page inside claude.ai to see live ticket data from Jira.");
-    refreshBtn.disabled = true;
-  }
-
   function init(){
     render([]);
-    setSyncStatus("pending", "Connecting to Jira…");
-
-    if (!window.claude || typeof window.claude.use !== "function"){
-      noMcpFallback();
-      return;
-    }
-
-    window.claude.use("mcp").then(function(mcp){
-      if (!mcp){ noMcpFallback(); return; }
-      mcpNs = mcp;
-      startWatch(mcp);
-    }).catch(function(){ noMcpFallback(); });
+    setSyncStatus("pending", "Loading ticket data\u2026");
+    loadData();
+    setInterval(loadData, REFRESH_MS);
   }
 
   init();

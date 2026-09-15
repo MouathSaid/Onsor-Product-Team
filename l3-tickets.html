@@ -177,12 +177,12 @@
   <header>
     <div class="eyebrow">Onsor · Technical Support</div>
     <h1>L3 Technical Ticketing</h1>
-    <p class="lede">Live mirror of Jira project <a href="https://onsor.atlassian.net/browse/PPIER" target="_blank" rel="noopener">PPIER — Product Issue Escalation &amp; Resolution</a>. Data refreshes automatically from Jira each time this page is open. Expand a ticket to edit it &mdash; changes save straight back to the real Jira issue, and to whatever Jira permits from this account.</p>
+    <p class="lede">Mirror of Jira project <a href="https://onsor.atlassian.net/browse/PPIER" target="_blank" rel="noopener">PPIER — Product Issue Escalation &amp; Resolution</a>. Ticket data is synced from Jira on a schedule (roughly every 15&ndash;30 minutes), not instantly. This view is read-only &mdash; editing tickets is only available inside claude.ai.</p>
     <div class="stat-strip" id="statStrip"></div>
   </header>
 
   <div class="editor-toolbar">
-    <div class="save-status" id="syncStatus"><span class="dot"></span><span id="syncStatusText">Connecting to Jira&hellip;</span></div>
+    <div class="save-status" id="syncStatus"><span class="dot"></span><span id="syncStatusText">Loading ticket data&hellip;</span></div>
     <div class="toolbar-actions">
       <button type="button" class="btn" id="refreshBtn">&#8635; Refresh now</button>
     </div>
@@ -208,7 +208,7 @@
       </table>
     </div>
   </div>
-  <footer>Click … on a ticket to expand it — edit any field, change status, or add a comment · edits write straight to Jira · this view polls Jira roughly every 5 minutes while open.</footer>
+  <footer>Click … on a ticket to expand it and see full details and comments · this is a read-only, periodically-synced snapshot of Jira · this page re-checks for a newer snapshot every 5 minutes while open.</footer>
 
 </div>
 
@@ -233,67 +233,8 @@
   try {
 
   var JIRA_SITE = "https://onsor.atlassian.net";
-  var JIRA_PROJECT_KEY = "PPIER";
-  var CLOUD_ID = "d9878be2-7e60-48cc-92d9-e41084f9982c";
-  var MCP_SERVER = "Atlassian Rovo";
-  var SEARCH_TOOL = "searchJiraIssuesUsingJql";
-  var EDIT_TOOL = "editJiraIssue";
-  var TRANSITION_TOOL = "transitionJiraIssue";
-  var TRANSITIONS_TOOL = "getTransitionsForJiraIssue";
-  var COMMENT_TOOL = "addCommentToJiraIssue";
-  var JQL = "project = " + JIRA_PROJECT_KEY + " ORDER BY created ASC";
-  var FIELDS = ["summary","status","reporter","assignee","created","comment",
-    "customfield_10767","customfield_10772","customfield_10773",
-    "customfield_12076","customfield_12077","customfield_12078","customfield_12079",
-    "customfield_12091","customfield_12094","customfield_12095"];
-  var SEARCH_INPUT = {
-    cloudId: CLOUD_ID,
-    jql: JQL,
-    fields: FIELDS,
-    maxResults: 100,
-    responseContentFormat: "markdown"
-  };
-  var REFRESH_MS = 300000; // ~5 min poll while the page stays open
-
-  // Field id -> option lists, taken from Jira's own field schema for this
-  // project (PPIER / "New Ticket Request"), so selects only ever offer
-  // values Jira itself allows.
-  var PRODUCT_MODEL_OPTIONS = [
-    { id: "11675", value: "T1420i" }, { id: "11676", value: "T1610i" },
-    { id: "11677", value: "MN1410i" }, { id: "11678", value: "MT1210i" },
-    { id: "11679", value: "M14U10i" }, { id: "11680", value: "K1410i" },
-    { id: "11682", value: "K1120i" }, { id: "11683", value: "HAB2410i" },
-    { id: "11684", value: "HAB2710i" }, { id: "11685", value: "HDU10i" },
-    { id: "11686", value: "HDM10i" }, { id: "11687", value: "HDT10i" },
-    { id: "11688", value: "AMAD 14" }, { id: "11681", value: "KiTAB 11.6 (Gen 1)" },
-    { id: "11701", value: "MOUJ-R" }, { id: "11674", value: "TURS-T" },
-    { id: "11702", value: "TURS-A" }, { id: "11703", value: "TURS-R" },
-    { id: "11704", value: "TURS 15.6" }
-  ];
-  var PRIORITY_OPTIONS = [
-    { id: "11693", value: "P3 (Low)" }, { id: "11694", value: "P2 (Standard)" },
-    { id: "11695", value: "P1 (Urgent)" }, { id: "11696", value: "P0 (Immediate)" }
-  ];
-  var SEVERITY_OPTIONS = [
-    { id: "11697", value: "S1 Cosmetic" }, { id: "11698", value: "S2 Minor" },
-    { id: "11699", value: "S3 Major" }, { id: "11700", value: "S4 Critical" }
-  ];
-  var WARRANTY_OPTIONS = [
-    { id: "14011", value: "In Warranty" }, { id: "14012", value: "Out of Warranty" }
-  ];
-  var PROBLEM_FOUND_OPTIONS = [
-    { id: "14059", value: "Hardware issue" }, { id: "14060", value: "Software issue" },
-    { id: "14061", value: "Physical damage" }, { id: "14062", value: "No fault found" }
-  ];
-  var FINAL_STATUS_OPTIONS = [
-    { id: "14046", value: "Repaired and returned" }, { id: "14047", value: "Sent for supplier repair" },
-    { id: "14048", value: "Replacement required" }, { id: "14049", value: "Not repairable" }
-  ];
-  var TECHNICIAN_OPTIONS = [
-    { id: "14063", value: "Abdulmajeed Al Mawali" }, { id: "14064", value: "Ahmed Al Hadhrami" },
-    { id: "14065", value: "Murshid Al Habsi" }, { id: "14066", value: "Ali Al Kindi" },
-    { id: "14067", value: "Muhannad Al Raisi" }
-  ];
+  var DATA_URL = "data/tickets.json";
+  var REFRESH_MS = 300000; // re-check the synced snapshot every ~5 min while open
 
   function escapeHtml(s){
     return String(s == null ? "" : s).replace(/[&<>]/g, function(c){
@@ -307,12 +248,12 @@
     return String(s).replace(/!\[[^\]]*\]\([^)]*\)/g, "").trim();
   }
 
-  function optRaw(field){
-    return (field && typeof field === "object" && field.id) ? { id: String(field.id), value: field.value || "" } : null;
+  function optValue(field){
+    return (field && typeof field === "object" && field.value) ? field.value : "";
   }
-  function optArrayRaw(field){
+  function optArrayValues(field){
     if (!field || !Array.isArray(field) || !field.length) return [];
-    return field.map(function(o){ return o && o.id ? { id: String(o.id), value: o.value || "" } : null; }).filter(Boolean);
+    return field.map(function(o){ return o && o.value; }).filter(Boolean);
   }
   function personName(p){
     if (!p || typeof p !== "object") return "";
@@ -348,34 +289,25 @@
 
   function normalizeIssue(node){
     var f = (node && node.fields) || {};
-    var priorityRaw = optArrayRaw(f.customfield_10772);
-    var severityRaw = optArrayRaw(f.customfield_10773);
-    var technicianRaw = optArrayRaw(f.customfield_12095);
     var comments = (f.comment && Array.isArray(f.comment.comments)) ? f.comment.comments : [];
     var statusName = f.status && f.status.name ? f.status.name : "Unknown";
-    var statusId = f.status && f.status.id ? String(f.status.id) : "";
     var statusCat = f.status && f.status.statusCategory ? f.status.statusCategory.colorName : "";
     return {
-      id: node && node.id ? String(node.id) : "",
       key: node && node.key ? node.key : "",
       webUrl: (node && node.webUrl) ? node.webUrl : (JIRA_SITE + "/browse/" + (node && node.key ? node.key : "")),
       summary: f.summary || "",
-      statusId: statusId,
       statusName: statusName,
       statusColor: statusColorVar(statusCat),
-      productModelRaw: optRaw(f.customfield_10767),
-      priorityRaw: priorityRaw,
-      severityRaw: severityRaw,
-      technicianRaw: technicianRaw,
-      priority: priorityRaw.map(function(o){ return o.value; }).join(", "),
-      severity: severityRaw.map(function(o){ return o.value; }).join(", "),
-      technician: technicianRaw.map(function(o){ return o.value; }).join(", "),
+      productModel: optValue(f.customfield_10767),
+      priority: optArrayValues(f.customfield_10772).join(", "),
+      severity: optArrayValues(f.customfield_10773).join(", "),
+      technician: optArrayValues(f.customfield_12095).join(", "),
       reporter: personName(f.reporter),
       assignee: personName(f.assignee),
-      warrantyRaw: optRaw(f.customfield_12078),
+      warranty: optValue(f.customfield_12078),
       customerReport: f.customfield_12079 || "",
-      problemFoundRaw: optRaw(f.customfield_12094),
-      finalStatusRaw: optRaw(f.customfield_12091),
+      problemFound: optValue(f.customfield_12094),
+      finalStatus: optValue(f.customfield_12091),
       serial: f.customfield_12076 || "",
       ticketNo: f.customfield_12077 || "",
       created: f.created ? String(f.created).slice(0, 10) : "",
@@ -398,10 +330,7 @@
   var refreshBtn = document.getElementById("refreshBtn");
 
   var expandedIds = {};
-  var mcpNs = null;
   var lastRows = [];
-  var rowsByKey = {};
-  var transitionsCache = {}; // key -> array of {id, name} or "loading" or "error"
 
   function renderStats(rows){
     var total = rows.length;
@@ -418,74 +347,12 @@
     statStrip.innerHTML = html;
   }
 
-  // ---------- field-level write status (per ticket key + field name) ----------
-  function fieldStatusId(key, field){ return "fs-" + key + "-" + field; }
-  function setFieldStatus(key, field, kind, text){
-    var el = document.getElementById(fieldStatusId(key, field));
-    if (!el) return;
-    el.className = "field-status" + (kind === "saving" ? " is-saving" : kind === "saved" ? " is-saved" : kind === "error" ? " is-error" : "");
-    el.textContent = text || "";
-  }
-
-  // ---------- select builders ----------
-  function selectOptionsHtml(options, currentId, includeUnset){
-    var html = "";
-    if (includeUnset) html += '<option value=""' + (!currentId ? " selected" : "") + '>Not set</option>';
-    options.forEach(function(o){
-      html += '<option value="' + escAttr(o.id) + '"' + (o.id === currentId ? " selected" : "") + '>' + escapeHtml(o.value) + '</option>';
-    });
-    return html;
-  }
-
-  function fieldWrap(label, key, field, innerHtml, span){
+  function readField(label, value, span){
     return ''
       + '<div class="field' + (span ? " span" + span : "") + '">'
       +   '<span>' + escapeHtml(label) + '</span>'
-      +   innerHtml
-      +   '<div class="field-foot"><span class="field-status" id="' + fieldStatusId(key, field) + '"></span></div>'
+      +   '<div class="cell-input" style="background:transparent;border-color:transparent;padding-left:0;">' + (value ? escapeHtml(value) : '<span class="muted">&mdash;</span>') + '</div>'
       + '</div>';
-  }
-
-  function selectFieldHtml(label, key, field, options, currentId, span){
-    var inner = '<select class="cell-input" data-edit-field="' + field + '" data-key="' + escAttr(key) + '">'
-      + selectOptionsHtml(options, currentId, true) + '</select>';
-    return fieldWrap(label, key, field, inner, span);
-  }
-
-  function textFieldHtml(label, key, field, value, span){
-    var inner = '<input type="text" class="cell-input" data-edit-field="' + field + '" data-key="' + escAttr(key) + '" value="' + escAttr(value) + '">';
-    return fieldWrap(label, key, field, inner, span);
-  }
-
-  function textareaFieldHtml(label, key, field, value, span){
-    var inner = '<textarea class="cell-input" data-edit-field="' + field + '" data-key="' + escAttr(key) + '">' + escapeHtml(value) + '</textarea>';
-    return fieldWrap(label, key, field, inner, span);
-  }
-
-  function statusFieldHtml(r){
-    var cached = transitionsCache[r.key];
-    var inner;
-    if (cached === "loading"){
-      inner = '<div class="status-edit-row"><span class="status-dot" style="background:var(--' + r.statusColor + ')"></span>' + escapeHtml(r.statusName) + ' <span class="muted">&middot; loading transitions&hellip;</span></div>';
-    } else if (cached === "error"){
-      inner = '<div class="status-edit-row"><span class="status-dot" style="background:var(--' + r.statusColor + ')"></span>' + escapeHtml(r.statusName) + ' <span class="muted">&middot; couldn’t load transitions</span> <button type="button" class="icon-btn" data-act="retry-transitions" data-key="' + escAttr(r.key) + '" aria-label="Retry">&#8635;</button></div>';
-    } else if (Array.isArray(cached)){
-      var opts = '<option value="" selected>' + escapeHtml(r.statusName) + ' (current)</option>'
-        + cached.map(function(t){ return '<option value="' + escAttr(t.id) + '">' + escapeHtml(t.name) + '</option>'; }).join("");
-      inner = '<select class="cell-input" data-edit-field="status" data-key="' + escAttr(r.key) + '">' + opts + '</select>';
-    } else {
-      inner = '<div class="status-edit-row"><span class="status-dot" style="background:var(--' + r.statusColor + ')"></span>' + escapeHtml(r.statusName) + '</div>';
-    }
-    return fieldWrap("Status", r.key, "status", inner, null);
-  }
-
-  function technicianFieldHtml(r){
-    var checkedIds = {};
-    r.technicianRaw.forEach(function(o){ checkedIds[o.id] = true; });
-    var inner = '<div class="tech-checks" data-key="' + escAttr(r.key) + '">' + TECHNICIAN_OPTIONS.map(function(o){
-      return '<label class="tech-check"><input type="checkbox" data-tech-id="' + escAttr(o.id) + '" data-key="' + escAttr(r.key) + '"' + (checkedIds[o.id] ? " checked" : "") + '>' + escapeHtml(o.value) + '</label>';
-    }).join("") + '</div>';
-    return fieldWrap("Technician", r.key, "technician", inner, 2);
   }
 
   function commentsBlockHtml(r){
@@ -496,13 +363,8 @@
       : '<div class="comment-empty">No comments yet.</div>';
     return ''
       + '<div class="comments-block">'
-      +   '<div class="comments-head">Comments</div>'
+      +   '<div class="comments-head">Comments (read-only)</div>'
       +   '<div class="comment-list">' + list + '</div>'
-      +   '<div class="add-comment-row">'
-      +     '<textarea class="cell-input" data-add-comment="' + escAttr(r.key) + '" placeholder="Add a comment…"></textarea>'
-      +     '<button type="button" class="btn btn-sm btn-primary" data-act="add-comment" data-key="' + escAttr(r.key) + '">Post</button>'
-      +   '</div>'
-      +   '<div class="field-foot"><span class="field-status" id="' + fieldStatusId(r.key, "comment") + '"></span></div>'
       + '</div>';
   }
 
@@ -514,12 +376,12 @@
       + '<tr class="phase-row" data-key="' + escAttr(r.key) + '">'
       +   '<td class="col-id">' + idCell + '</td>'
       +   '<td class="issue-cell">' + escapeHtml(r.summary) + '</td>'
-      +   '<td class="col-component">' + (r.productModelRaw ? escapeHtml(r.productModelRaw.value) : '<span class="muted">&mdash;</span>') + '</td>'
+      +   '<td class="col-component">' + (r.productModel ? escapeHtml(r.productModel) : '<span class="muted">&mdash;</span>') + '</td>'
       +   '<td class="col-priority"><div class="status-cell"><span class="status-dot" style="background:var(--' + priorityColorVar(r.priority) + ')"></span>' + (r.priority ? escapeHtml(r.priority) : '<span class="muted">Not set</span>') + '</div></td>'
       +   '<td class="col-priority"><div class="status-cell"><span class="status-dot" style="background:var(--' + severityColorVar(r.severity) + ')"></span>' + (r.severity ? escapeHtml(r.severity) : '<span class="muted">Not set</span>') + '</div></td>'
       +   '<td class="col-status"><div class="status-cell"><span class="status-dot" style="background:var(--' + r.statusColor + ')"></span>' + escapeHtml(r.statusName) + '</div></td>'
       +   '<td class="col-tech">' + (r.technician ? escapeHtml(r.technician) : '<span class="muted">&mdash;</span>') + '</td>'
-      +   '<td class="col-actions"><button type="button" class="icon-btn" data-act="toggle" aria-label="Edit ticket" aria-expanded="' + (expanded ? "true" : "false") + '">&hellip;</button></td>'
+      +   '<td class="col-actions"><button type="button" class="icon-btn" data-act="toggle" aria-label="View ticket" aria-expanded="' + (expanded ? "true" : "false") + '">&hellip;</button></td>'
       + '</tr>';
 
     var detailRow = "";
@@ -527,30 +389,27 @@
       detailRow = ''
         + '<tr class="detail-row" data-key="' + escAttr(r.key) + '">'
         +   '<td colspan="8"><div class="detail-grid">'
-        +     selectFieldHtml("Product Model", r.key, "productModel", PRODUCT_MODEL_OPTIONS, r.productModelRaw ? r.productModelRaw.id : "")
-        +     selectFieldHtml("Priority", r.key, "priority", PRIORITY_OPTIONS, r.priorityRaw[0] ? r.priorityRaw[0].id : "")
-        +     selectFieldHtml("Severity", r.key, "severity", SEVERITY_OPTIONS, r.severityRaw[0] ? r.severityRaw[0].id : "")
-        +     statusFieldHtml(r)
-        +     technicianFieldHtml(r)
-        +     selectFieldHtml("Warranty", r.key, "warranty", WARRANTY_OPTIONS, r.warrantyRaw ? r.warrantyRaw.id : "")
-        +     selectFieldHtml("Problem Found", r.key, "problemFound", PROBLEM_FOUND_OPTIONS, r.problemFoundRaw ? r.problemFoundRaw.id : "")
-        +     selectFieldHtml("Final Status", r.key, "finalStatus", FINAL_STATUS_OPTIONS, r.finalStatusRaw ? r.finalStatusRaw.id : "")
-        +     textFieldHtml("Serial number(s)", r.key, "serial", r.serial, 2)
-        +     textFieldHtml("Ticket number(s)", r.key, "ticketNo", r.ticketNo, 2)
-        +     textareaFieldHtml("Customer reported", r.key, "customerReport", r.customerReport, 4)
+        +     readField("Product Model", r.productModel)
+        +     readField("Priority", r.priority)
+        +     readField("Severity", r.severity)
+        +     readField("Status", r.statusName)
+        +     readField("Technician", r.technician, 2)
+        +     readField("Warranty", r.warranty)
+        +     readField("Problem Found", r.problemFound)
+        +     readField("Final Status", r.finalStatus)
+        +     readField("Serial number(s)", r.serial, 2)
+        +     readField("Ticket number(s)", r.ticketNo, 2)
+        +     readField("Customer reported", r.customerReport, 4)
         +   '</div>'
         +   commentsBlockHtml(r)
         +   '</td>'
         + '</tr>';
-      if (!(r.key in transitionsCache)) loadTransitions(r.key);
     }
 
     return mainRow + detailRow;
   }
 
   function renderTable(rows){
-    rowsByKey = {};
-    rows.forEach(function(r){ rowsByKey[r.key] = r; });
     if (!rows.length){
       rowsBody.innerHTML = '<tr><td colspan="8"><div class="empty-state">No tickets to show yet.</div></td></tr>';
     } else {
@@ -559,7 +418,6 @@
     renderStats(rows);
   }
 
-  // ---------- expand/collapse ----------
   rowsBody.addEventListener("click", function(e){
     try {
       var toggleBtn = e.target.closest('[data-act="toggle"]');
@@ -569,172 +427,14 @@
         var key = row.getAttribute("data-key");
         expandedIds[key] = !expandedIds[key];
         renderTable(lastRows);
-        return;
-      }
-      var retryBtn = e.target.closest('[data-act="retry-transitions"]');
-      if (retryBtn){
-        var rkey = retryBtn.getAttribute("data-key");
-        delete transitionsCache[rkey];
-        renderTable(lastRows);
-        return;
-      }
-      var commentBtn = e.target.closest('[data-act="add-comment"]');
-      if (commentBtn){
-        var ckey = commentBtn.getAttribute("data-key");
-        var ta = rowsBody.querySelector('[data-add-comment="' + CSS.escape(ckey) + '"]');
-        var text = ta ? ta.value.trim() : "";
-        if (!text) return;
-        postComment(ckey, text, ta);
-        return;
       }
     } catch (e2) { showDiag((e2 && e2.message) ? e2.message : String(e2)); }
   });
-
-  // ---------- transitions ----------
-  function loadTransitions(key){
-    if (!mcpNs) return;
-    transitionsCache[key] = "loading";
-    mcpNs.callTool(MCP_SERVER, TRANSITIONS_TOOL, { cloudId: CLOUD_ID, issueIdOrKey: key }).then(function(result){
-      var payload = result && result.payload;
-      var list = (payload && Array.isArray(payload.transitions)) ? payload.transitions : [];
-      transitionsCache[key] = list.map(function(t){ return { id: t.id, name: (t.to && t.to.name) ? t.to.name : t.name }; });
-      if (expandedIds[key]) renderTable(lastRows);
-    }).catch(function(){
-      transitionsCache[key] = "error";
-      if (expandedIds[key]) renderTable(lastRows);
-    });
-  }
-
-  // ---------- writes ----------
-  function afterWriteSettle(key){
-    // Pull the true state back from Jira so the row never drifts from
-    // whatever Jira actually accepted (workflow rules, permissions, etc).
-    if (mcpNs) mcpNs.invalidate(MCP_SERVER, SEARCH_TOOL, SEARCH_INPUT).catch(function(){});
-  }
-
-  function writeErrorMessage(err){
-    var code = err && err.code;
-    switch (code){
-      case "needs_reauth": return "Reconnect " + MCP_SERVER + " in claude.ai Settings to save changes.";
-      case "server_not_connected": return "Add " + MCP_SERVER + " in claude.ai Settings to save changes.";
-      case "blocked_by_policy": return "Your organization blocks writes to " + MCP_SERVER + ".";
-      case "not_in_manifest": return "This view isn't allowed to write to " + MCP_SERVER + ".";
-      case "approval_required": return "This write needs approval in claude.ai first.";
-      case "server_unavailable": return "Jira didn't respond — check Jira before retrying (the change may or may not have gone through).";
-      case "cancelled": return "Save didn't complete — check Jira before retrying.";
-      case "tool_error": return "Jira rejected this change" + (err && err.message ? ": " + err.message : ".");
-      default: return "Couldn't save" + (code ? " (" + code + ")" : "") + ".";
-    }
-  }
-
-  function doEdit(key, field, fields){
-    if (!mcpNs){ setFieldStatus(key, field, "error", "Not connected"); return; }
-    setFieldStatus(key, field, "saving", "Saving…");
-    mcpNs.callTool(MCP_SERVER, EDIT_TOOL, { cloudId: CLOUD_ID, issueIdOrKey: key, fields: fields }).then(function(){
-      setFieldStatus(key, field, "saved", "Saved");
-      afterWriteSettle(key);
-    }).catch(function(err){
-      setFieldStatus(key, field, "error", writeErrorMessage(err));
-    });
-  }
-
-  function doTransition(key, transitionId){
-    if (!mcpNs){ setFieldStatus(key, "status", "error", "Not connected"); return; }
-    setFieldStatus(key, "status", "saving", "Saving…");
-    mcpNs.callTool(MCP_SERVER, TRANSITION_TOOL, { cloudId: CLOUD_ID, issueIdOrKey: key, transition: { id: transitionId } }).then(function(){
-      setFieldStatus(key, "status", "saved", "Saved");
-      delete transitionsCache[key]; // valid next-transitions change once status changes
-      afterWriteSettle(key);
-    }).catch(function(err){
-      setFieldStatus(key, "status", "error", writeErrorMessage(err));
-    });
-  }
-
-  function postComment(key, text, textareaEl){
-    setFieldStatus(key, "comment", "saving", "Posting…");
-    mcpNs.callTool(MCP_SERVER, COMMENT_TOOL, { cloudId: CLOUD_ID, issueIdOrKey: key, commentBody: text, contentFormat: "markdown" }).then(function(){
-      setFieldStatus(key, "comment", "saved", "Posted");
-      if (textareaEl) textareaEl.value = "";
-      afterWriteSettle(key);
-    }).catch(function(err){
-      setFieldStatus(key, "comment", "error", writeErrorMessage(err));
-    });
-  }
-
-  var SINGLE_OPTION_FIELD_MAP = {
-    productModel: "customfield_10767",
-    warranty: "customfield_12078",
-    problemFound: "customfield_12094",
-    finalStatus: "customfield_12091"
-  };
-  var MULTI_OPTION_FIELD_MAP = {
-    priority: "customfield_10772",
-    severity: "customfield_10773"
-  };
-  var TEXT_FIELD_MAP = {
-    serial: "customfield_12076",
-    ticketNo: "customfield_12077",
-    customerReport: "customfield_12079"
-  };
-
-  rowsBody.addEventListener("change", function(e){
-    try {
-      var t = e.target;
-      var field = t.getAttribute("data-edit-field");
-      if (field){
-        var key = t.getAttribute("data-key");
-        if (field === "status"){
-          if (!t.value) return; // "(current)" placeholder re-selected — no-op
-          doTransition(key, t.value);
-          return;
-        }
-        if (field in SINGLE_OPTION_FIELD_MAP){
-          var jiraField = SINGLE_OPTION_FIELD_MAP[field];
-          var fields = {};
-          fields[jiraField] = t.value ? { id: t.value } : null;
-          doEdit(key, field, fields);
-          return;
-        }
-        if (field in MULTI_OPTION_FIELD_MAP){
-          var jiraField2 = MULTI_OPTION_FIELD_MAP[field];
-          var fields2 = {};
-          fields2[jiraField2] = t.value ? [{ id: t.value }] : [];
-          doEdit(key, field, fields2);
-          return;
-        }
-        return;
-      }
-      var techBox = t.closest("[data-tech-id]");
-      if (techBox){
-        var tkey = techBox.getAttribute("data-key");
-        var wrap = techBox.closest(".tech-checks");
-        var checked = Array.prototype.slice.call(wrap.querySelectorAll("input[data-tech-id]:checked")).map(function(cb){
-          return { id: cb.getAttribute("data-tech-id") };
-        });
-        doEdit(tkey, "technician", { customfield_12095: checked });
-        return;
-      }
-    } catch (e2) { showDiag((e2 && e2.message) ? e2.message : String(e2)); }
-  });
-
-  rowsBody.addEventListener("blur", function(e){
-    try {
-      var t = e.target;
-      var field = t.getAttribute("data-edit-field");
-      if (!field || !(field in TEXT_FIELD_MAP)) return;
-      var key = t.getAttribute("data-key");
-      var jiraField = TEXT_FIELD_MAP[field];
-      var fields = {};
-      fields[jiraField] = t.value;
-      doEdit(key, field, fields);
-    } catch (e2) { showDiag((e2 && e2.message) ? e2.message : String(e2)); }
-  }, true);
 
   function setSyncStatus(kind, text){
     syncStatusEl.className = "save-status" + (kind === "ok" ? " is-saved" : kind === "pending" ? " is-pending" : kind === "error" ? " is-error" : "");
     syncStatusText.textContent = text;
   }
-
   function showError(message){
     errorBanner.hidden = false;
     errorBanner.textContent = message;
@@ -743,110 +443,45 @@
     errorBanner.hidden = true;
     errorBanner.textContent = "";
   }
-
   function formatStoredAt(ms){
     if (!ms) return "";
     try { return new Date(ms).toLocaleString(); } catch (e) { return ""; }
   }
 
-  function handleToolResult(result){
-    var payload = result && result.payload;
-    var nodes = (payload && payload.issues && Array.isArray(payload.issues.nodes)) ? payload.issues.nodes : [];
+  function handleData(data){
+    var nodes = (data && data.issues && Array.isArray(data.issues.nodes)) ? data.issues.nodes : [];
     lastRows = nodes.map(normalizeIssue);
     renderTable(lastRows);
     clearError();
-    var storedAt = (result && result.cache && result.cache.storedAt) ? result.cache.storedAt : Date.now();
-    var revalidating = !!(result && result.cache && result.cache.revalidating);
-    setSyncStatus("ok", (revalidating ? "Refreshing… last synced " : "Synced from Jira · ") + formatStoredAt(storedAt));
-  }
-
-  var RETRACTING_CODES = {
-    needs_reauth: 1, server_not_connected: 1, blocked_by_policy: 1,
-    approval_required: 1, not_in_manifest: 1, consent_required: 1, user_changed: 1
-  };
-
-  function friendlyErrorMessage(err){
-    var code = err && err.code;
-    switch (code){
-      case "needs_reauth":
-        return "Your " + MCP_SERVER + " connection needs to be reconnected — go to claude.ai Settings → Connectors to reconnect.";
-      case "server_not_connected":
-        return "Add " + MCP_SERVER + " in claude.ai Settings → Connectors to see live ticket data here.";
-      case "selection_required":
-        return "More than one " + MCP_SERVER + " connection is available — choose one when prompted, then reload this page.";
-      case "not_in_manifest":
-        return "This view isn't allowed to read " + MCP_SERVER + " data.";
-      case "blocked_by_policy":
-        return "Your organization's policy blocks this page from reading " + MCP_SERVER + " data.";
-      case "approval_required":
-        return "This Jira query needs approval before it can run — check claude.ai for a pending approval.";
-      case "server_unavailable":
-        return "Jira is temporarily unreachable — retrying automatically.";
-      case "consent_required":
-        return "Allow " + MCP_SERVER + " for this page when prompted to see live ticket data.";
-      case "not_granted":
-      case "capability_disabled":
-      case "capability_removed":
-        return "Live Jira sync isn't available in this view.";
-      case "user_changed":
-        return "The signed-in account changed — reload this page.";
-      default:
-        return "Couldn't reach Jira right now" + (code ? " (" + code + ")" : "") + " — will retry automatically.";
+    if (data && data.fetchedAt){
+      setSyncStatus("ok", "Synced from Jira · " + formatStoredAt(Date.parse(data.fetchedAt)));
+    } else {
+      setSyncStatus("pending", "Waiting for the first scheduled sync from Jira…");
     }
   }
 
-  function handleWatchEvent(ev){
-    try {
-      if (ev.type === "data"){
-        handleToolResult(ev.result);
-        return;
-      }
-      var err = ev.error || {};
-      var msg = friendlyErrorMessage(err);
-      if (RETRACTING_CODES[err.code]){
-        lastRows = [];
-        renderTable(lastRows);
-        setSyncStatus("error", "Not connected to Jira");
-      } else {
-        setSyncStatus("error", "Sync issue — showing last known data");
-      }
-      showError(msg);
-    } catch (e) { showDiag((e && e.message) ? e.message : String(e)); }
-  }
-
-  function startWatch(mcp){
-    setSyncStatus("pending", "Connecting to Jira…");
-    mcp.watchTool(MCP_SERVER, SEARCH_TOOL, SEARCH_INPUT, handleWatchEvent, { refetchInterval: REFRESH_MS });
+  function loadData(){
+    fetch(DATA_URL + "?t=" + Date.now(), { cache: "no-store" })
+      .then(function(r){ if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+      .then(handleData)
+      .catch(function(err){
+        setSyncStatus("error", "Couldn't load ticket data");
+        showError("Couldn't load the synced ticket data" + (err && err.message ? " (" + err.message + ")" : "") + ". It may not have finished syncing yet — try again in a few minutes.");
+      });
   }
 
   refreshBtn.addEventListener("click", function(){
     try {
-      if (!mcpNs) return;
       setSyncStatus("pending", "Refreshing…");
-      mcpNs.invalidate(MCP_SERVER, SEARCH_TOOL, SEARCH_INPUT).catch(function(){ /* watch will surface any error */ });
+      loadData();
     } catch (e) { showDiag((e && e.message) ? e.message : String(e)); }
   });
 
-  function noMcpFallback(){
-    setSyncStatus("error", "Live Jira sync isn't available in this view");
-    showError("This view can't reach your connectors. Open this page inside claude.ai to see live ticket data from Jira.");
-    refreshBtn.disabled = true;
-  }
-
   function init(){
     renderTable([]);
-    setSyncStatus("pending", "Connecting to Jira…");
-
-    if (!window.claude || typeof window.claude.use !== "function"){
-      noMcpFallback();
-      return;
-    }
-
-    window.claude.use("mcp").then(function(mcp){
-      if (!mcp){ noMcpFallback(); return; }
-      mcpNs = mcp;
-      startWatch(mcp);
-    }).catch(function(){ noMcpFallback(); });
+    setSyncStatus("pending", "Loading ticket data…");
+    loadData();
+    setInterval(loadData, REFRESH_MS);
   }
 
   init();
