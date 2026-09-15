@@ -1,0 +1,97 @@
+name: Sync Jira Tickets
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch: {}
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/sync-jira.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Fetch tickets from Jira
+        env:
+          JIRA_EMAIL: ${{ secrets.JIRA_EMAIL }}
+          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+        run: |
+          set -euo pipefail
+          JIRA_SITE="https://onsor.atlassian.net"
+          FIELDS="summary,status,reporter,assignee,created,comment,customfield_10767,customfield_10772,customfield_10773,customfield_12076,customfield_12077,customfield_12078,customfield_12079,customfield_12091,customfield_12094,customfield_12095"
+          AUTH=$(printf '%s:%s' "$JIRA_EMAIL" "$JIRA_API_TOKEN" | base64 -w0)
+
+          HTTP_STATUS=$(curl -sS -G -o raw_issues.json -w "%{http_code}" \
+            -H "Authorization: Basic $AUTH" \
+            -H "Accept: application/json" \
+            --data-urlencode "jql=project = PPIER ORDER BY created ASC" \
+            --data-urlencode "fields=$FIELDS" \
+            --data-urlencode "maxResults=100" \
+            "$JIRA_SITE/rest/api/3/search")
+
+          if [ "$HTTP_STATUS" != "200" ]; then
+            echo "Jira API request failed with HTTP $HTTP_STATUS"
+            cat raw_issues.json
+            exit 1
+          fi
+
+          if ! python3 -c "import json; d=json.load(open('raw_issues.json')); assert 'issues' in d" 2>/dev/null; then
+            echo "Response did not contain an 'issues' field - not writing output"
+            cat raw_issues.json
+            exit 1
+          fi
+
+      - name: Transform to site format
+        run: |
+          set -euo pipefail
+          python3 - <<'PYEOF'
+          import json
+          import datetime
+          import os
+
+          with open('raw_issues.json') as f:
+              raw = json.load(f)
+
+          site = "https://onsor.atlassian.net"
+          nodes = []
+          for issue in raw.get('issues', []):
+              nodes.append({
+                  "id": issue.get("id"),
+                  "key": issue.get("key"),
+                  "webUrl": site + "/browse/" + str(issue.get("key")),
+                  "fields": issue.get("fields", {})
+              })
+
+          out = {
+              "fetchedAt": datetime.datetime.now(datetime.timezone.utc).isoformat().replace("+00:00", "Z"),
+              "issues": {"nodes": nodes}
+          }
+
+          os.makedirs('data', exist_ok=True)
+          with open('data/tickets.json', 'w') as f:
+              json.dump(out, f, indent=2)
+
+          print("Wrote", len(nodes), "tickets to data/tickets.json")
+          PYEOF
+
+      - name: Commit and push if changed
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/tickets.json
+          if ! git diff --cached --quiet; then
+            git commit -m "Sync Jira tickets [skip ci]"
+            git push
+          else
+            echo "No changes to commit"
+          fi
+
