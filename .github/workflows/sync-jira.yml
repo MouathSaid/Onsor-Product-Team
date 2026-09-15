@@ -35,7 +35,7 @@ jobs:
             --data-urlencode "jql=project = PPIER ORDER BY created ASC" \
             --data-urlencode "fields=$FIELDS" \
             --data-urlencode "maxResults=100" \
-            "$JIRA_SITE/rest/api/3/search")
+            "$JIRA_SITE/rest/api/3/search/jql")
 
           if [ "$HTTP_STATUS" != "200" ]; then
             echo "Jira API request failed with HTTP $HTTP_STATUS"
@@ -94,4 +94,3 @@ jobs:
           else
             echo "No changes to commit"
           fi
-
