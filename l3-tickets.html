@@ -178,7 +178,7 @@
   <header>
     <div class="eyebrow">Onsor · Technical Support</div>
     <h1>L3 Technical Ticketing</h1>
-    <p class="lede">Mirror of Jira project <a href="https://onsor.atlassian.net/browse/PPIER" target="_blank" rel="noopener">PPIER — Product Issue Escalation &amp; Resolution</a>. Ticket data is synced from Jira on a schedule (roughly every 15&ndash;30 minutes), not instantly. This view is read-only &mdash; editing tickets is only available inside claude.ai.</p>
+    <p class="lede">Mirror of Jira project <a href="https://onsor.atlassian.net/browse/PPIER" target="_blank" rel="noopener">PPIER — Product Issue Escalation &amp; Resolution</a>. Ticket data is synced from Jira on a schedule (roughly every 15&ndash;30 minutes) unless you hit Refresh now. Expand a ticket to edit it &mdash; changes save straight back to the real Jira ticket.</p>
     <div class="stat-strip" id="statStrip"></div>
   </header>
 
@@ -209,7 +209,7 @@
       </table>
     </div>
   </div>
-  <footer>Click … on a ticket to expand it and see full details and comments · this is a read-only, periodically-synced snapshot of Jira · this page re-checks for a newer snapshot every 5 minutes while open.</footer>
+  <footer>Click … on a ticket to expand it, edit fields, change status, or add a comment · edits save directly to the real Jira ticket · this page re-checks for a newer snapshot every 5 minutes while open.</footer>
 
 </div>
 
@@ -237,6 +237,20 @@
   var DATA_URL = "data/tickets.json";
   var LIVE_URL = "https://onsor-jira-proxy.mouath-shuaili.workers.dev";
   var REFRESH_MS = 300000; // re-check the synced snapshot every ~5 min while open
+
+  var FIELD_DEFS = {
+    customfield_10767: { label: "Product Model", type: "select-single" },
+    customfield_10772: { label: "Priority", type: "select-multi" },
+    customfield_10773: { label: "Severity", type: "select-multi" },
+    customfield_12078: { label: "Warranty", type: "select-single" },
+    customfield_12094: { label: "Problem Found", type: "select-single" },
+    customfield_12091: { label: "Final Status", type: "select-single" },
+    customfield_12095: { label: "Technician", type: "select-multi" },
+    customfield_12076: { label: "Serial number(s)", type: "text" },
+    customfield_12077: { label: "Ticket number(s)", type: "text" },
+    customfield_12079: { label: "Customer reported", type: "text" }
+  };
+  var rowMeta = {}; // key -> { loading, loaded, error, fields, transitions }
 
   function escapeHtml(s){
     return String(s == null ? "" : s).replace(/[&<>]/g, function(c){
@@ -295,6 +309,7 @@
     var statusName = f.status && f.status.name ? f.status.name : "Unknown";
     var statusCat = f.status && f.status.statusCategory ? f.status.statusCategory.colorName : "";
     return {
+      raw: f,
       key: node && node.key ? node.key : "",
       webUrl: (node && node.webUrl) ? node.webUrl : (JIRA_SITE + "/browse/" + (node && node.key ? node.key : "")),
       summary: f.summary || "",
@@ -358,6 +373,70 @@
       + '</div>';
   }
 
+  function fieldControlHtml(r, fieldId, def){
+    var meta = rowMeta[r.key];
+    var raw = r.raw ? r.raw[fieldId] : null;
+    if (!meta || meta.loading){
+      return '<div class="cell-input" style="background:transparent;border-color:transparent;padding-left:0;">' + '<span class="muted">Loading&hellip;</span>' + '</div>';
+    }
+    if (meta.error){
+      return readField(def.label, def.type === "text" ? raw : (Array.isArray(raw) ? optArrayValues(raw).join(", ") : optValue(raw)));
+    }
+    var fmeta = meta.fields ? meta.fields[fieldId] : null;
+    var allowed = (fmeta && fmeta.allowedValues) || [];
+    if (def.type === "text"){
+      var val = raw || "";
+      return '<input class="cell-input" data-field="' + fieldId + '" data-key="' + escAttr(r.key) + '" value="' + escAttr(val) + '">';
+    }
+    if (def.type === "select-single"){
+      var curId = (raw && typeof raw === "object" && raw.id) ? raw.id : "";
+      var opts = '<option value="">&mdash; not set &mdash;</option>' + allowed.map(function(o){
+        return '<option value="' + escAttr(o.id) + '"' + (o.id === curId ? " selected" : "") + '>' + escapeHtml(o.value) + '</option>';
+      }).join("");
+      return '<select class="cell-input" data-field="' + fieldId + '" data-key="' + escAttr(r.key) + '">' + opts + '</select>';
+    }
+    if (def.type === "select-multi"){
+      var curIds = {};
+      (Array.isArray(raw) ? raw : []).forEach(function(o){ if (o && o.id) curIds[o.id] = true; });
+      if (!allowed.length) return '<div class="muted" style="font-size:12.5px;">No options available</div>';
+      return '<div class="tech-checks">' + allowed.map(function(o){
+        return '<label class="tech-check"><input type="checkbox" data-field="' + fieldId + '" data-key="' + escAttr(r.key) + '" value="' + escAttr(o.id) + '"' + (curIds[o.id] ? " checked" : "") + '> ' + escapeHtml(o.value) + '</label>';
+      }).join("") + '</div>';
+    }
+    return "";
+  }
+
+  function editableFieldWrap(r, fieldId, span){
+    var def = FIELD_DEFS[fieldId];
+    return ''
+      + '<div class="field' + (span ? " span" + span : "") + '">'
+      +   '<span>' + escapeHtml(def.label) + '</span>'
+      +   fieldControlHtml(r, fieldId, def)
+      +   '<div class="field-foot"><span class="field-status" data-field-status="' + fieldId + '" data-key="' + escAttr(r.key) + '"></span></div>'
+      + '</div>';
+  }
+
+  function statusControlHtml(r){
+    var meta = rowMeta[r.key];
+    if (!meta || meta.loading || meta.error){
+      return readField("Status", r.statusName);
+    }
+    var trans = meta.transitions || [];
+    var opts = trans.map(function(t){
+      var toName = (t.to && t.to.name) ? t.to.name : t.name;
+      return '<option value="' + escAttr(t.id) + '">' + escapeHtml(toName) + '</option>';
+    }).join("");
+    return ''
+      + '<div class="field">'
+      +   '<span>Status</span>'
+      +   '<div class="status-edit-row">'
+      +     '<span class="status-dot" style="background:var(--' + r.statusColor + ')"></span>'
+      +     '<select class="cell-input" data-transition-key="' + escAttr(r.key) + '"><option value="">' + escapeHtml(r.statusName) + ' &mdash; change to&hellip;</option>' + opts + '</select>'
+      +   '</div>'
+      +   '<div class="field-foot"><span class="field-status" data-status-status="' + escAttr(r.key) + '"></span></div>'
+      + '</div>';
+  }
+
   function commentsBlockHtml(r){
     var list = r.comments.length
       ? r.comments.map(function(c){
@@ -366,8 +445,13 @@
       : '<div class="comment-empty">No comments yet.</div>';
     return ''
       + '<div class="comments-block">'
-      +   '<div class="comments-head">Comments (read-only)</div>'
+      +   '<div class="comments-head">Comments</div>'
       +   '<div class="comment-list">' + list + '</div>'
+      +   '<div class="add-comment-row">'
+      +     '<textarea class="cell-input" data-comment-key="' + escAttr(r.key) + '" placeholder="Add a comment&hellip;"></textarea>'
+      +     '<button type="button" class="btn btn-sm" data-act="add-comment" data-key="' + escAttr(r.key) + '">Post</button>'
+      +   '</div>'
+      +   '<div class="field-status" data-comment-status="' + escAttr(r.key) + '" style="margin-top:6px;"></div>'
       + '</div>';
   }
 
@@ -392,17 +476,17 @@
       detailRow = ''
         + '<tr class="detail-row" data-key="' + escAttr(r.key) + '">'
         +   '<td colspan="8"><div class="detail-grid">'
-        +     readField("Product Model", r.productModel)
-        +     readField("Priority", r.priority)
-        +     readField("Severity", r.severity)
-        +     readField("Status", r.statusName)
-        +     readField("Technician", r.technician, 2)
-        +     readField("Warranty", r.warranty)
-        +     readField("Problem Found", r.problemFound)
-        +     readField("Final Status", r.finalStatus)
-        +     readField("Serial number(s)", r.serial, 2)
-        +     readField("Ticket number(s)", r.ticketNo, 2)
-        +     readField("Customer reported", r.customerReport, 4)
+        +     editableFieldWrap(r, "customfield_10767")
+        +     editableFieldWrap(r, "customfield_10772")
+        +     editableFieldWrap(r, "customfield_10773")
+        +     statusControlHtml(r)
+        +     editableFieldWrap(r, "customfield_12095", 2)
+        +     editableFieldWrap(r, "customfield_12078")
+        +     editableFieldWrap(r, "customfield_12094")
+        +     editableFieldWrap(r, "customfield_12091")
+        +     editableFieldWrap(r, "customfield_12076", 2)
+        +     editableFieldWrap(r, "customfield_12077", 2)
+        +     editableFieldWrap(r, "customfield_12079", 4)
         +   '</div>'
         +   commentsBlockHtml(r)
         +   '</td>'
@@ -429,10 +513,142 @@
         if (!row) return;
         var key = row.getAttribute("data-key");
         expandedIds[key] = !expandedIds[key];
+        if (expandedIds[key]) fetchMeta(key);
         renderTable(lastRows);
+        return;
+      }
+      var commentBtn = e.target.closest('[data-act="add-comment"]');
+      if (commentBtn){
+        var key2 = commentBtn.getAttribute("data-key");
+        var ta = rowsBody.querySelector('textarea[data-comment-key="' + key2 + '"]');
+        saveComment(key2, ta ? ta.value : "", ta, commentBtn);
+        return;
       }
     } catch (e2) { showDiag((e2 && e2.message) ? e2.message : String(e2)); }
   });
+
+  rowsBody.addEventListener("change", function(e){
+    try {
+      var t = e.target;
+      if (t.matches && t.matches('select[data-field]')){
+        saveField(t.getAttribute("data-key"), t.getAttribute("data-field"), t.value ? { id: t.value } : null);
+        return;
+      }
+      if (t.matches && t.matches('input[type="checkbox"][data-field]')){
+        handleMultiChange(t);
+        return;
+      }
+      if (t.matches && t.matches('select[data-transition-key]')){
+        var tKey = t.getAttribute("data-transition-key");
+        saveTransition(tKey, t.value);
+        return;
+      }
+    } catch (err) { showDiag((err && err.message) ? err.message : String(err)); }
+  });
+
+  rowsBody.addEventListener("focusout", function(e){
+    try {
+      var t = e.target;
+      if (t.matches && t.matches('input.cell-input[data-field]')){
+        saveField(t.getAttribute("data-key"), t.getAttribute("data-field"), t.value);
+      }
+    } catch (err) { showDiag((err && err.message) ? err.message : String(err)); }
+  });
+
+  function fetchMeta(key){
+    if (rowMeta[key] && (rowMeta[key].loading || rowMeta[key].loaded)) return;
+    rowMeta[key] = { loading: true };
+    fetch(LIVE_URL + "/issue-meta?key=" + encodeURIComponent(key), { cache: "no-store" })
+      .then(function(r){ if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+      .then(function(data){
+        rowMeta[key] = { loading: false, loaded: true, fields: data.fields || {}, transitions: data.transitions || [] };
+        renderTable(lastRows);
+      })
+      .catch(function(err){
+        rowMeta[key] = { loading: false, loaded: false, error: (err && err.message) ? err.message : String(err) };
+        renderTable(lastRows);
+      });
+  }
+
+  function setFieldStatus(key, fieldId, kind, text){
+    var el = rowsBody.querySelector('[data-field-status="' + fieldId + '"][data-key="' + key + '"]');
+    if (!el) return;
+    el.className = "field-status" + (kind ? " is-" + kind : "");
+    el.textContent = text || "";
+  }
+
+  function saveField(key, fieldId, value){
+    setFieldStatus(key, fieldId, "saving", "Saving…");
+    var fields = {};
+    fields[fieldId] = value;
+    fetch(LIVE_URL + "/issue-update", {
+      method: "POST", cache: "no-store",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ key: key, fields: fields })
+    })
+      .then(function(r){ return r.json().then(function(j){ return { ok: r.ok, body: j }; }); })
+      .then(function(res){
+        if (!res.ok || res.body.ok === false) throw new Error((res.body && res.body.error) || "Save failed");
+        setFieldStatus(key, fieldId, "saved", "Saved");
+      })
+      .catch(function(err){
+        setFieldStatus(key, fieldId, "error", "Couldn't save" + (err && err.message ? ": " + err.message : ""));
+      });
+  }
+
+  function handleMultiChange(target){
+    var row = target.closest("tr.detail-row");
+    if (!row) return;
+    var fieldId = target.getAttribute("data-field");
+    var key = target.getAttribute("data-key");
+    var checks = row.querySelectorAll('input[type="checkbox"][data-field="' + fieldId + '"]');
+    var vals = [];
+    checks.forEach(function(c){ if (c.checked) vals.push({ id: c.value }); });
+    saveField(key, fieldId, vals);
+  }
+
+  function saveTransition(key, transitionId){
+    if (!transitionId) return;
+    var statusEl = rowsBody.querySelector('[data-status-status="' + key + '"]');
+    if (statusEl){ statusEl.className = "field-status is-saving"; statusEl.textContent = "Saving…"; }
+    fetch(LIVE_URL + "/issue-transition", {
+      method: "POST", cache: "no-store",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ key: key, transitionId: transitionId })
+    })
+      .then(function(r){ return r.json().then(function(j){ return { ok: r.ok, body: j }; }); })
+      .then(function(res){
+        if (!res.ok || res.body.ok === false) throw new Error((res.body && res.body.error) || "Transition failed");
+        if (statusEl){ statusEl.className = "field-status is-saved"; statusEl.textContent = "Saved — refreshing…"; }
+        delete rowMeta[key];
+        loadLive();
+      })
+      .catch(function(err){
+        if (statusEl){ statusEl.className = "field-status is-error"; statusEl.textContent = "Couldn't change status" + (err && err.message ? ": " + err.message : ""); }
+      });
+  }
+
+  function saveComment(key, text, textareaEl, btnEl){
+    if (!text || !text.trim()) return;
+    var statusEl = rowsBody.querySelector('[data-comment-status="' + key + '"]');
+    if (btnEl) btnEl.disabled = true;
+    if (statusEl){ statusEl.className = "field-status is-saving"; statusEl.textContent = "Posting…"; }
+    fetch(LIVE_URL + "/issue-comment", {
+      method: "POST", cache: "no-store",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ key: key, text: text })
+    })
+      .then(function(r){ if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+      .then(function(){
+        if (statusEl){ statusEl.className = "field-status is-saved"; statusEl.textContent = "Posted"; }
+        if (btnEl) btnEl.disabled = false;
+        loadLive();
+      })
+      .catch(function(err){
+        if (statusEl){ statusEl.className = "field-status is-error"; statusEl.textContent = "Couldn't post" + (err && err.message ? ": " + err.message : ""); }
+        if (btnEl) btnEl.disabled = false;
+      });
+  }
 
   function setSyncStatus(kind, text){
     syncStatusEl.className = "save-status" + (kind === "ok" ? " is-saved" : kind === "pending" ? " is-pending" : kind === "error" ? " is-error" : "");
