@@ -431,7 +431,11 @@
   refreshBtn.addEventListener("click", function(){
     try {
       setSyncStatus("pending", "Refreshing…");
-      loadData();
+      refreshBtn.disabled = true;
+      // Force a fully fresh page load (bypassing browser + CDN caching of the
+      // page itself, which can otherwise hold a stale copy of this file for
+      // up to ~10 minutes regardless of the data fetch below).
+      window.location.href = window.location.pathname + "?_=" + Date.now();
     } catch (e) { showDiag((e && e.message) ? e.message : String(e)); }
   });
 
