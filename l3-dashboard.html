@@ -221,6 +221,7 @@
 
   var JIRA_SITE = "https://onsor.atlassian.net";
   var DATA_URL = "data/tickets.json";
+  var LIVE_URL = "https://onsor-jira-proxy.mouath-shuaili.workers.dev";
   var REFRESH_MS = 300000; // re-check the synced snapshot every ~5 min while open
   var TICKETS_URL = "l3-tickets.html";
 
@@ -410,7 +411,8 @@
     render(rows);
     clearError();
     if (data && data.fetchedAt){
-      setSyncStatus("ok", "Synced from Jira · " + formatStoredAt(Date.parse(data.fetchedAt)));
+      var label = data.live ? "Live from Jira · " : "Synced from Jira · ";
+      setSyncStatus("ok", label + formatStoredAt(Date.parse(data.fetchedAt)));
     } else {
       setSyncStatus("pending", "Waiting for the first scheduled sync from Jira…");
     }
@@ -428,15 +430,25 @@
       });
   }
 
+  function loadLive(){
+    setSyncStatus("pending", "Fetching live from Jira…");
+    refreshBtn.disabled = true;
+    fetch(LIVE_URL, { cache: "no-store" })
+      .then(function(r){ if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+      .then(function(data){
+        handleData(data);
+        refreshBtn.disabled = false;
+      })
+      .catch(function(err){
+        // Live proxy unreachable (down, blocked, etc.) — fall back to the last synced snapshot.
+        showError("Couldn't fetch live data from Jira" + (err && err.message ? " (" + err.message + ")" : "") + ". Showing the last synced snapshot instead.");
+        loadData();
+        refreshBtn.disabled = false;
+      });
+  }
+
   refreshBtn.addEventListener("click", function(){
-    try {
-      setSyncStatus("pending", "Refreshing…");
-      refreshBtn.disabled = true;
-      // Force a fully fresh page load (bypassing browser + CDN caching of the
-      // page itself, which can otherwise hold a stale copy of this file for
-      // up to ~10 minutes regardless of the data fetch below).
-      window.location.href = window.location.pathname + "?_=" + Date.now();
-    } catch (e) { showDiag((e && e.message) ? e.message : String(e)); }
+    try { loadLive(); } catch (e) { showDiag((e && e.message) ? e.message : String(e)); refreshBtn.disabled = false; }
   });
 
   function init(){
