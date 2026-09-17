@@ -1,5 +1,5 @@
 {
-  "fetchedAt": "2026-09-17T09:56:51.247028Z",
+  "fetchedAt": "2026-09-17T10:18:01.138948Z",
   "issues": {
     "nodes": [
       {
@@ -103,11 +103,63 @@
                 "created": "2026-06-10T08:46:13.374+0400",
                 "updated": "2026-06-10T08:46:13.374+0400",
                 "jsdPublic": true
+              },
+              {
+                "self": "https://onsor.atlassian.net/rest/api/3/issue/19091/comment/16688",
+                "id": "16688",
+                "author": {
+                  "self": "https://onsor.atlassian.net/rest/api/3/user?accountId=712020%3Ae465506e-b428-4c1f-af41-d17670365f79",
+                  "accountId": "712020:e465506e-b428-4c1f-af41-d17670365f79",
+                  "emailAddress": "mouath.shuaili@onsor.om",
+                  "avatarUrls": {
+                    "48x48": "https://secure.gravatar.com/avatar/6dba3ed8a2eb094dd8f7c6371843ed44?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FM-0.png",
+                    "24x24": "https://secure.gravatar.com/avatar/6dba3ed8a2eb094dd8f7c6371843ed44?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FM-0.png",
+                    "16x16": "https://secure.gravatar.com/avatar/6dba3ed8a2eb094dd8f7c6371843ed44?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FM-0.png",
+                    "32x32": "https://secure.gravatar.com/avatar/6dba3ed8a2eb094dd8f7c6371843ed44?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FM-0.png"
+                  },
+                  "displayName": "mouath.shuaili",
+                  "active": true,
+                  "timeZone": "Asia/Muscat",
+                  "accountType": "atlassian"
+                },
+                "body": {
+                  "type": "doc",
+                  "version": 1,
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Automated test comment \u2014 verifying the public L3 board can write back to Jira. Safe to delete."
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "updateAuthor": {
+                  "self": "https://onsor.atlassian.net/rest/api/3/user?accountId=712020%3Ae465506e-b428-4c1f-af41-d17670365f79",
+                  "accountId": "712020:e465506e-b428-4c1f-af41-d17670365f79",
+                  "emailAddress": "mouath.shuaili@onsor.om",
+                  "avatarUrls": {
+                    "48x48": "https://secure.gravatar.com/avatar/6dba3ed8a2eb094dd8f7c6371843ed44?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FM-0.png",
+                    "24x24": "https://secure.gravatar.com/avatar/6dba3ed8a2eb094dd8f7c6371843ed44?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FM-0.png",
+                    "16x16": "https://secure.gravatar.com/avatar/6dba3ed8a2eb094dd8f7c6371843ed44?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FM-0.png",
+                    "32x32": "https://secure.gravatar.com/avatar/6dba3ed8a2eb094dd8f7c6371843ed44?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FM-0.png"
+                  },
+                  "displayName": "mouath.shuaili",
+                  "active": true,
+                  "timeZone": "Asia/Muscat",
+                  "accountType": "atlassian"
+                },
+                "created": "2026-09-17T14:17:05.002+0400",
+                "updated": "2026-09-17T14:17:05.002+0400",
+                "jsdPublic": true
               }
             ],
             "self": "https://onsor.atlassian.net/rest/api/3/issue/19091/comment",
-            "maxResults": 1,
-            "total": 1,
+            "maxResults": 2,
+            "total": 2,
             "startAt": 0
           },
           "assignee": null,
