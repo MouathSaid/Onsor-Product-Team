@@ -1,0 +1,1185 @@
+<title>Device Pricing — Onsor Function</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    color-scheme: dark;
+    --bg:#121212;
+    --surface:#19191F;
+    --surface-2:#202027;
+    --border:#302F3B;
+    --text:#F2F1F5;
+    --text-muted:#A4A4AE;
+    --text-faint:#6E6D7A;
+    --main:#8377F7;
+    --main-soft:#241F3D;
+    --eng:#63C2B4;
+    --eng-soft:#1D3733;
+    --supply:#D79770;
+    --supply-soft:#3A2A20;
+    --milestone:#E3B655;
+    --milestone-soft:#3B301A;
+    --today:#E4685A;
+    --focus:#8377F7;
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 12px 28px -14px rgba(0,0,0,.6);
+  }
+
+  *{ box-sizing:border-box; }
+  [hidden]{ display:none !important; }
+  html,body{ margin:0; }
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:"IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+    padding-inline:20px;
+    padding-block:28px 60px;
+  }
+  .wrap{ max-width:1100px; margin:0 auto; display:flex; flex-direction:column; gap:22px; }
+  .mono{ font-family:"IBM Plex Mono", ui-monospace, "SF Mono", monospace; }
+  .tabular{ font-variant-numeric: tabular-nums; }
+
+  .back-link{
+    align-self:flex-start; display:inline-flex; align-items:center; gap:6px;
+    font-family:"IBM Plex Mono",monospace; font-size:12px; font-weight:500; letter-spacing:.01em;
+    color:var(--text-faint); text-decoration:none;
+  }
+  .back-link:hover{ color:var(--main); }
+  .back-link:focus-visible{ outline:2px solid var(--focus); outline-offset:2px; border-radius:4px; }
+
+  header{ display:flex; flex-direction:column; gap:10px; }
+  .eyebrow{
+    font-family:"IBM Plex Mono", monospace;
+    font-size:11.5px; font-weight:600; letter-spacing:.11em; text-transform:uppercase;
+    color:var(--main);
+  }
+  h1{ margin:0; font-size:clamp(24px,4vw,32px); font-weight:700; letter-spacing:-.01em; text-wrap:balance; }
+  .lede{ margin:0; color:var(--text-muted); font-size:14.5px; max-width:74ch; }
+  .lede a{ color:var(--main); }
+
+  .editor-toolbar{ display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+  .toolbar-actions{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .save-status{ font-size:12.5px; color:var(--text-faint); display:flex; align-items:center; gap:7px; }
+  .save-status .dot{ width:7px; height:7px; border-radius:50%; background:var(--text-faint); flex:none; }
+  .save-status.is-saved .dot{ background:var(--eng); }
+  .save-status.is-pending .dot{ background:var(--milestone); }
+  .save-status.is-error .dot{ background:var(--today); }
+
+  .btn{
+    appearance:none; border:1px solid var(--border); background:var(--surface); color:var(--text);
+    font-family:inherit; font-size:13px; font-weight:600; padding:8px 14px; border-radius:8px; cursor:pointer;
+    text-decoration:none; display:inline-flex; align-items:center; gap:6px;
+  }
+  .btn:hover{ border-color:var(--text-faint); }
+  .btn:focus-visible{ outline:2px solid var(--focus); outline-offset:2px; }
+  .btn:disabled{ opacity:.45; cursor:not-allowed; }
+  .btn-primary{ background:var(--main); border-color:var(--main); color:#fff; }
+  .btn-primary:hover{ filter:brightness(1.08); border-color:var(--main); }
+
+  .readonly-banner{
+    font-size:12.5px; color:var(--milestone); background:var(--milestone-soft);
+    border:1px solid var(--border); padding:9px 12px; border-radius:8px;
+  }
+
+  .count-line{ font-size:13px; color:var(--text-faint); }
+  .count-line strong{ color:var(--text); font-weight:600; }
+
+  .filter-toolbar{ display:flex; flex-direction:column; gap:10px; }
+  .search-input{
+    width:100%; max-width:420px; background:var(--surface); border:1px solid var(--border); color:var(--text);
+    font-family:inherit; font-size:13.5px; padding:9px 12px; border-radius:8px;
+  }
+  .search-input::placeholder{ color:var(--text-faint); }
+  .search-input:focus-visible{ outline:2px solid var(--focus); outline-offset:1px; }
+
+  .filter-bar{ display:flex; flex-wrap:wrap; gap:8px; }
+  .filter-chip{
+    appearance:none; border:1px solid var(--border); background:var(--surface); color:var(--text-muted);
+    font-family:inherit; font-size:12.5px; font-weight:600; padding:6px 12px; border-radius:999px; cursor:pointer;
+    display:inline-flex; align-items:center; gap:6px;
+  }
+  .filter-chip:hover{ border-color:var(--text-faint); color:var(--text); }
+  .filter-chip:focus-visible{ outline:2px solid var(--focus); outline-offset:2px; }
+  .filter-chip.is-active{ background:var(--main-soft); border-color:var(--main); color:var(--main); }
+  .filter-chip .chip-count{ font-family:"IBM Plex Mono",monospace; font-size:11px; opacity:.8; }
+
+  .kb-grid{ display:grid; grid-template-columns:repeat(3, 1fr); gap:14px; }
+  @media (max-width:920px){ .kb-grid{ grid-template-columns:repeat(2, 1fr); } }
+  @media (max-width:600px){ .kb-grid{ grid-template-columns:1fr; } }
+
+  .kb-card{
+    display:flex; flex-direction:column; gap:10px; width:100%; text-align:left;
+    background:var(--surface); border:1px solid var(--border); border-radius:12px;
+    padding:15px 16px 16px; text-decoration:none; color:inherit; box-shadow:var(--shadow);
+    transition:border-color .15s, transform .15s, background .15s;
+    appearance:none; font-family:inherit; cursor:pointer;
+  }
+  .kb-card:hover{ border-color:var(--main); transform:translateY(-2px); background:var(--surface-2); }
+  .kb-card:focus-visible{ outline:2px solid var(--focus); outline-offset:2px; }
+
+  .kb-top{ display:flex; align-items:center; justify-content:space-between; gap:8px; }
+  .kb-tag{
+    font-family:"IBM Plex Mono",monospace; font-size:10.5px; font-weight:600; letter-spacing:.02em;
+    padding:2px 7px; border-radius:5px; background:var(--surface-2); color:var(--text-faint); border:1px solid var(--border);
+  }
+  .kb-jira{ font-family:"IBM Plex Mono",monospace; font-size:11px; color:var(--text-faint); }
+
+  .kb-card h3{ margin:0; font-size:14.5px; font-weight:600; letter-spacing:-.005em; text-wrap:balance; }
+  .kb-customer{ margin:0; font-size:12px; color:var(--text-muted); }
+  .kb-specs{
+    margin:0; font-size:12px; color:var(--text-faint); line-height:1.4;
+    display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
+  }
+  .price-row{ display:flex; align-items:baseline; gap:10px; margin-top:auto; padding-top:2px; flex-wrap:wrap; }
+  .price-row .price{ font-family:"IBM Plex Mono",monospace; font-size:16px; font-weight:700; color:var(--eng); }
+  .price-row .cost{ font-family:"IBM Plex Mono",monospace; font-size:11.5px; color:var(--text-faint); }
+  .margin-pill{
+    font-family:"IBM Plex Mono",monospace; font-size:10.5px; font-weight:600;
+    padding:2px 7px; border-radius:5px; background:var(--eng-soft); color:var(--eng);
+  }
+
+  .empty-state{ padding:30px 10px; text-align:center; color:var(--text-faint); font-size:13px; }
+  .empty-state a{ color:var(--main); }
+
+  footer{ text-align:center; font-size:11.5px; color:var(--text-faint); }
+
+  .detail-overlay{
+    position:fixed; inset:0; background:rgba(8,8,10,.72);
+    display:flex; align-items:flex-start; justify-content:center; padding:40px 16px;
+    z-index:50; overflow-y:auto;
+  }
+  .detail-panel{
+    background:var(--surface); border:1px solid var(--border); border-radius:14px;
+    box-shadow:var(--shadow); width:100%; max-width:560px; max-height:calc(100vh - 80px);
+    display:flex; flex-direction:column; overflow:hidden;
+  }
+  .detail-head{
+    display:flex; align-items:flex-start; justify-content:space-between; gap:12px;
+    padding:16px 20px; border-bottom:1px solid var(--border); flex:none;
+  }
+  .detail-title{ margin:0; font-size:18px; font-weight:700; letter-spacing:-.01em; text-wrap:balance; }
+  .detail-head-actions{ display:flex; align-items:center; gap:8px; flex:none; }
+  .icon-btn{
+    appearance:none; border:1px solid var(--border); background:var(--surface-2); color:var(--text-muted);
+    width:30px; height:30px; border-radius:8px; cursor:pointer; display:flex; align-items:center; justify-content:center;
+    font-size:14px; font-family:inherit; text-decoration:none;
+  }
+  .icon-btn:hover{ border-color:var(--text-faint); color:var(--text); }
+  .icon-btn:focus-visible{ outline:2px solid var(--focus); outline-offset:2px; }
+  .detail-body{ padding:18px 20px 24px; overflow-y:auto; font-size:13.5px; line-height:1.6; color:var(--text); display:flex; flex-direction:column; gap:14px; }
+  .stat-grid{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .stat-box{ background:var(--surface-2); border:1px solid var(--border); border-radius:10px; padding:12px 14px; }
+  .stat-box .lbl{ font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--text-faint); margin-bottom:4px; }
+  .stat-box .val{ font-family:"IBM Plex Mono",monospace; font-size:17px; font-weight:700; color:var(--text); }
+  .stat-box.accent .val{ color:var(--eng); }
+  .meta-row{ display:flex; justify-content:space-between; gap:12px; font-size:12.5px; color:var(--text-muted); border-bottom:1px solid var(--border); padding-bottom:10px; }
+  .meta-row span:first-child{ color:var(--text-faint); flex:none; }
+  .meta-row span:last-child{ text-align:right; }
+  .meta-row:last-child{ border-bottom:none; }
+  .meta-block{ display:flex; flex-direction:column; gap:4px; border-bottom:1px solid var(--border); padding-bottom:10px; }
+  .meta-block:last-child{ border-bottom:none; }
+  .meta-block .lbl{ font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--text-faint); }
+  .meta-block .val{ font-size:13px; color:var(--text-muted); white-space:pre-wrap; }
+  .detail-loading, .detail-error{ padding:34px 10px; text-align:center; color:var(--text-faint); font-size:13px; }
+  .detail-error{ color:var(--today); }
+
+  .detail-full{ display:flex; flex-direction:column; gap:10px; border-top:1px solid var(--border); padding-top:14px; }
+  .detail-full-head{ display:flex; align-items:center; justify-content:space-between; gap:8px; }
+  .detail-full-head h3{ margin:0; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--text-faint); }
+  .detail-full-body{ font-size:13px; line-height:1.6; color:var(--text-muted); display:flex; flex-direction:column; gap:8px; }
+  .detail-full-body h4{ margin:10px 0 2px; font-size:12.5px; font-weight:700; color:var(--text); }
+  .detail-full-body h4:first-child{ margin-top:0; }
+  .detail-full-body p{ margin:0; }
+  .detail-full-body ul{ margin:0; padding-left:18px; display:flex; flex-direction:column; gap:2px; }
+  .detail-full-body a{ color:var(--main); }
+  .detail-full-body em{ color:var(--text-faint); }
+  .detail-table-wrap{ overflow-x:auto; }
+  .detail-table{ width:100%; border-collapse:collapse; font-family:"IBM Plex Mono",monospace; font-size:12px; }
+  .detail-table td{ padding:6px 10px; border-bottom:1px solid var(--border); color:var(--text-muted); }
+  .detail-table tr:first-child td{ color:var(--text-faint); font-family:"IBM Plex Sans",sans-serif; font-size:10.5px; text-transform:uppercase; letter-spacing:.04em; border-bottom:1px solid var(--text-faint); }
+  .detail-table td:last-child{ text-align:right; }
+  .detail-table strong{ color:var(--eng); }
+  .detail-full-loading{ font-size:12.5px; color:var(--text-faint); }
+  .detail-full-error{ font-size:12.5px; color:var(--today); }
+
+  .form-overlay{
+    position:fixed; inset:0; background:rgba(8,8,10,.72);
+    display:flex; align-items:flex-start; justify-content:center; padding:40px 16px;
+    z-index:60; overflow-y:auto;
+  }
+  .form-panel{
+    background:var(--surface); border:1px solid var(--border); border-radius:14px;
+    box-shadow:var(--shadow); width:100%; max-width:480px;
+    display:flex; flex-direction:column; overflow:hidden;
+  }
+  .form-head{ display:flex; align-items:center; justify-content:space-between; padding:16px 20px; border-bottom:1px solid var(--border); }
+  .form-head h2{ margin:0; font-size:16px; font-weight:700; letter-spacing:-.005em; }
+  .form-body{ padding:18px 20px; display:flex; flex-direction:column; gap:14px; overflow-y:auto; }
+  .form-field{ display:flex; flex-direction:column; gap:6px; }
+  .form-field label{ font-size:11.5px; font-weight:600; color:var(--text-faint); text-transform:uppercase; letter-spacing:.05em; }
+  .form-row{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .form-input, .form-textarea, select.form-input{
+    background:var(--surface-2); border:1px solid var(--border); color:var(--text);
+    font-family:inherit; font-size:13.5px; padding:9px 11px; border-radius:8px; resize:vertical;
+  }
+  .form-input:focus-visible, .form-textarea:focus-visible{ outline:2px solid var(--focus); outline-offset:1px; }
+  .form-hint{ font-size:11.5px; color:var(--text-faint); }
+  .form-foot{ display:flex; align-items:center; justify-content:flex-end; gap:8px; padding:14px 20px; border-top:1px solid var(--border); flex:none; }
+  .form-error{ font-size:12.5px; color:var(--today); }
+  .calc-box{ background:var(--surface-2); border:1px solid var(--border); border-radius:10px; padding:12px 14px; display:flex; flex-direction:column; gap:6px; }
+  .calc-line{ display:flex; justify-content:space-between; gap:10px; font-size:12.5px; color:var(--text-muted); font-family:"IBM Plex Mono",monospace; }
+  .calc-line strong{ color:var(--text); font-weight:600; }
+  .calc-line.total{ border-top:1px solid var(--border); padding-top:7px; margin-top:1px; }
+  .calc-line.total strong{ color:var(--eng); }
+  .radio-row{ display:flex; gap:16px; }
+  .radio-opt{ display:inline-flex; align-items:center; gap:6px; font-size:13px; color:var(--text-muted); cursor:pointer; }
+  .radio-opt input{ accent-color:var(--main); margin:0; }
+  .link-btn{
+    appearance:none; background:none; border:0; color:var(--main); font-family:inherit; font-size:12px; font-weight:600;
+    cursor:pointer; padding:0; align-self:flex-start;
+  }
+  .link-btn:hover{ color:var(--text); text-decoration:underline; }
+  .link-btn:focus-visible{ outline:2px solid var(--focus); outline-offset:2px; }
+  .subform{ background:var(--surface-2); border:1px solid var(--border); border-radius:10px; padding:12px; gap:12px; }
+
+  .diag-banner{
+    background:#3B1A1A; border:1px solid #7A3B3B; color:#F5C8C8;
+    font-family:"IBM Plex Mono",monospace; font-size:12.5px; line-height:1.5;
+    padding:12px 14px; border-radius:8px; white-space:pre-wrap; word-break:break-word;
+  }
+</style>
+
+<div class="wrap">
+
+  <div class="diag-banner" id="diagBanner" hidden></div>
+
+  <a class="back-link" href="function.html">&larr; Function</a>
+
+  <header>
+    <div class="eyebrow">Onsor · Function</div>
+    <h1>Device Pricing</h1>
+    <p class="lede">Live view of the <a href="https://app.notion.com/p/3c006d99b01240e0857bed7939913ae7" target="_blank" rel="noopener">Pricing</a> database in Notion (PC Product Management) &mdash; device, customer, quantity, cost, and selling price for every quote. Add a new record here and it's written straight to Notion.</p>
+  </header>
+
+  <div class="editor-toolbar">
+    <div class="save-status" id="syncStatus"><span class="dot"></span><span id="syncStatusText">Connecting to Notion&hellip;</span></div>
+    <div class="toolbar-actions">
+      <button type="button" class="btn" id="refreshBtn">&#8635; Refresh now</button>
+      <button type="button" class="btn btn-primary" id="addItemBtn">+ Add price record</button>
+      <a class="btn" href="https://app.notion.com/p/3c006d99b01240e0857bed7939913ae7" target="_blank" rel="noopener">Open in Notion &rarr;</a>
+    </div>
+  </div>
+  <div id="errorBanner" class="readonly-banner" hidden></div>
+  <div id="postNotice" class="readonly-banner" hidden></div>
+
+  <div class="count-line" id="countLine"></div>
+
+  <div class="filter-toolbar">
+    <input type="search" class="search-input" id="searchInput" placeholder="Search device or customer&hellip;" autocomplete="off">
+    <div class="filter-bar" id="filterBar"></div>
+  </div>
+
+  <div class="kb-grid" id="kbGrid"></div>
+
+  <footer>Pulls live from the Pricing database in Notion (PC Product Management) &middot; polls automatically while this page is open.</footer>
+
+</div>
+
+<div class="detail-overlay" id="detailOverlay" hidden>
+  <div class="detail-panel" role="dialog" aria-modal="true" aria-labelledby="detailTitle">
+    <div class="detail-head">
+      <h2 class="detail-title" id="detailTitle">&nbsp;</h2>
+      <div class="detail-head-actions">
+        <a class="icon-btn" id="detailOpenLink" href="#" target="_blank" rel="noopener" title="Open in Notion">&#8599;</a>
+        <button type="button" class="icon-btn" id="detailCloseBtn" title="Close">&times;</button>
+      </div>
+    </div>
+    <div class="detail-body" id="detailBody"></div>
+  </div>
+</div>
+
+<div class="form-overlay" id="createOverlay" hidden>
+  <div class="form-panel" role="dialog" aria-modal="true" aria-labelledby="createTitleHead">
+    <div class="form-head">
+      <h2 id="createTitleHead">Add price record</h2>
+      <button type="button" class="icon-btn" id="createCloseBtn" title="Close">&times;</button>
+    </div>
+    <div class="form-body">
+      <div class="form-field">
+        <label for="formDeviceSelect">Device</label>
+        <select class="form-input" id="formDeviceSelect"></select>
+      </div>
+      <div class="form-field" id="formDeviceOtherWrap" hidden>
+        <label for="formDeviceOther">Device name (other)</label>
+        <input type="text" class="form-input" id="formDeviceOther" placeholder="Type the device name" autocomplete="off">
+      </div>
+      <div class="form-field">
+        <label for="formCustomer">Customer name</label>
+        <input type="text" class="form-input" id="formCustomer" placeholder="e.g. Ministry of Education" autocomplete="off">
+      </div>
+      <div class="form-row">
+        <div class="form-field">
+          <label for="formJira">Jira reference</label>
+          <input type="text" class="form-input" id="formJira" placeholder="e.g. PPIER-123" autocomplete="off">
+        </div>
+        <div class="form-field">
+          <label for="formQuantity">Quantity</label>
+          <input type="number" step="1" class="form-input" id="formQuantity" placeholder="100">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-field">
+          <label for="formWindows">Windows version</label>
+          <select class="form-input" id="formWindows">
+            <option value="Pro">Pro (+$122)</option>
+            <option value="Home">Home (+$89)</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label for="formWarrantyYears">Warranty (years)</label>
+          <input type="number" step="1" min="1" class="form-input" id="formWarrantyYears" value="1">
+        </div>
+      </div>
+      <div class="form-field">
+        <label for="formDeviceCost">Device cost (per unit, from PI)</label>
+        <input type="number" step="0.001" class="form-input" id="formDeviceCost" placeholder="e.g. 246.00">
+      </div>
+      <div class="form-field">
+        <label>Margin target</label>
+        <div class="radio-row">
+          <label class="radio-opt"><input type="radio" name="marginTarget" value="0.23" checked> 23% (min)</label>
+          <label class="radio-opt"><input type="radio" name="marginTarget" value="0.30"> 30% (max)</label>
+        </div>
+      </div>
+      <div class="calc-box" id="calcBox">
+        <div class="calc-line"><span>Device cost</span><span id="calcDeviceCost">$0.00</span></div>
+        <div class="calc-line"><span>Windows add-on</span><span id="calcWindows">$0.00</span></div>
+        <div class="calc-line"><span>Shipping</span><span id="calcShipping">$15.00</span></div>
+        <div class="calc-line"><span>QC / QA</span><span id="calcQcqa">$3.00</span></div>
+        <div class="calc-line"><span>Warranty (0.2 &times; device cost &times; years)</span><span id="calcWarranty">$0.00</span></div>
+        <div class="calc-line total"><span>Total cost</span><strong id="calcTotal">$0.00</strong></div>
+        <div class="calc-line"><span>Selling price @ 23% margin</span><span id="calcSell23">$0.00</span></div>
+        <div class="calc-line"><span>Selling price @ 30% margin</span><span id="calcSell30">$0.00</span></div>
+        <div class="calc-line total"><span>Order total (qty &times; selling price)</span><strong id="calcOrderTotal">$0.00</strong></div>
+      </div>
+      <div class="form-row">
+        <div class="form-field">
+          <label for="formCost">Unit cost (auto &mdash; editable)</label>
+          <input type="number" step="0.001" class="form-input" id="formCost" placeholder="384.80">
+        </div>
+        <div class="form-field">
+          <label for="formSelling">Unit selling price (auto &mdash; editable)</label>
+          <input type="number" step="0.001" class="form-input" id="formSelling" placeholder="499.74">
+        </div>
+      </div>
+      <div class="form-field">
+        <label for="formSpecs">Specs</label>
+        <textarea class="form-textarea" id="formSpecs" rows="3" placeholder="Short spec summary for this quote"></textarea>
+      </div>
+      <div class="form-field">
+        <label for="formPageRef">Page reference</label>
+        <input type="url" class="form-input" id="formPageRef" placeholder="Created automatically when you post — Customer_Date_Device" readonly>
+      </div>
+      <div class="form-field">
+        <label for="formQuoteFile">Attach quote (optional, PDF or image)</label>
+        <input type="file" class="form-input" id="formQuoteFile" accept="application/pdf,image/*">
+      </div>
+      <div class="form-hint">Unit cost and selling price are calculated as device cost + Windows + shipping ($15) + QC/QA ($3) + warranty (20% of device cost &times; years), then divided by (1 &minus; margin). Windows version, warranty years, and full specs are written into the created page's content. A quote file is uploaded here and linked on that page &mdash; it isn't stored as a native Notion file (Notion can't retrieve files from this tool), so drag it into Notion directly afterward if you need a true native copy there.</div>
+      <div class="form-error" id="formError" hidden></div>
+    </div>
+    <div class="form-foot">
+      <button type="button" class="btn" id="createCancelBtn">Cancel</button>
+      <button type="button" class="btn btn-primary" id="createSubmitBtn">Post to Notion</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  function showDiag(msg){
+    try {
+      var b = document.getElementById("diagBanner");
+      if (!b) return;
+      b.hidden = false;
+      b.textContent = "Something went wrong on this page: " + msg + "\n\nPlease screenshot this message and share it so it can be fixed.";
+    } catch (ignored) { /* nothing more we can do */ }
+  }
+  window.addEventListener("error", function(e){ showDiag(e && e.message ? e.message : "unknown script error"); });
+  window.addEventListener("unhandledrejection", function(e){
+    var reason = e && e.reason;
+    showDiag(reason && reason.message ? reason.message : String(reason));
+  });
+
+  try {
+
+  var MCP_SERVER = "Notion";
+  var MCP_TOOL = "notion-query-data-sources";
+  var MCP_TOOL_CREATE = "notion-create-pages";
+  var MCP_TOOL_FETCH = "notion-fetch";
+  var DATA_SOURCE_URL = "collection://6797a64d-9356-4221-a2cd-ef687abb09c8";
+  var SQL_QUERY = 'SELECT url, createdTime, "Device Name", "Customer Name", "Jira Reference", "Specs", "Quantity", "Unit Cost", "Unit Selling Price", "Page Reference" '
+    + 'FROM "' + DATA_SOURCE_URL + '" ORDER BY createdTime DESC LIMIT 100';
+  var TOOL_INPUT = {
+    data: {
+      data_source_urls: [DATA_SOURCE_URL],
+      query: SQL_QUERY
+    }
+  };
+  var REFRESH_MS = 300000; // ~5 min poll while the page stays open
+  var NOTION_DB_URL = "https://app.notion.com/p/3c006d99b01240e0857bed7939913ae7";
+
+  var TAG_PALETTE = ["main", "eng", "supply", "milestone", "today"];
+
+  var DEVICE_OPTIONS = ["TURS 14", "TURS 16", "TURS Tablet", "MOUJ 14", "MOUJ 14 2-in-1", "MOUJ 12", "KiTAB 11", "KiTAB 14", "KiTAB Chrome", "HESN", "Other"];
+  var WINDOWS_ADDON = { "Pro": 122, "Home": 89 };
+  var SHIPPING_COST = 15;
+  var QCQA_COST = 3;
+  var WARRANTY_RATE = 0.2; // 20% of device cost, per warranty year
+
+  function escapeHtml(s){
+    return String(s == null ? "" : s).replace(/[&<>]/g, function(c){
+      return c === "&" ? "&amp;" : (c === "<" ? "&lt;" : "&gt;");
+    });
+  }
+  function escAttr(s){ return escapeHtml(s).replace(/"/g, "&quot;"); }
+
+  function extractNotionId(s){
+    if (!s) return s;
+    var m = /([0-9a-fA-F]{32}|[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})(?:[^0-9a-fA-F]|$)/.exec(String(s) + " ");
+    return m ? m[1] : s;
+  }
+
+  function fmtMoney(n){
+    if (n == null || isNaN(n)) return "—";
+    return Number(n).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+  function fmtNumber(n){
+    if (n == null || isNaN(n)) return "—";
+    return Number(n).toLocaleString();
+  }
+  function computeMarginPct(cost, selling){
+    if (cost == null || selling == null || !selling) return null;
+    return ((selling - cost) / selling) * 100;
+  }
+  function computeTotal(quantity, selling){
+    if (quantity == null || selling == null) return null;
+    return quantity * selling;
+  }
+
+  function normalizeRow(r){
+    return {
+      notionId: extractNotionId(r.url),
+      href: r.url,
+      device: r["Device Name"] || "Untitled",
+      customer: r["Customer Name"] || "",
+      jira: r["Jira Reference"] || "",
+      specs: r["Specs"] || "",
+      quantity: (typeof r["Quantity"] === "number") ? r["Quantity"] : null,
+      cost: (typeof r["Unit Cost"] === "number") ? r["Unit Cost"] : null,
+      selling: (typeof r["Unit Selling Price"] === "number") ? r["Unit Selling Price"] : null,
+      pageRef: r["Page Reference"] || "",
+      created: r.createdTime ? String(r.createdTime).slice(0, 10) : ""
+    };
+  }
+
+  var syncStatusEl = document.getElementById("syncStatus");
+  var syncStatusText = document.getElementById("syncStatusText");
+  var errorBanner = document.getElementById("errorBanner");
+  var refreshBtn = document.getElementById("refreshBtn");
+  var countLine = document.getElementById("countLine");
+  var filterBar = document.getElementById("filterBar");
+  var kbGrid = document.getElementById("kbGrid");
+  var searchInput = document.getElementById("searchInput");
+
+  var mcpNs = null;
+  var allRows = [];
+  var activeFilter = "all";
+  var searchTerm = "";
+  var tagColorMap = {};
+
+  function colorForTag(tag){
+    if (!tagColorMap[tag]){
+      var idx = Object.keys(tagColorMap).length % TAG_PALETTE.length;
+      tagColorMap[tag] = TAG_PALETTE[idx];
+    }
+    return tagColorMap[tag];
+  }
+
+  function setFilter(f){
+    activeFilter = f;
+    renderGrid();
+    renderFilterBar();
+  }
+
+  function renderFilterBar(){
+    var counts = {};
+    allRows.forEach(function(r){
+      if (r.customer) counts[r.customer] = (counts[r.customer] || 0) + 1;
+    });
+    var tags = Object.keys(counts).sort(function(a, b){ return counts[b] - counts[a]; });
+    var chips = [{ key: "all", label: "All", count: allRows.length }].concat(
+      tags.map(function(t){ return { key: t, label: t, count: counts[t] }; })
+    );
+    filterBar.innerHTML = chips.map(function(c){
+      var active = c.key === activeFilter;
+      return '<button type="button" class="filter-chip' + (active ? " is-active" : "") + '" data-filter="' + escAttr(c.key) + '">'
+        + escapeHtml(c.label) + ' <span class="chip-count">' + c.count + '</span>'
+        + '</button>';
+    }).join("");
+    Array.prototype.forEach.call(filterBar.querySelectorAll(".filter-chip"), function(btn){
+      btn.addEventListener("click", function(){ setFilter(btn.getAttribute("data-filter")); });
+    });
+  }
+
+  function matchesFilter(row){
+    if (activeFilter !== "all" && row.customer !== activeFilter) return false;
+    if (searchTerm){
+      var hay = (row.device + " " + row.customer).toLowerCase();
+      if (hay.indexOf(searchTerm) === -1) return false;
+    }
+    return true;
+  }
+
+  function renderGrid(){
+    var visible = allRows.filter(matchesFilter);
+    countLine.innerHTML = allRows.length
+      ? ('<strong>' + visible.length + '</strong> of ' + allRows.length + ' price record' + (allRows.length === 1 ? "" : "s"))
+      : "";
+
+    if (!allRows.length){
+      kbGrid.innerHTML = '<div class="empty-state">No price records yet. <a href="' + escAttr(NOTION_DB_URL) + '" target="_blank" rel="noopener">Add the first one in Notion &rarr;</a></div>';
+      return;
+    }
+    if (!visible.length){
+      kbGrid.innerHTML = '<div class="empty-state">No records match this filter or search.</div>';
+      return;
+    }
+
+    kbGrid.innerHTML = visible.map(function(r){
+      var margin = computeMarginPct(r.cost, r.selling);
+      var total = computeTotal(r.quantity, r.selling);
+      return ''
+        + '<button type="button" class="kb-card" data-id="' + escAttr(r.notionId || "") + '">'
+        +   '<div class="kb-top">'
+        +     (r.jira ? '<span class="kb-jira">' + escapeHtml(r.jira) + '</span>' : '<span></span>')
+        +     (r.customer ? '<span class="kb-tag" style="color:var(--' + colorForTag(r.customer) + ');border-color:var(--' + colorForTag(r.customer) + ')">' + escapeHtml(r.customer) + '</span>' : '')
+        +   '</div>'
+        +   '<h3>' + escapeHtml(r.device) + '</h3>'
+        +   (r.specs ? '<p class="kb-specs">' + escapeHtml(r.specs) + '</p>' : '')
+        +   '<div class="price-row">'
+        +     '<span class="price">$' + fmtMoney(r.selling) + '<span style="font-size:10px;color:var(--text-faint);font-weight:500;">/unit</span></span>'
+        +     (r.cost != null ? '<span class="cost">cost $' + fmtMoney(r.cost) + '</span>' : '')
+        +     (margin != null ? '<span class="margin-pill">' + margin.toFixed(1) + '% margin</span>' : '')
+        +     (total != null ? '<span class="cost">total $' + fmtMoney(total) + '</span>' : '')
+        +   '</div>'
+        + '</button>';
+    }).join("");
+  }
+
+  kbGrid.addEventListener("click", function(e){
+    var card = e.target.closest ? e.target.closest(".kb-card") : null;
+    if (!card) return;
+    var id = card.getAttribute("data-id");
+    var row = allRows.find(function(r){ return r.notionId === id; });
+    if (row) openDetail(row);
+  });
+
+  function setSyncStatus(kind, text){
+    syncStatusEl.className = "save-status" + (kind === "ok" ? " is-saved" : kind === "pending" ? " is-pending" : kind === "error" ? " is-error" : "");
+    syncStatusText.textContent = text;
+  }
+  function showError(message){
+    errorBanner.hidden = false;
+    errorBanner.textContent = message;
+  }
+  function clearError(){
+    errorBanner.hidden = true;
+    errorBanner.textContent = "";
+  }
+  var postNotice = document.getElementById("postNotice");
+  function showPostNotice(message){
+    postNotice.hidden = false;
+    postNotice.textContent = message + " (Click to dismiss.)";
+  }
+  postNotice.style.cursor = "pointer";
+  postNotice.addEventListener("click", function(){ postNotice.hidden = true; postNotice.textContent = ""; });
+  function formatStoredAt(ms){
+    if (!ms) return "";
+    try { return new Date(ms).toLocaleString(); } catch (e) { return ""; }
+  }
+
+  function handleToolResult(result){
+    var payload = result && result.payload;
+    var results = (payload && Array.isArray(payload.results)) ? payload.results : [];
+    allRows = results.map(normalizeRow);
+    renderFilterBar();
+    renderGrid();
+    clearError();
+    var storedAt = (result && result.cache && result.cache.storedAt) ? result.cache.storedAt : Date.now();
+    var revalidating = !!(result && result.cache && result.cache.revalidating);
+    setSyncStatus("ok", (revalidating ? "Refreshing… last synced " : "Synced from Notion · ") + formatStoredAt(storedAt));
+  }
+
+  var RETRACTING_CODES = {
+    needs_reauth: 1, server_not_connected: 1, blocked_by_policy: 1,
+    approval_required: 1, not_in_manifest: 1, consent_required: 1, user_changed: 1
+  };
+
+  function friendlyErrorMessage(err){
+    var code = err && err.code;
+    switch (code){
+      case "needs_reauth":
+        return "Your " + MCP_SERVER + " connection needs to be reconnected — go to claude.ai Settings → Connectors to reconnect.";
+      case "server_not_connected":
+        return "Add " + MCP_SERVER + " in claude.ai Settings → Connectors to see live pricing data here.";
+      case "selection_required":
+        return "More than one " + MCP_SERVER + " connection is available — choose one when prompted, then reload this page.";
+      case "not_in_manifest":
+        return "This view isn't allowed to read " + MCP_SERVER + " data.";
+      case "blocked_by_policy":
+        return "Your organization's policy blocks this page from reading " + MCP_SERVER + " data.";
+      case "approval_required":
+        return "This Notion query needs approval before it can run — check claude.ai for a pending approval.";
+      case "server_unavailable":
+        return "Notion is temporarily unreachable — retrying automatically.";
+      case "consent_required":
+        return "Allow " + MCP_SERVER + " for this page when prompted to see live pricing data.";
+      case "not_granted":
+      case "capability_disabled":
+      case "capability_removed":
+        return "Live Notion sync isn't available in this view.";
+      case "user_changed":
+        return "The signed-in account changed — reload this page.";
+      default:
+        return "Couldn't reach Notion right now" + (code ? " (" + code + ")" : (err && err.message ? (": " + err.message) : "")) + " — will retry automatically.";
+    }
+  }
+
+  function handleWatchEvent(ev){
+    try {
+      if (ev.type === "data"){
+        handleToolResult(ev.result);
+        return;
+      }
+      var err = ev.error || {};
+      var msg = friendlyErrorMessage(err);
+      if (RETRACTING_CODES[err.code]){
+        allRows = [];
+        renderFilterBar();
+        renderGrid();
+        setSyncStatus("error", "Not connected to Notion");
+      } else {
+        setSyncStatus("error", "Sync issue — showing last known data");
+      }
+      showError(msg);
+    } catch (e) { showDiag((e && e.message) ? e.message : String(e)); }
+  }
+
+  function startWatch(mcp){
+    setSyncStatus("pending", "Connecting to Notion…");
+    mcp.watchTool(MCP_SERVER, MCP_TOOL, TOOL_INPUT, handleWatchEvent, { refetchInterval: REFRESH_MS });
+  }
+
+  refreshBtn.addEventListener("click", function(){
+    try {
+      if (!mcpNs) return;
+      setSyncStatus("pending", "Refreshing…");
+      mcpNs.invalidate(MCP_SERVER, MCP_TOOL, TOOL_INPUT).catch(function(){ /* watch will surface any error */ });
+    } catch (e) { showDiag((e && e.message) ? e.message : String(e)); }
+  });
+
+  searchInput.addEventListener("input", function(){
+    searchTerm = searchInput.value.trim().toLowerCase();
+    renderGrid();
+  });
+
+  // ---- Detail panel ----
+  var detailOverlay = document.getElementById("detailOverlay");
+  var detailTitleEl = document.getElementById("detailTitle");
+  var detailOpenLink = document.getElementById("detailOpenLink");
+  var detailCloseBtn = document.getElementById("detailCloseBtn");
+  var detailBody = document.getElementById("detailBody");
+  var detailMouseDownOnBackdrop = false;
+
+  function onDetailKeydown(e){ if (e.key === "Escape") closeDetail(); }
+  function closeDetail(){
+    detailOverlay.hidden = true;
+    document.removeEventListener("keydown", onDetailKeydown);
+  }
+
+  // ---- Full-details markdown rendering (pulled live from the linked page) ----
+  function inlineFmt(escaped){
+    var out = escaped.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+    out = out.replace(/_([^_]+)_/g, "<em>$1</em>");
+    out = out.replace(/\[([^\]]+)\]\(([^)]+)\)/g, function(m, t, u){
+      return '<a href="' + u.replace(/"/g, "&quot;") + '" target="_blank" rel="noopener">' + t + '</a>';
+    });
+    return out;
+  }
+
+  function renderNotionMarkdown(raw){
+    if (!raw || !raw.trim()) return '<p>No content on this page yet.</p>';
+    var lines = raw.split("\n");
+    var html = [];
+    var inTable = false;
+    var listBuf = [];
+    function flushList(){
+      if (listBuf.length){ html.push("<ul>" + listBuf.join("") + "</ul>"); listBuf = []; }
+    }
+    lines.forEach(function(line){
+      var trimmed = line.trim();
+      if (/^<table/.test(trimmed)){ flushList(); inTable = true; html.push('<div class="detail-table-wrap"><table class="detail-table">'); return; }
+      if (/^<\/table>/.test(trimmed)){ inTable = false; html.push("</table></div>"); return; }
+      if (inTable){
+        html.push(line.replace(/\\\$/g, "$").replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>"));
+        return;
+      }
+      if (!trimmed){ flushList(); return; }
+      var h = /^##\s+(.*)/.exec(trimmed);
+      if (h){ flushList(); html.push("<h4>" + inlineFmt(escapeHtml(h[1])) + "</h4>"); return; }
+      var li = /^-\s+(.*)/.exec(trimmed);
+      if (li){ listBuf.push("<li>" + inlineFmt(escapeHtml(li[1].replace(/\\\$/g, "$"))) + "</li>"); return; }
+      flushList();
+      html.push("<p>" + inlineFmt(escapeHtml(trimmed.replace(/\\\$/g, "$"))) + "</p>");
+    });
+    flushList();
+    if (inTable) html.push("</table></div>");
+    return html.join("");
+  }
+
+  function extractPageContent(text){
+    if (!text) return "";
+    var m = /<content>([\s\S]*?)<\/content>/.exec(text);
+    return m ? m[1].trim() : text.trim();
+  }
+
+  var detailRequestId = 0;
+
+  function loadFullDetails(row){
+    var container = document.getElementById("detailFull");
+    if (!container) return;
+    if (!row.pageRef){
+      container.innerHTML = '<div class="detail-full-head"><h3>Full details</h3></div><div class="detail-full-loading">No linked page yet for this record — full request details, calculation, and specs are only written to the auto-created page. Repost this record to generate one.</div>';
+      return;
+    }
+    if (!mcpNs){
+      container.innerHTML = '<div class="detail-full-head"><h3>Full details</h3></div><div class="detail-full-error">Live Notion sync isn’t available in this view, so the linked page can’t be pulled in. <a href="' + escAttr(row.pageRef) + '" target="_blank" rel="noopener">Open it in Notion &rarr;</a></div>';
+      return;
+    }
+    container.innerHTML = '<div class="detail-full-head"><h3>Full details</h3></div><div class="detail-full-loading">Loading from the linked Notion page&hellip;</div>';
+    var myRequestId = ++detailRequestId;
+    mcpNs.callTool(MCP_SERVER, MCP_TOOL_FETCH, { id: row.pageRef }).then(function(result){
+      if (myRequestId !== detailRequestId) return; // a newer card was opened meanwhile
+      var payload = result && result.payload;
+      var text = payload && payload.text;
+      var contentMd = extractPageContent(text);
+      container.innerHTML = '<div class="detail-full-head"><h3>Full details</h3><a class="link-btn" href="' + escAttr(row.pageRef) + '" target="_blank" rel="noopener">Open in Notion &rarr;</a></div>'
+        + '<div class="detail-full-body">' + renderNotionMarkdown(contentMd) + '</div>';
+    }).catch(function(err){
+      if (myRequestId !== detailRequestId) return;
+      container.innerHTML = '<div class="detail-full-head"><h3>Full details</h3></div><div class="detail-full-error">' + escapeHtml(friendlyErrorMessage(err || {})) + ' <a href="' + escAttr(row.pageRef) + '" target="_blank" rel="noopener">Open it in Notion instead &rarr;</a></div>';
+    });
+  }
+
+  function renderDetailBody(row){
+    var margin = computeMarginPct(row.cost, row.selling);
+    var total = computeTotal(row.quantity, row.selling);
+    detailBody.innerHTML = ''
+      + '<div class="stat-grid">'
+      +   '<div class="stat-box accent"><div class="lbl">Unit selling price</div><div class="val">$' + fmtMoney(row.selling) + '</div></div>'
+      +   '<div class="stat-box"><div class="lbl">Unit cost</div><div class="val">$' + fmtMoney(row.cost) + '</div></div>'
+      + '</div>'
+      + '<div class="meta-row"><span>Total price (calc.)</span><span>' + (total != null ? '$' + fmtMoney(total) : '—') + '</span></div>'
+      + '<div class="meta-row"><span>Margin</span><span>' + (margin != null ? margin.toFixed(1) + '%' : '—') + '</span></div>'
+      + '<div class="meta-row"><span>Quantity</span><span>' + fmtNumber(row.quantity) + '</span></div>'
+      + '<div class="meta-row"><span>Customer</span><span>' + (row.customer ? escapeHtml(row.customer) : '—') + '</span></div>'
+      + '<div class="meta-row"><span>Jira reference</span><span>' + (row.jira ? escapeHtml(row.jira) : '—') + '</span></div>'
+      + (row.specs ? '<div class="meta-block"><div class="lbl">Specs</div><div class="val">' + escapeHtml(row.specs) + '</div></div>' : '')
+      + (row.pageRef ? '<div class="meta-row"><span>Page reference</span><span><a class="mono" style="color:var(--main);" href="' + escAttr(row.pageRef) + '" target="_blank" rel="noopener">Open &rarr;</a></span></div>' : '')
+      + '<div class="detail-full" id="detailFull"></div>';
+  }
+
+  function openDetail(row){
+    detailTitleEl.textContent = row.device;
+    detailOpenLink.href = row.href || NOTION_DB_URL;
+    renderDetailBody(row);
+    detailOverlay.hidden = false;
+    document.addEventListener("keydown", onDetailKeydown);
+    loadFullDetails(row);
+  }
+
+  detailCloseBtn.addEventListener("click", closeDetail);
+  detailOverlay.addEventListener("mousedown", function(e){ detailMouseDownOnBackdrop = (e.target === detailOverlay); });
+  detailOverlay.addEventListener("click", function(e){
+    var shouldClose = e.target === detailOverlay && detailMouseDownOnBackdrop;
+    detailMouseDownOnBackdrop = false;
+    if (shouldClose) closeDetail();
+  });
+
+  // ---- Add price record form ----
+  var addItemBtn = document.getElementById("addItemBtn");
+  var createOverlay = document.getElementById("createOverlay");
+  var createCloseBtn = document.getElementById("createCloseBtn");
+  var createCancelBtn = document.getElementById("createCancelBtn");
+  var createSubmitBtn = document.getElementById("createSubmitBtn");
+  var formDeviceSelect = document.getElementById("formDeviceSelect");
+  var formDeviceOtherWrap = document.getElementById("formDeviceOtherWrap");
+  var formDeviceOther = document.getElementById("formDeviceOther");
+  var formCustomer = document.getElementById("formCustomer");
+  var formJira = document.getElementById("formJira");
+  var formQuantity = document.getElementById("formQuantity");
+  var formWindows = document.getElementById("formWindows");
+  var formWarrantyYears = document.getElementById("formWarrantyYears");
+  var formDeviceCost = document.getElementById("formDeviceCost");
+  var formCost = document.getElementById("formCost");
+  var formSelling = document.getElementById("formSelling");
+  var formSpecs = document.getElementById("formSpecs");
+  var formPageRef = document.getElementById("formPageRef");
+  var formQuoteFile = document.getElementById("formQuoteFile");
+  var formError = document.getElementById("formError");
+  var createMouseDownOnBackdrop = false;
+
+  function todayISO(){
+    var d = new Date();
+    var mm = String(d.getMonth() + 1).padStart(2, "0");
+    var dd = String(d.getDate()).padStart(2, "0");
+    return d.getFullYear() + "-" + mm + "-" + dd;
+  }
+
+  function buildRequestDetailsMd(device, customer, jira, quantity, windowsVersion, warrantyYears, dateStr){
+    var lines = ["## Request details"];
+    lines.push("- Device: " + device);
+    lines.push("- Customer: " + (customer || "—"));
+    lines.push("- Jira reference: " + (jira || "—"));
+    lines.push("- Quantity: " + (quantity || "—"));
+    lines.push("- Windows version: " + windowsVersion);
+    lines.push("- Warranty: " + warrantyYears + " year(s)");
+    lines.push("- Date: " + dateStr);
+    return lines.join("\n");
+  }
+
+  function buildCalculationMd(deviceCost, windowsAddon, warranty, total, sell23, sell30, margin, finalSelling, quantity){
+    var rows = [];
+    rows.push(["Device cost", "$" + fmtMoney(deviceCost)]);
+    rows.push(["Windows add-on", "$" + fmtMoney(windowsAddon)]);
+    rows.push(["Shipping", "$" + fmtMoney(SHIPPING_COST)]);
+    rows.push(["QC / QA", "$" + fmtMoney(QCQA_COST)]);
+    rows.push(["Warranty (0.2 × device cost × years)", "$" + fmtMoney(warranty)]);
+    rows.push(["**Total cost**", "**$" + fmtMoney(total) + "**"]);
+    rows.push(["Selling price @ 23% margin", "$" + fmtMoney(sell23)]);
+    rows.push(["Selling price @ 30% margin", "$" + fmtMoney(sell30)]);
+    rows.push(["Margin used for this quote", Math.round(margin * 100) + "%"]);
+    if (finalSelling) rows.push(["Unit selling price posted", "$" + fmtMoney(Number(finalSelling))]);
+    var qtyNum = Number(quantity);
+    if (quantity && !isNaN(qtyNum) && finalSelling){
+      rows.push(["**Order total (quantity " + fmtNumber(qtyNum) + " × selling price)**", "**$" + fmtMoney(qtyNum * Number(finalSelling)) + "**"]);
+    }
+
+    var lines = ["## Calculation"];
+    lines.push("| Item | Amount |");
+    lines.push("| --- | --- |");
+    rows.forEach(function(r){
+      lines.push("| " + r[0] + " | " + r[1] + " |");
+    });
+    return lines.join("\n");
+  }
+
+  // Auto-creates the detail page (Customer_Date_Device) that the record's
+  // Page Reference will point to. Best-effort: the response shape hasn't
+  // been observed live for this tool, so parsing is defensive; on failure
+  // the main record still gets posted, just without a linked page.
+  function createDetailPage(mcp, title, content){
+    return mcp.callTool(MCP_SERVER, MCP_TOOL_CREATE, {
+      pages: [{ properties: { title: title }, content: content }],
+      creation_mode: "draft",
+      allow_async: false
+    }).then(function(result){
+      var payload = result && result.payload;
+      var list = payload && Array.isArray(payload.pages) ? payload.pages : null;
+      var created = (list && list[0]) || null;
+      var url = created && created.url;
+      if (!url){
+        return { url: "", warning: "The detail page may have been created in Notion, but its link couldn't be read back automatically — check Notion and paste it into the record's Page Reference if needed." };
+      }
+      return { url: url, warning: "" };
+    }).catch(function(err){
+      return { url: "", warning: "Couldn't create the detail page automatically (" + friendlyErrorMessage(err || {}) + ") — the record was still posted." };
+    });
+  }
+
+  var calcDeviceCostEl = document.getElementById("calcDeviceCost");
+  var calcWindowsEl = document.getElementById("calcWindows");
+  var calcWarrantyEl = document.getElementById("calcWarranty");
+  var calcTotalEl = document.getElementById("calcTotal");
+  var calcSell23El = document.getElementById("calcSell23");
+  var calcSell30El = document.getElementById("calcSell30");
+  var calcOrderTotalEl = document.getElementById("calcOrderTotal");
+
+  formDeviceSelect.innerHTML = DEVICE_OPTIONS.map(function(d){
+    var val = d === "Other" ? "__other__" : d;
+    return '<option value="' + escAttr(val) + '">' + escapeHtml(d) + '</option>';
+  }).join("");
+
+  formDeviceSelect.addEventListener("change", function(){
+    formDeviceOtherWrap.hidden = formDeviceSelect.value !== "__other__";
+  });
+
+  function getCheckedMargin(){
+    var checked = document.querySelector('input[name="marginTarget"]:checked');
+    return checked ? parseFloat(checked.value) : 0.23;
+  }
+
+  function recalcPricing(){
+    var deviceCost = parseFloat(formDeviceCost.value);
+    if (isNaN(deviceCost) || deviceCost < 0) deviceCost = 0;
+    var windowsAddon = WINDOWS_ADDON[formWindows.value] || 0;
+    var years = parseFloat(formWarrantyYears.value);
+    if (isNaN(years) || years < 1) years = 1;
+    var warranty = WARRANTY_RATE * deviceCost * years;
+    var total = deviceCost + windowsAddon + SHIPPING_COST + QCQA_COST + warranty;
+    var sell23 = total / (1 - 0.23);
+    var sell30 = total / (1 - 0.30);
+
+    calcDeviceCostEl.textContent = "$" + fmtMoney(deviceCost);
+    calcWindowsEl.textContent = "$" + fmtMoney(windowsAddon);
+    calcWarrantyEl.textContent = "$" + fmtMoney(warranty);
+    calcTotalEl.textContent = "$" + fmtMoney(total);
+    calcSell23El.textContent = "$" + fmtMoney(sell23);
+    calcSell30El.textContent = "$" + fmtMoney(sell30);
+
+    var margin = getCheckedMargin();
+    var finalSelling = total ? (total / (1 - margin)) : 0;
+    formCost.value = total ? total.toFixed(3) : "";
+    formSelling.value = total ? finalSelling.toFixed(3) : "";
+
+    var quantity = parseFloat(formQuantity.value);
+    if (isNaN(quantity) || quantity < 0) quantity = 0;
+    var orderTotal = quantity * finalSelling;
+    calcOrderTotalEl.textContent = "$" + fmtMoney(orderTotal);
+  }
+
+  formDeviceCost.addEventListener("input", recalcPricing);
+  formWindows.addEventListener("change", recalcPricing);
+  formWarrantyYears.addEventListener("input", recalcPricing);
+  formQuantity.addEventListener("input", recalcPricing);
+  Array.prototype.forEach.call(document.querySelectorAll('input[name="marginTarget"]'), function(r){
+    r.addEventListener("change", recalcPricing);
+  });
+  formSelling.addEventListener("input", function(){
+    var quantity = parseFloat(formQuantity.value);
+    if (isNaN(quantity) || quantity < 0) quantity = 0;
+    var selling = parseFloat(formSelling.value);
+    if (isNaN(selling) || selling < 0) selling = 0;
+    calcOrderTotalEl.textContent = "$" + fmtMoney(quantity * selling);
+  });
+
+  function openCreateForm(){
+    formDeviceSelect.value = DEVICE_OPTIONS[0];
+    formDeviceOtherWrap.hidden = true;
+    formDeviceOther.value = "";
+    formCustomer.value = "";
+    formJira.value = "";
+    formQuantity.value = "";
+    formWindows.value = "Pro";
+    formWarrantyYears.value = "1";
+    formDeviceCost.value = "";
+    var m23 = document.querySelector('input[name="marginTarget"][value="0.23"]');
+    if (m23) m23.checked = true;
+    formCost.value = "";
+    formSelling.value = "";
+    formSpecs.value = "";
+    formPageRef.value = "";
+    formQuoteFile.value = "";
+    formError.hidden = true;
+    createSubmitBtn.disabled = false;
+    createSubmitBtn.textContent = "Post to Notion";
+    recalcPricing();
+    createOverlay.hidden = false;
+    document.addEventListener("keydown", onCreateKeydown);
+  }
+  function closeCreateForm(){
+    createOverlay.hidden = true;
+    document.removeEventListener("keydown", onCreateKeydown);
+  }
+  function onCreateKeydown(e){ if (e.key === "Escape") closeCreateForm(); }
+
+  addItemBtn.addEventListener("click", openCreateForm);
+  createCloseBtn.addEventListener("click", closeCreateForm);
+  createCancelBtn.addEventListener("click", closeCreateForm);
+  createOverlay.addEventListener("mousedown", function(e){ createMouseDownOnBackdrop = (e.target === createOverlay); });
+  createOverlay.addEventListener("click", function(e){
+    var shouldClose = e.target === createOverlay && createMouseDownOnBackdrop;
+    createMouseDownOnBackdrop = false;
+    if (shouldClose) closeCreateForm();
+  });
+
+  function escMd(s){
+    return String(s == null ? "" : s).replace(/([\\`*_\[\]])/g, "\\$1");
+  }
+
+  function buildSpecsMd(specs){
+    var lines = ["## Device specs"];
+    lines.push(specs ? specs : "_No additional specs provided._");
+    return lines.join("\n");
+  }
+
+  function buildQuoteMd(fileBlock, fileNote){
+    if (!fileBlock && !fileNote) return "";
+    var lines = ["## Quote"];
+    if (fileBlock) lines.push(fileBlock);
+    if (fileNote) lines.push(fileNote);
+    return lines.join("\n");
+  }
+
+  // Uploads the quote to this page's own file storage and links it from the
+  // detail page. This does NOT attach the file to Notion natively: that was
+  // tried via notion-create-attachment's source_url (Notion fetching the
+  // file back from this artifact's storage) and confirmed broken — Notion's
+  // fetcher isn't signed in to this artifact, so instead of erroring it
+  // silently downloads this page's own app shell and stores THAT, mislabeled
+  // with the quote's filename. That failure mode is worse than no attachment
+  // at all (a corrupted file that looks legitimate), so it is not attempted.
+  // Only a real, working link is produced here.
+  function attachQuoteFile(mcp, file){
+    if (!file) return Promise.resolve({ block: "", note: "" });
+    if (!window.claude || typeof window.claude.use !== "function"){
+      return Promise.resolve({ block: "", note: "_Quote file couldn't be uploaded in this view._" });
+    }
+    return window.claude.use("assets").then(function(assets){
+      if (!assets){ var e = new Error("no assets"); e.code = "no_assets"; throw e; }
+      return assets.upload(file);
+    }).then(function(asset){
+      var assetUrl = asset && asset.url;
+      if (!assetUrl){ var e = new Error("upload failed"); e.code = "upload_failed"; throw e; }
+      // asset.url is root-relative ("/_blob/<id>") — resolve it to an
+      // absolute link so it still works when pasted into Notion.
+      var absoluteUrl = new URL(assetUrl, window.location.href).href;
+      return { block: "", note: "[" + escMd(file.name) + "](" + absoluteUrl + ") — quote file (opens in Device Pricing; not stored natively in Notion, since Notion can't retrieve files from here — download it and drag it into Notion directly if you need a native copy)." };
+    }).catch(function(){
+      return { block: "", note: "_Quote file couldn't be uploaded in this view — attach it directly in Notion instead._" };
+    });
+  }
+
+  createSubmitBtn.addEventListener("click", function(){
+    var device = formDeviceSelect.value === "__other__" ? formDeviceOther.value.trim() : formDeviceSelect.value;
+    var customer = formCustomer.value.trim();
+    var jira = formJira.value.trim();
+    var quantity = formQuantity.value.trim();
+    var windowsVersion = formWindows.value;
+    var warrantyYears = formWarrantyYears.value.trim() || "1";
+    var cost = formCost.value.trim();
+    var selling = formSelling.value.trim();
+    var specs = formSpecs.value.trim();
+    var quoteFile = (formQuoteFile.files && formQuoteFile.files[0]) || null;
+
+    if (!device){ formError.hidden = false; formError.textContent = "Device name is required."; return; }
+
+    if (!window.claude || typeof window.claude.use !== "function"){
+      formError.hidden = false; formError.textContent = "Live Notion sync isn't available in this view.";
+      return;
+    }
+
+    // Freeze the calculator's current numbers for the detail page write-up.
+    var deviceCostNum = parseFloat(formDeviceCost.value);
+    if (isNaN(deviceCostNum) || deviceCostNum < 0) deviceCostNum = 0;
+    var windowsAddonNum = WINDOWS_ADDON[windowsVersion] || 0;
+    var yearsNum = parseFloat(warrantyYears);
+    if (isNaN(yearsNum) || yearsNum < 1) yearsNum = 1;
+    var warrantyNum = WARRANTY_RATE * deviceCostNum * yearsNum;
+    var totalNum = deviceCostNum + windowsAddonNum + SHIPPING_COST + QCQA_COST + warrantyNum;
+    var sell23Num = totalNum / (1 - 0.23);
+    var sell30Num = totalNum / (1 - 0.30);
+    var marginNum = getCheckedMargin();
+    var dateStr = todayISO();
+
+    var summaryLine = "Windows: " + windowsVersion + " · Warranty: " + warrantyYears + " yr" + (Number(warrantyYears) === 1 ? "" : "s");
+
+    var properties = { "Device Name": device, "Specs": summaryLine };
+    if (customer) properties["Customer Name"] = customer;
+    if (jira) properties["Jira Reference"] = jira;
+    if (quantity) properties["Quantity"] = Number(quantity);
+    if (cost) properties["Unit Cost"] = Number(cost);
+    if (selling) properties["Unit Selling Price"] = Number(selling);
+
+    var pageTitle = (customer || "Customer") + "_" + dateStr + "_" + device;
+
+    formError.hidden = true;
+    createSubmitBtn.disabled = true;
+    createSubmitBtn.textContent = quoteFile ? "Uploading quote…" : "Creating page…";
+
+    var mcpForCreate = null;
+    var detailWarning = "";
+
+    window.claude.use("mcp").then(function(mcp){
+      if (!mcp){ var e = new Error("not granted"); e.code = "not_granted"; throw e; }
+      mcpForCreate = mcp;
+      return attachQuoteFile(mcp, quoteFile);
+    }).then(function(fileResult){
+      createSubmitBtn.textContent = "Creating page…";
+      var detailContent = [
+        buildRequestDetailsMd(device, customer, jira, quantity, windowsVersion, warrantyYears, dateStr),
+        buildCalculationMd(deviceCostNum, windowsAddonNum, warrantyNum, totalNum, sell23Num, sell30Num, marginNum, selling, quantity),
+        buildSpecsMd(specs),
+        buildQuoteMd(fileResult.block, fileResult.note)
+      ].filter(function(s){ return s; }).join("\n\n");
+
+      return createDetailPage(mcpForCreate, pageTitle, detailContent);
+    }).then(function(detailResult){
+      detailWarning = detailResult.warning || "";
+      if (detailResult.url) properties["Page Reference"] = detailResult.url;
+
+      createSubmitBtn.textContent = "Posting…";
+      var recordContent = detailResult.url
+        ? ("Full request details, calculation, and specs are on the linked page — see **Page Reference** above, or [open it directly](" + detailResult.url + ").")
+        : "_The detail page couldn't be created automatically this time — request details and calculation weren't written anywhere else, so you may want to add them here manually or retry._";
+
+      return mcpForCreate.callTool(MCP_SERVER, MCP_TOOL_CREATE, {
+        pages: [{ properties: properties, content: recordContent }],
+        parent: { type: "data_source_id", data_source_id: DATA_SOURCE_URL.replace(/^collection:\/\//, "") },
+        allow_async: false
+      });
+    }).then(function(){
+      closeCreateForm();
+      if (mcpNs) mcpNs.invalidate(MCP_SERVER, MCP_TOOL, TOOL_INPUT).catch(function(){});
+      if (detailWarning) showPostNotice(detailWarning);
+    }).catch(function(err){
+      formError.hidden = false;
+      formError.textContent = friendlyErrorMessage(err || {});
+    }).then(function(){
+      createSubmitBtn.disabled = false;
+      createSubmitBtn.textContent = "Post to Notion";
+    });
+  });
+
+  function noMcpFallback(){
+    setSyncStatus("error", "Live Notion sync isn't available in this view");
+    showError("This view can't reach your connectors. Open this page inside claude.ai to see live data from Notion.");
+    refreshBtn.disabled = true;
+    addItemBtn.disabled = true;
+  }
+
+  function init(){
+    renderFilterBar();
+    renderGrid();
+    setSyncStatus("pending", "Connecting to Notion…");
+
+    if (!window.claude || typeof window.claude.use !== "function"){
+      noMcpFallback();
+      return;
+    }
+
+    window.claude.use("mcp").then(function(mcp){
+      if (!mcp){ noMcpFallback(); return; }
+      mcpNs = mcp;
+      startWatch(mcp);
+    }).catch(function(){ noMcpFallback(); });
+  }
+
+  init();
+
+  } catch (e) { showDiag((e && e.message) ? e.message : String(e)); }
+})();
+</script>
+

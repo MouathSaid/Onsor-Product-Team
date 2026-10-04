@@ -1,0 +1,933 @@
+<title>Production Batches</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    color-scheme: dark;
+    --bg:#121212;
+    --surface:#19191F;
+    --surface-2:#202027;
+    --border:#302F3B;
+    --text:#F2F1F5;
+    --text-muted:#A4A4AE;
+    --text-faint:#6E6D7A;
+    --main:#8377F7;
+    --main-soft:#241F3D;
+    --eng:#63C2B4;
+    --eng-soft:#1D3733;
+    --supply:#D79770;
+    --supply-soft:#3A2A20;
+    --milestone:#E3B655;
+    --milestone-soft:#3B301A;
+    --today:#E4685A;
+    --focus:#8377F7;
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 12px 28px -14px rgba(0,0,0,.6);
+  }
+
+  *{ box-sizing:border-box; }
+  [hidden]{ display:none !important; }
+  html,body{ margin:0; }
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:"IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+    padding-inline:20px;
+    padding-block:28px 60px;
+  }
+  .wrap{ max-width:1200px; margin:0 auto; display:flex; flex-direction:column; gap:22px; }
+  .mono{ font-family:"IBM Plex Mono", ui-monospace, "SF Mono", monospace; }
+  .tabular{ font-variant-numeric: tabular-nums; }
+
+  .back-link{
+    align-self:flex-start; display:inline-flex; align-items:center; gap:6px;
+    font-family:"IBM Plex Mono",monospace; font-size:12px; font-weight:500; letter-spacing:.01em;
+    color:var(--text-faint); text-decoration:none;
+  }
+  .back-link:hover{ color:var(--main); }
+  .back-link:focus-visible{ outline:2px solid var(--focus); outline-offset:2px; border-radius:4px; }
+
+  header{ display:flex; flex-direction:column; gap:10px; }
+  .eyebrow{
+    font-family:"IBM Plex Mono", monospace;
+    font-size:11.5px; font-weight:600; letter-spacing:.11em; text-transform:uppercase;
+    color:var(--main);
+  }
+  h1{ margin:0; font-size:clamp(24px,4vw,32px); font-weight:700; letter-spacing:-.01em; text-wrap:balance; }
+  .lede{ margin:0; color:var(--text-muted); font-size:14.5px; max-width:70ch; }
+  .lede a{ color:var(--main); }
+
+  .stat-strip{ display:flex; flex-wrap:wrap; gap:8px 22px; margin-top:2px; }
+  .stat{ display:flex; align-items:baseline; gap:6px; }
+  .stat b{ font-family:"IBM Plex Mono",monospace; font-size:15px; color:var(--text); }
+  .stat span{ font-size:12px; color:var(--text-faint); text-transform:uppercase; letter-spacing:.05em; }
+
+  .editor-toolbar{ display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+  .toolbar-actions{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .save-status{ font-size:12.5px; color:var(--text-faint); display:flex; align-items:center; gap:7px; }
+  .save-status .dot{ width:7px; height:7px; border-radius:50%; background:var(--text-faint); flex:none; }
+  .save-status.is-saved .dot{ background:var(--eng); }
+  .save-status.is-pending .dot{ background:var(--milestone); }
+  .save-status.is-error .dot{ background:var(--today); }
+
+  .btn{
+    appearance:none; border:1px solid var(--border); background:var(--surface); color:var(--text);
+    font-family:inherit; font-size:13px; font-weight:600; padding:8px 14px; border-radius:8px; cursor:pointer;
+  }
+  .btn:hover{ border-color:var(--text-faint); }
+  .btn:focus-visible{ outline:2px solid var(--focus); outline-offset:2px; }
+  .btn:disabled{ opacity:.45; cursor:not-allowed; }
+  .btn-primary{ background:var(--main); border-color:var(--main); color:#fff; }
+  .btn-primary:hover{ filter:brightness(1.08); border-color:var(--main); }
+  .btn-sm{ padding:6px 11px; font-size:12px; }
+
+  .readonly-banner{
+    font-size:12.5px; color:var(--milestone); background:var(--milestone-soft);
+    border:1px solid var(--border); padding:9px 12px; border-radius:8px;
+  }
+
+  .filter-bar{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .filter-chip{
+    font-family:"IBM Plex Mono", monospace; font-size:12px; font-weight:500; letter-spacing:.01em;
+    color:var(--text-muted); background:var(--surface); border:1px solid var(--border);
+    border-radius:999px; padding:6px 14px; cursor:pointer; transition:border-color .15s, color .15s, background .15s;
+  }
+  .filter-chip:hover{ border-color:var(--main); color:var(--text); }
+  .filter-chip:focus-visible{ outline:2px solid var(--focus); outline-offset:2px; }
+  .filter-chip.is-active{ background:var(--main-soft); border-color:var(--main); color:var(--main); }
+
+  .card{ background:var(--surface); border:1px solid var(--border); border-radius:12px; box-shadow:var(--shadow); overflow:hidden; }
+  .table-scroll{ overflow-x:auto; }
+  table.phase-table{ width:100%; border-collapse:collapse; min-width:1080px; }
+  table.phase-table thead th{
+    text-align:left; font-size:10.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--text-faint);
+    padding:10px; border-bottom:1px solid var(--border); background:var(--surface-2); white-space:nowrap; font-weight:600;
+  }
+  table.phase-table td{ padding:10px; border-bottom:1px solid var(--border); vertical-align:middle; font-size:13.5px; }
+  table.phase-table tr.phase-row:hover td{ background:var(--surface-2); }
+  table.phase-table tr.detail-row td{ background:var(--surface-2); padding:16px 18px; }
+  .col-id{ width:76px; }
+  .col-id a{ font-family:"IBM Plex Mono",monospace; font-size:11px; color:var(--text-faint); text-decoration:none; }
+  .col-id a:hover{ color:var(--main); text-decoration:underline; }
+  .col-component{ width:160px; color:var(--text-muted); }
+  .col-qty{ width:90px; text-align:right; }
+  .col-status{ width:170px; }
+  .col-mfr{ width:170px; color:var(--text-muted); }
+  .col-actions{ width:44px; white-space:nowrap; text-align:right; }
+  .issue-cell{ max-width:320px; }
+
+  .icon-btn{
+    appearance:none; border:1px solid var(--border); background:var(--surface-2); color:var(--text-muted);
+    width:26px; height:26px; border-radius:7px; cursor:pointer; font-size:12.5px; line-height:1;
+    display:inline-flex; align-items:center; justify-content:center;
+  }
+  .icon-btn:hover{ color:var(--text); }
+  .icon-btn:focus-visible{ outline:2px solid var(--focus); outline-offset:2px; }
+
+  .status-cell{ display:flex; align-items:center; gap:7px; }
+  .status-dot{ width:8px; height:8px; border-radius:50%; flex:none; }
+  .muted{ color:var(--text-faint); }
+
+  .field{ display:flex; flex-direction:column; gap:5px; font-size:10.5px; color:var(--text-faint); text-transform:uppercase; letter-spacing:.05em; }
+  .field.span2{ grid-column:span 2; }
+  .field.span4{ grid-column:1 / -1; }
+
+  .cell-input{
+    width:100%; font-family:inherit; font-size:13.5px; color:var(--text); background:var(--surface);
+    border:1px solid var(--border); border-radius:7px; padding:7px 9px; text-transform:none; letter-spacing:normal;
+  }
+  .cell-input:focus{ outline:2px solid var(--focus); outline-offset:1px; }
+  select.cell-input{ background:var(--surface); }
+  textarea.cell-input{ resize:vertical; min-height:52px; }
+  input[type="date"].cell-input{ color-scheme: dark; }
+
+  .field-foot{ display:flex; align-items:center; justify-content:space-between; gap:8px; min-height:14px; margin-top:1px; }
+  .field-status{ font-size:10.5px; text-transform:none; letter-spacing:normal; color:var(--text-faint); }
+  .field-status.is-saving{ color:var(--milestone); }
+  .field-status.is-saved{ color:var(--eng); }
+  .field-status.is-error{ color:var(--today); }
+
+  .status-select-wrap .status-dot{ margin-right:2px; }
+  .status-edit-row{ display:flex; align-items:center; gap:8px; }
+
+  .detail-grid{ display:grid; grid-template-columns:repeat(4, 1fr); gap:14px 12px; }
+  @media (max-width:760px){ .detail-grid{ grid-template-columns:repeat(2,1fr); } }
+
+  .comments-block{ margin-top:16px; border-top:1px solid var(--border); padding-top:14px; }
+  .comments-head{ font-size:10.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--text-faint); margin-bottom:10px; }
+  .comment-list{ display:flex; flex-direction:column; gap:9px; max-height:220px; overflow-y:auto; margin-bottom:12px; }
+  .comment-item{ background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:8px 10px; font-size:13px; }
+  .comment-meta{ font-size:11px; color:var(--text-faint); margin-bottom:3px; display:flex; gap:8px; }
+  .comment-body{ color:var(--text); white-space:pre-wrap; word-break:break-word; }
+  .comment-empty{ font-size:12.5px; color:var(--text-faint); font-style:italic; }
+  .add-comment-row{ display:flex; gap:8px; align-items:flex-start; }
+  .add-comment-row textarea{ flex:1; min-height:44px; }
+
+  footer{ text-align:center; font-size:11.5px; color:var(--text-faint); }
+
+  .empty-state{ padding:34px 20px; text-align:center; color:var(--text-faint); font-size:13.5px; }
+
+  .diag-banner{
+    background:#3B1A1A; border:1px solid #7A3B3B; color:#F5C8C8;
+    font-family:"IBM Plex Mono",monospace; font-size:12.5px; line-height:1.5;
+    padding:12px 14px; border-radius:8px; white-space:pre-wrap; word-break:break-word;
+  }
+</style>
+
+<div class="wrap">
+
+  <div class="diag-banner" id="diagBanner" hidden></div>
+
+  <a class="back-link" href="production-dashboard.html">&larr; Production dashboard</a>
+
+  <header>
+    <div class="eyebrow">Onsor · Production</div>
+    <h1>Production Batches</h1>
+    <p class="lede">Live mirror of Jira project <a href="https://onsor.atlassian.net/browse/PPM" target="_blank" rel="noopener">PPM — [Process] Product Development &amp; Manufacturing</a> (Production Batch issues). Data refreshes automatically from Jira each time this page is open. Expand a batch to edit it &mdash; changes save straight back to the real Jira issue, and to whatever Jira permits from this account.</p>
+    <div class="stat-strip" id="statStrip"></div>
+  </header>
+
+  <div class="editor-toolbar">
+    <div class="save-status" id="syncStatus"><span class="dot"></span><span id="syncStatusText">Connecting to Jira&hellip;</span></div>
+    <div class="toolbar-actions">
+      <button type="button" class="btn" id="refreshBtn">&#8635; Refresh now</button>
+    </div>
+  </div>
+  <div id="errorBanner" class="readonly-banner" hidden></div>
+
+  <div class="filter-bar" id="filterBar">
+    <button type="button" class="filter-chip" data-filter="all">All</button>
+    <button type="button" class="filter-chip" data-filter="active">Active</button>
+    <button type="button" class="filter-chip" data-filter="complete">Complete</button>
+    <button type="button" class="filter-chip" data-filter="blocked">Blocked</button>
+    <button type="button" class="filter-chip" data-filter="moqMet">MOQ Met</button>
+    <button type="button" class="filter-chip" data-filter="belowMoq">Below MOQ</button>
+  </div>
+
+  <div class="card">
+    <div class="table-scroll">
+      <table class="phase-table">
+        <thead>
+          <tr>
+            <th class="col-id">ID</th>
+            <th>Batch</th>
+            <th class="col-component">Product Type</th>
+            <th class="col-qty">Qty</th>
+            <th class="col-status">Status</th>
+            <th class="col-mfr">Manufacturer</th>
+            <th class="col-actions"></th>
+          </tr>
+        </thead>
+        <tbody id="rowsBody"><!-- built by JS --></tbody>
+      </table>
+    </div>
+  </div>
+  <footer>Click … on a batch to expand it — edit any field, change status, or add a comment · edits write straight to Jira · this view polls Jira roughly every 5 minutes while open.</footer>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  function showDiag(msg){
+    try {
+      var b = document.getElementById("diagBanner");
+      if (!b) return;
+      b.hidden = false;
+      b.textContent = "Something went wrong on this page: " + msg + "\n\nPlease screenshot this message and share it so it can be fixed.";
+    } catch (ignored) { /* nothing more we can do */ }
+  }
+  window.addEventListener("error", function(e){ showDiag(e && e.message ? e.message : "unknown script error"); });
+  window.addEventListener("unhandledrejection", function(e){
+    var reason = e && e.reason;
+    showDiag(reason && reason.message ? reason.message : String(reason));
+  });
+
+  try {
+
+  var JIRA_SITE = "https://onsor.atlassian.net";
+  var JIRA_PROJECT_KEY = "PPM";
+  var CLOUD_ID = "d9878be2-7e60-48cc-92d9-e41084f9982c";
+  var MCP_SERVER = "Atlassian Rovo";
+  var SEARCH_TOOL = "searchJiraIssuesUsingJql";
+  var EDIT_TOOL = "editJiraIssue";
+  var TRANSITION_TOOL = "transitionJiraIssue";
+  var TRANSITIONS_TOOL = "getTransitionsForJiraIssue";
+  var COMMENT_TOOL = "addCommentToJiraIssue";
+  var JQL = "project = " + JIRA_PROJECT_KEY + " AND issuetype = \"Production Batch\" ORDER BY created DESC";
+  var FIELDS = ["summary","status","created","comment",
+    "customfield_10125","customfield_10962","customfield_10114","customfield_12446",
+    "customfield_10123","customfield_10135","customfield_10413","customfield_10341",
+    "customfield_10182","customfield_11009","customfield_10181","customfield_10765"];
+  var SEARCH_INPUT = {
+    cloudId: CLOUD_ID,
+    jql: JQL,
+    fields: FIELDS,
+    maxResults: 100,
+    responseContentFormat: "markdown"
+  };
+  var REFRESH_MS = 300000; // ~5 min poll while the page stays open
+
+  // Field id -> option lists, taken from Jira's own field schema for this
+  // project (PPM / "Production Batch"), so selects only ever offer values
+  // Jira itself allows.
+  var PRODUCT_TYPE_OPTIONS = [
+    { id: "15233", value: "TURS 13" }, { id: "10345", value: "TURS 14" },
+    { id: "10243", value: "TURS 16" }, { id: "10346", value: "TURS 16 PRO" },
+    { id: "10347", value: "MOUJ 12" }, { id: "10244", value: "MOUJ 14" },
+    { id: "10348", value: "MOUJ ULTRA" }, { id: "10349", value: "KiTAB 10" },
+    { id: "10544", value: "KiTAB 11" }, { id: "10350", value: "KiTAB 12" },
+    { id: "10245", value: "KiTAB 14" }, { id: "10246", value: "HESN Mini" },
+    { id: "10351", value: "HESN Micro" }, { id: "10352", value: "HESN Tower" },
+    { id: "10353", value: "HESN 24 AIO B" }, { id: "10354", value: "HESN 27 AIO B" },
+    { id: "10355", value: "HESN 24 AIO P" }, { id: "10356", value: "HESN 27 AIO P" },
+    { id: "10247", value: "AMAD" }, { id: "10248", value: "O50" },
+    { id: "11761", value: "Monitor 24\"" }, { id: "10250", value: "Monitor 27\"" },
+    { id: "10286", value: "Keyboard & Mouse (Wireless)" }, { id: "10287", value: "Keyboard & Mouse (Wired)" },
+    { id: "10288", value: "Keyboard (Wireless)" }, { id: "10289", value: "Keyboard (Wired)" },
+    { id: "10290", value: "Mouse (Wireless)" }, { id: "10291", value: "Mouse (Wired)" },
+    { id: "10292", value: "Adaptor/ Charger" }, { id: "10364", value: "3D LETAR" },
+    { id: "10365", value: "3D ZSPACE" }, { id: "11050", value: "Docking station" },
+    { id: "11393", value: "Cart" }, { id: "11671", value: "Pen/ MOUJ 12" },
+    { id: "11672", value: "Pen/ MOUJ 14" }, { id: "11762", value: "Headphone" },
+    { id: "11763", value: "14\" Bags" }, { id: "11764", value: "16\" Bags" },
+    { id: "11673", value: "Stylus" }, { id: "12888", value: "CAM" },
+    { id: "15238", value: "360 Stand" }
+  ];
+  var MANUFACTURER_OPTIONS = [
+    { id: "10228", value: "Sixunited" }, { id: "10227", value: "South holding" },
+    { id: "15234", value: "Siyu" }, { id: "15235", value: "Dongguan Siyaji Electronic Technology co.,ltd" },
+    { id: "15236", value: "Power Technology" }, { id: "12816", value: "Good Way" },
+    { id: "15237", value: "LUMI" }, { id: "12817", value: "Guangdong Songren Technology" },
+    { id: "11049", value: "Other" }
+  ];
+  var REQUEST_TYPE_OPTIONS = [
+    { id: "15144", value: "New Product" }, { id: "15145", value: "Existing Product" }
+  ];
+  var ADVANCE_PAYMENT_OPTIONS = [
+    { id: "10236", value: "Paid- Advance" }, { id: "10237", value: "Unpaid" },
+    { id: "10238", value: "Unpaid (Exceptional)" }
+  ];
+  var REMAINING_PAYMENT_OPTIONS = [
+    { id: "10284", value: "Paid" }, { id: "10285", value: "Unpaid" }, { id: "13805", value: "0" }
+  ];
+  var SHIPMENT_METHOD_OPTIONS = [
+    { id: "11045", value: "Sea" }, { id: "11046", value: "Sea & Air" }, { id: "11047", value: "Air" }
+  ];
+  var BLOCKED_DUE_OPTIONS = [
+    { id: "10675", value: "Payment (To Manufacturer)" }, { id: "10676", value: "Payment (To Inspectors)" },
+    { id: "10677", value: "Product Design" }, { id: "10678", value: "Production requirement" },
+    { id: "11541", value: "Payment (To Microsoft)" }, { id: "11542", value: "Payment (To FF)" },
+    { id: "10679", value: "Other" }
+  ];
+
+  function escapeHtml(s){
+    return String(s == null ? "" : s).replace(/[&<>]/g, function(c){
+      return c === "&" ? "&amp;" : (c === "<" ? "&lt;" : "&gt;");
+    });
+  }
+  function escAttr(s){ return escapeHtml(s).replace(/"/g, "&quot;"); }
+
+  function cleanCommentText(s){
+    if (!s) return "";
+    return String(s).replace(/!\[[^\]]*\]\([^)]*\)/g, "").trim();
+  }
+
+  function optRaw(field){
+    return (field && typeof field === "object" && field.id) ? { id: String(field.id), value: field.value || "" } : null;
+  }
+
+  function statusColorVar(categoryColorName){
+    switch (categoryColorName){
+      case "green": return "eng";
+      case "yellow": return "milestone";
+      case "blue-gray": return "text-faint";
+      case "brown": return "supply";
+      case "red": return "today";
+      default: return "text-faint";
+    }
+  }
+
+  function normalizeIssue(node){
+    var f = (node && node.fields) || {};
+    var comments = (f.comment && Array.isArray(f.comment.comments)) ? f.comment.comments : [];
+    var statusName = f.status && f.status.name ? f.status.name : "Unknown";
+    var statusId = f.status && f.status.id ? String(f.status.id) : "";
+    var statusCat = f.status && f.status.statusCategory ? f.status.statusCategory.colorName : "";
+    return {
+      id: node && node.id ? String(node.id) : "",
+      key: node && node.key ? node.key : "",
+      webUrl: (node && node.webUrl) ? node.webUrl : (JIRA_SITE + "/browse/" + (node && node.key ? node.key : "")),
+      summary: f.summary || "",
+      statusId: statusId,
+      statusName: statusName,
+      statusCategory: statusCat,
+      statusColor: statusColorVar(statusCat),
+      productTypeRaw: optRaw(f.customfield_10125),
+      manufacturerRaw: optRaw(f.customfield_10114),
+      requestTypeRaw: optRaw(f.customfield_12446),
+      advancePaymentRaw: optRaw(f.customfield_10123),
+      remainingPaymentRaw: optRaw(f.customfield_10135),
+      shipmentMethodRaw: optRaw(f.customfield_10413),
+      blockedDueRaw: optRaw(f.customfield_10341),
+      quantity: (typeof f.customfield_10962 === "number") ? f.customfield_10962 : null,
+      planDueDate: f.customfield_10182 || "",
+      adjDueDate: f.customfield_11009 || "",
+      actualCompletion: f.customfield_10181 || "",
+      reasonForDiscard: f.customfield_10765 || "",
+      created: f.created ? String(f.created).slice(0, 10) : "",
+      comments: comments.map(function(c){
+        return {
+          id: c.id,
+          author: c.author && (c.author.displayName || c.author.name) ? (c.author.displayName || c.author.name) : "",
+          created: c.created ? String(c.created).slice(0, 10) : "",
+          body: cleanCommentText(c.body)
+        };
+      })
+    };
+  }
+
+  var rowsBody = document.getElementById("rowsBody");
+  var statStrip = document.getElementById("statStrip");
+  var syncStatusEl = document.getElementById("syncStatus");
+  var syncStatusText = document.getElementById("syncStatusText");
+  var errorBanner = document.getElementById("errorBanner");
+  var refreshBtn = document.getElementById("refreshBtn");
+  var filterBar = document.getElementById("filterBar");
+
+  var expandedIds = {};
+  var mcpNs = null;
+  var lastRows = [];
+  var rowsByKey = {};
+  var transitionsCache = {}; // key -> array of {id, name} or "loading" or "error"
+
+  // ---------- filtering (deep-linked from the dashboard's metric cards) ----------
+  // The claude.ai artifact viewer doesn't reliably forward a ?query string into
+  // this page (it appears to serve/cache the artifact by id only), so the filter
+  // is read from the URL hash instead — a #fragment never leaves the browser, so
+  // it survives regardless of how the page was loaded. Query string is still
+  // checked as a fallback for direct/standalone loads outside that viewer.
+  var VALID_FILTERS = { all: 1, active: 1, complete: 1, blocked: 1, moqMet: 1, belowMoq: 1 };
+  function getFilterFromUrl(){
+    try {
+      var hash = window.location.hash ? window.location.hash.replace(/^#/, "") : "";
+      var fromHash = new URLSearchParams(hash).get("filter");
+      if (fromHash && VALID_FILTERS[fromHash]) return fromHash;
+      var fromSearch = new URLSearchParams(window.location.search).get("filter");
+      if (fromSearch && VALID_FILTERS[fromSearch]) return fromSearch;
+      return "all";
+    } catch (e) { return "all"; }
+  }
+  var currentFilter = getFilterFromUrl();
+
+  // In case the viewer reuses an already-open tab/document for this same artifact
+  // (soft-navigation) rather than a fresh load, re-check the hash whenever the tab
+  // regains focus/visibility so the filter still applies without a manual refresh.
+  function recheckFilterFromUrl(){
+    var f = getFilterFromUrl();
+    if (f !== currentFilter){
+      currentFilter = f;
+      repaint();
+    }
+  }
+  window.addEventListener("hashchange", recheckFilterFromUrl);
+  document.addEventListener("visibilitychange", function(){
+    if (document.visibilityState === "visible") recheckFilterFromUrl();
+  });
+
+  function applyFilter(rows){
+    switch (currentFilter){
+      case "active": return rows.filter(function(r){ return r.statusCategory !== "green"; });
+      case "complete": return rows.filter(function(r){ return r.statusName === "Complete"; });
+      case "blocked": return rows.filter(function(r){ return !!r.blockedDueRaw; });
+      case "moqMet": return rows.filter(function(r){ return r.statusName === "MOQ met"; });
+      case "belowMoq": return rows.filter(function(r){ return r.statusName === "Below MOQ"; });
+      default: return rows;
+    }
+  }
+
+  function updateFilterBarUI(){
+    if (!filterBar) return;
+    var chips = filterBar.querySelectorAll("[data-filter]");
+    for (var i = 0; i < chips.length; i++){
+      var isActive = chips[i].getAttribute("data-filter") === currentFilter;
+      chips[i].classList.toggle("is-active", isActive);
+    }
+  }
+
+  function setFilter(f){
+    currentFilter = VALID_FILTERS[f] ? f : "all";
+    try {
+      var newHash = currentFilter === "all" ? "" : "#filter=" + currentFilter;
+      var base = window.location.href.split("#")[0];
+      window.history.replaceState(null, "", base + newHash);
+    } catch (ignored) { /* history API unavailable — filter still applies in-memory */ }
+    repaint();
+  }
+
+  if (filterBar){
+    filterBar.addEventListener("click", function(e){
+      var btn = e.target.closest("[data-filter]");
+      if (!btn) return;
+      setFilter(btn.getAttribute("data-filter"));
+    });
+  }
+
+  function repaint(){
+    updateFilterBarUI();
+    renderTable(applyFilter(lastRows));
+  }
+
+  function renderStats(rows){
+    var total = rows.length;
+    var counts = {};
+    var order = [];
+    rows.forEach(function(r){
+      if (!(r.statusName in counts)) { counts[r.statusName] = 0; order.push(r.statusName); }
+      counts[r.statusName]++;
+    });
+    var html = '<div class="stat"><b class="tabular">' + total + '</b><span>Batches</span></div>';
+    order.forEach(function(name){
+      html += '<div class="stat"><b class="tabular">' + counts[name] + '</b><span>' + escapeHtml(name) + '</span></div>';
+    });
+    statStrip.innerHTML = html;
+  }
+
+  // ---------- field-level write status (per batch key + field name) ----------
+  function fieldStatusId(key, field){ return "fs-" + key + "-" + field; }
+  function setFieldStatus(key, field, kind, text){
+    var el = document.getElementById(fieldStatusId(key, field));
+    if (!el) return;
+    el.className = "field-status" + (kind === "saving" ? " is-saving" : kind === "saved" ? " is-saved" : kind === "error" ? " is-error" : "");
+    el.textContent = text || "";
+  }
+
+  // ---------- field builders ----------
+  function selectOptionsHtml(options, currentId, includeUnset){
+    var html = "";
+    if (includeUnset) html += '<option value=""' + (!currentId ? " selected" : "") + '>Not set</option>';
+    options.forEach(function(o){
+      html += '<option value="' + escAttr(o.id) + '"' + (o.id === currentId ? " selected" : "") + '>' + escapeHtml(o.value) + '</option>';
+    });
+    return html;
+  }
+
+  function fieldWrap(label, key, field, innerHtml, span){
+    return ''
+      + '<div class="field' + (span ? " span" + span : "") + '">'
+      +   '<span>' + escapeHtml(label) + '</span>'
+      +   innerHtml
+      +   '<div class="field-foot"><span class="field-status" id="' + fieldStatusId(key, field) + '"></span></div>'
+      + '</div>';
+  }
+
+  function selectFieldHtml(label, key, field, options, currentId, span){
+    var inner = '<select class="cell-input" data-edit-field="' + field + '" data-key="' + escAttr(key) + '">'
+      + selectOptionsHtml(options, currentId, true) + '</select>';
+    return fieldWrap(label, key, field, inner, span);
+  }
+
+  function numberFieldHtml(label, key, field, value, span){
+    var inner = '<input type="number" step="any" class="cell-input" data-edit-field="' + field + '" data-key="' + escAttr(key) + '" value="' + (value == null ? "" : escAttr(String(value))) + '">';
+    return fieldWrap(label, key, field, inner, span);
+  }
+
+  function dateFieldHtml(label, key, field, value, span){
+    var inner = '<input type="date" class="cell-input" data-edit-field="' + field + '" data-key="' + escAttr(key) + '" value="' + escAttr(value) + '">';
+    return fieldWrap(label, key, field, inner, span);
+  }
+
+  function textFieldHtml(label, key, field, value, span){
+    var inner = '<input type="text" class="cell-input" data-edit-field="' + field + '" data-key="' + escAttr(key) + '" value="' + escAttr(value) + '">';
+    return fieldWrap(label, key, field, inner, span);
+  }
+
+  function statusFieldHtml(r){
+    var cached = transitionsCache[r.key];
+    var inner;
+    if (cached === "loading"){
+      inner = '<div class="status-edit-row"><span class="status-dot" style="background:var(--' + r.statusColor + ')"></span>' + escapeHtml(r.statusName) + ' <span class="muted">&middot; loading transitions&hellip;</span></div>';
+    } else if (cached === "error"){
+      inner = '<div class="status-edit-row"><span class="status-dot" style="background:var(--' + r.statusColor + ')"></span>' + escapeHtml(r.statusName) + ' <span class="muted">&middot; couldn’t load transitions</span> <button type="button" class="icon-btn" data-act="retry-transitions" data-key="' + escAttr(r.key) + '" aria-label="Retry">&#8635;</button></div>';
+    } else if (Array.isArray(cached)){
+      var opts = '<option value="" selected>' + escapeHtml(r.statusName) + ' (current)</option>'
+        + cached.map(function(t){ return '<option value="' + escAttr(t.id) + '">' + escapeHtml(t.name) + '</option>'; }).join("");
+      inner = '<select class="cell-input" data-edit-field="status" data-key="' + escAttr(r.key) + '">' + opts + '</select>';
+    } else {
+      inner = '<div class="status-edit-row"><span class="status-dot" style="background:var(--' + r.statusColor + ')"></span>' + escapeHtml(r.statusName) + '</div>';
+    }
+    return fieldWrap("Status", r.key, "status", inner, null);
+  }
+
+  function commentsBlockHtml(r){
+    var list = r.comments.length
+      ? r.comments.map(function(c){
+          return '<div class="comment-item"><div class="comment-meta"><span>' + escapeHtml(c.author || "Unknown") + '</span><span>' + escapeHtml(c.created) + '</span></div><div class="comment-body">' + escapeHtml(c.body) + '</div></div>';
+        }).join("")
+      : '<div class="comment-empty">No comments yet.</div>';
+    return ''
+      + '<div class="comments-block">'
+      +   '<div class="comments-head">Comments</div>'
+      +   '<div class="comment-list">' + list + '</div>'
+      +   '<div class="add-comment-row">'
+      +     '<textarea class="cell-input" data-add-comment="' + escAttr(r.key) + '" placeholder="Add a comment…"></textarea>'
+      +     '<button type="button" class="btn btn-sm btn-primary" data-act="add-comment" data-key="' + escAttr(r.key) + '">Post</button>'
+      +   '</div>'
+      +   '<div class="field-foot"><span class="field-status" id="' + fieldStatusId(r.key, "comment") + '"></span></div>'
+      + '</div>';
+  }
+
+  function rowHTML(r, expanded){
+    var idCell = r.webUrl
+      ? '<a href="' + escAttr(r.webUrl) + '" target="_blank" rel="noopener">' + escapeHtml(r.key) + '</a>'
+      : escapeHtml(r.key);
+    var mainRow = ''
+      + '<tr class="phase-row" data-key="' + escAttr(r.key) + '">'
+      +   '<td class="col-id">' + idCell + '</td>'
+      +   '<td class="issue-cell">' + escapeHtml(r.summary) + '</td>'
+      +   '<td class="col-component">' + (r.productTypeRaw ? escapeHtml(r.productTypeRaw.value) : '<span class="muted">&mdash;</span>') + '</td>'
+      +   '<td class="col-qty mono">' + (r.quantity != null ? r.quantity : '<span class="muted">&mdash;</span>') + '</td>'
+      +   '<td class="col-status"><div class="status-cell"><span class="status-dot" style="background:var(--' + r.statusColor + ')"></span>' + escapeHtml(r.statusName) + '</div></td>'
+      +   '<td class="col-mfr">' + (r.manufacturerRaw ? escapeHtml(r.manufacturerRaw.value) : '<span class="muted">&mdash;</span>') + '</td>'
+      +   '<td class="col-actions"><button type="button" class="icon-btn" data-act="toggle" aria-label="Edit batch" aria-expanded="' + (expanded ? "true" : "false") + '">&hellip;</button></td>'
+      + '</tr>';
+
+    var detailRow = "";
+    if (expanded){
+      detailRow = ''
+        + '<tr class="detail-row" data-key="' + escAttr(r.key) + '">'
+        +   '<td colspan="7"><div class="detail-grid">'
+        +     selectFieldHtml("Product Type", r.key, "productType", PRODUCT_TYPE_OPTIONS, r.productTypeRaw ? r.productTypeRaw.id : "")
+        +     selectFieldHtml("Manufacturer", r.key, "manufacturer", MANUFACTURER_OPTIONS, r.manufacturerRaw ? r.manufacturerRaw.id : "")
+        +     numberFieldHtml("Quantity", r.key, "quantity", r.quantity)
+        +     selectFieldHtml("Request Type", r.key, "requestType", REQUEST_TYPE_OPTIONS, r.requestTypeRaw ? r.requestTypeRaw.id : "")
+        +     statusFieldHtml(r)
+        +     selectFieldHtml("Advance Payment", r.key, "advancePayment", ADVANCE_PAYMENT_OPTIONS, r.advancePaymentRaw ? r.advancePaymentRaw.id : "")
+        +     selectFieldHtml("Remaining Payment", r.key, "remainingPayment", REMAINING_PAYMENT_OPTIONS, r.remainingPaymentRaw ? r.remainingPaymentRaw.id : "")
+        +     selectFieldHtml("Shipment Method", r.key, "shipmentMethod", SHIPMENT_METHOD_OPTIONS, r.shipmentMethodRaw ? r.shipmentMethodRaw.id : "")
+        +     selectFieldHtml("Blocked Due", r.key, "blockedDue", BLOCKED_DUE_OPTIONS, r.blockedDueRaw ? r.blockedDueRaw.id : "")
+        +     dateFieldHtml("Plan Production Due", r.key, "planDueDate", r.planDueDate)
+        +     dateFieldHtml("Adjusted Production Due", r.key, "adjDueDate", r.adjDueDate)
+        +     dateFieldHtml("Actual Completion", r.key, "actualCompletion", r.actualCompletion)
+        +     textFieldHtml("Reason for Discard", r.key, "reasonForDiscard", r.reasonForDiscard, 2)
+        +   '</div>'
+        +   commentsBlockHtml(r)
+        +   '</td>'
+        + '</tr>';
+      if (!(r.key in transitionsCache)) loadTransitions(r.key);
+    }
+
+    return mainRow + detailRow;
+  }
+
+  function renderTable(rows){
+    rowsByKey = {};
+    rows.forEach(function(r){ rowsByKey[r.key] = r; });
+    if (!rows.length){
+      rowsBody.innerHTML = '<tr><td colspan="7"><div class="empty-state">No batches to show yet.</div></td></tr>';
+    } else {
+      rowsBody.innerHTML = rows.map(function(r){ return rowHTML(r, !!expandedIds[r.key]); }).join("");
+    }
+    renderStats(rows);
+  }
+
+  // ---------- expand/collapse ----------
+  rowsBody.addEventListener("click", function(e){
+    try {
+      var toggleBtn = e.target.closest('[data-act="toggle"]');
+      if (toggleBtn){
+        var row = toggleBtn.closest("tr[data-key]");
+        if (!row) return;
+        var key = row.getAttribute("data-key");
+        expandedIds[key] = !expandedIds[key];
+        repaint();
+        return;
+      }
+      var retryBtn = e.target.closest('[data-act="retry-transitions"]');
+      if (retryBtn){
+        var rkey = retryBtn.getAttribute("data-key");
+        delete transitionsCache[rkey];
+        repaint();
+        return;
+      }
+      var commentBtn = e.target.closest('[data-act="add-comment"]');
+      if (commentBtn){
+        var ckey = commentBtn.getAttribute("data-key");
+        var ta = rowsBody.querySelector('[data-add-comment="' + CSS.escape(ckey) + '"]');
+        var text = ta ? ta.value.trim() : "";
+        if (!text) return;
+        postComment(ckey, text, ta);
+        return;
+      }
+    } catch (e2) { showDiag((e2 && e2.message) ? e2.message : String(e2)); }
+  });
+
+  // ---------- transitions ----------
+  function loadTransitions(key){
+    if (!mcpNs) return;
+    transitionsCache[key] = "loading";
+    mcpNs.callTool(MCP_SERVER, TRANSITIONS_TOOL, { cloudId: CLOUD_ID, issueIdOrKey: key }).then(function(result){
+      var payload = result && result.payload;
+      var list = (payload && Array.isArray(payload.transitions)) ? payload.transitions : [];
+      transitionsCache[key] = list.map(function(t){ return { id: t.id, name: (t.to && t.to.name) ? t.to.name : t.name }; });
+      if (expandedIds[key]) repaint();
+    }).catch(function(){
+      transitionsCache[key] = "error";
+      if (expandedIds[key]) repaint();
+    });
+  }
+
+  // ---------- writes ----------
+  function afterWriteSettle(key){
+    // Pull the true state back from Jira so the row never drifts from
+    // whatever Jira actually accepted (workflow rules, permissions, etc).
+    if (mcpNs) mcpNs.invalidate(MCP_SERVER, SEARCH_TOOL, SEARCH_INPUT).catch(function(){});
+  }
+
+  function writeErrorMessage(err){
+    var code = err && err.code;
+    switch (code){
+      case "needs_reauth": return "Reconnect " + MCP_SERVER + " in claude.ai Settings to save changes.";
+      case "server_not_connected": return "Add " + MCP_SERVER + " in claude.ai Settings to save changes.";
+      case "blocked_by_policy": return "Your organization blocks writes to " + MCP_SERVER + ".";
+      case "not_in_manifest": return "This view isn't allowed to write to " + MCP_SERVER + ".";
+      case "approval_required": return "This write needs approval in claude.ai first.";
+      case "server_unavailable": return "Jira didn't respond — check Jira before retrying (the change may or may not have gone through).";
+      case "cancelled": return "Save didn't complete — check Jira before retrying.";
+      case "tool_error": return "Jira rejected this change" + (err && err.message ? ": " + err.message : ".");
+      default: return "Couldn't save" + (code ? " (" + code + ")" : "") + ".";
+    }
+  }
+
+  function doEdit(key, field, fields){
+    if (!mcpNs){ setFieldStatus(key, field, "error", "Not connected"); return; }
+    setFieldStatus(key, field, "saving", "Saving…");
+    mcpNs.callTool(MCP_SERVER, EDIT_TOOL, { cloudId: CLOUD_ID, issueIdOrKey: key, fields: fields }).then(function(){
+      setFieldStatus(key, field, "saved", "Saved");
+      afterWriteSettle(key);
+    }).catch(function(err){
+      setFieldStatus(key, field, "error", writeErrorMessage(err));
+    });
+  }
+
+  function doTransition(key, transitionId){
+    if (!mcpNs){ setFieldStatus(key, "status", "error", "Not connected"); return; }
+    setFieldStatus(key, "status", "saving", "Saving…");
+    mcpNs.callTool(MCP_SERVER, TRANSITION_TOOL, { cloudId: CLOUD_ID, issueIdOrKey: key, transition: { id: transitionId } }).then(function(){
+      setFieldStatus(key, "status", "saved", "Saved");
+      delete transitionsCache[key]; // valid next-transitions change once status changes
+      afterWriteSettle(key);
+    }).catch(function(err){
+      setFieldStatus(key, "status", "error", writeErrorMessage(err));
+    });
+  }
+
+  function postComment(key, text, textareaEl){
+    setFieldStatus(key, "comment", "saving", "Posting…");
+    mcpNs.callTool(MCP_SERVER, COMMENT_TOOL, { cloudId: CLOUD_ID, issueIdOrKey: key, commentBody: text, contentFormat: "markdown" }).then(function(){
+      setFieldStatus(key, "comment", "saved", "Posted");
+      if (textareaEl) textareaEl.value = "";
+      afterWriteSettle(key);
+    }).catch(function(err){
+      setFieldStatus(key, "comment", "error", writeErrorMessage(err));
+    });
+  }
+
+  var SINGLE_OPTION_FIELD_MAP = {
+    productType: "customfield_10125",
+    manufacturer: "customfield_10114",
+    requestType: "customfield_12446",
+    advancePayment: "customfield_10123",
+    remainingPayment: "customfield_10135",
+    shipmentMethod: "customfield_10413",
+    blockedDue: "customfield_10341"
+  };
+  var TEXT_FIELD_MAP = {
+    reasonForDiscard: "customfield_10765"
+  };
+  var NUMBER_FIELD_MAP = {
+    quantity: "customfield_10962"
+  };
+  var DATE_FIELD_MAP = {
+    planDueDate: "customfield_10182",
+    adjDueDate: "customfield_11009",
+    actualCompletion: "customfield_10181"
+  };
+
+  rowsBody.addEventListener("change", function(e){
+    try {
+      var t = e.target;
+      var field = t.getAttribute("data-edit-field");
+      if (field){
+        var key = t.getAttribute("data-key");
+        if (field === "status"){
+          if (!t.value) return; // "(current)" placeholder re-selected — no-op
+          doTransition(key, t.value);
+          return;
+        }
+        if (field in SINGLE_OPTION_FIELD_MAP){
+          var jiraField = SINGLE_OPTION_FIELD_MAP[field];
+          var fields = {};
+          fields[jiraField] = t.value ? { id: t.value } : null;
+          doEdit(key, field, fields);
+          return;
+        }
+        if (field in NUMBER_FIELD_MAP){
+          var jiraField3 = NUMBER_FIELD_MAP[field];
+          var fields3 = {};
+          fields3[jiraField3] = t.value === "" ? null : parseFloat(t.value);
+          doEdit(key, field, fields3);
+          return;
+        }
+        if (field in DATE_FIELD_MAP){
+          var jiraField4 = DATE_FIELD_MAP[field];
+          var fields4 = {};
+          fields4[jiraField4] = t.value || null;
+          doEdit(key, field, fields4);
+          return;
+        }
+        return;
+      }
+    } catch (e2) { showDiag((e2 && e2.message) ? e2.message : String(e2)); }
+  });
+
+  rowsBody.addEventListener("blur", function(e){
+    try {
+      var t = e.target;
+      var field = t.getAttribute("data-edit-field");
+      if (!field || !(field in TEXT_FIELD_MAP)) return;
+      var key = t.getAttribute("data-key");
+      var jiraField = TEXT_FIELD_MAP[field];
+      var fields = {};
+      fields[jiraField] = t.value;
+      doEdit(key, field, fields);
+    } catch (e2) { showDiag((e2 && e2.message) ? e2.message : String(e2)); }
+  }, true);
+
+  function setSyncStatus(kind, text){
+    syncStatusEl.className = "save-status" + (kind === "ok" ? " is-saved" : kind === "pending" ? " is-pending" : kind === "error" ? " is-error" : "");
+    syncStatusText.textContent = text;
+  }
+
+  function showError(message){
+    errorBanner.hidden = false;
+    errorBanner.textContent = message;
+  }
+  function clearError(){
+    errorBanner.hidden = true;
+    errorBanner.textContent = "";
+  }
+
+  function formatStoredAt(ms){
+    if (!ms) return "";
+    try { return new Date(ms).toLocaleString(); } catch (e) { return ""; }
+  }
+
+  function handleToolResult(result){
+    var payload = result && result.payload;
+    var nodes = (payload && payload.issues && Array.isArray(payload.issues.nodes)) ? payload.issues.nodes : [];
+    lastRows = nodes.map(normalizeIssue);
+    repaint();
+    clearError();
+    var storedAt = (result && result.cache && result.cache.storedAt) ? result.cache.storedAt : Date.now();
+    var revalidating = !!(result && result.cache && result.cache.revalidating);
+    setSyncStatus("ok", (revalidating ? "Refreshing… last synced " : "Synced from Jira · ") + formatStoredAt(storedAt));
+  }
+
+  var RETRACTING_CODES = {
+    needs_reauth: 1, server_not_connected: 1, blocked_by_policy: 1,
+    approval_required: 1, not_in_manifest: 1, consent_required: 1, user_changed: 1
+  };
+
+  function friendlyErrorMessage(err){
+    var code = err && err.code;
+    switch (code){
+      case "needs_reauth":
+        return "Your " + MCP_SERVER + " connection needs to be reconnected — go to claude.ai Settings → Connectors to reconnect.";
+      case "server_not_connected":
+        return "Add " + MCP_SERVER + " in claude.ai Settings → Connectors to see live batch data here.";
+      case "selection_required":
+        return "More than one " + MCP_SERVER + " connection is available — choose one when prompted, then reload this page.";
+      case "not_in_manifest":
+        return "This view isn't allowed to read " + MCP_SERVER + " data.";
+      case "blocked_by_policy":
+        return "Your organization's policy blocks this page from reading " + MCP_SERVER + " data.";
+      case "approval_required":
+        return "This Jira query needs approval before it can run — check claude.ai for a pending approval.";
+      case "server_unavailable":
+        return "Jira is temporarily unreachable — retrying automatically.";
+      case "consent_required":
+        return "Allow " + MCP_SERVER + " for this page when prompted to see live batch data.";
+      case "not_granted":
+      case "capability_disabled":
+      case "capability_removed":
+        return "Live Jira sync isn't available in this view.";
+      case "user_changed":
+        return "The signed-in account changed — reload this page.";
+      default:
+        return "Couldn't reach Jira right now" + (code ? " (" + code + ")" : "") + " — will retry automatically.";
+    }
+  }
+
+  function handleWatchEvent(ev){
+    try {
+      if (ev.type === "data"){
+        handleToolResult(ev.result);
+        return;
+      }
+      var err = ev.error || {};
+      var msg = friendlyErrorMessage(err);
+      if (RETRACTING_CODES[err.code]){
+        lastRows = [];
+        repaint();
+        setSyncStatus("error", "Not connected to Jira");
+      } else {
+        setSyncStatus("error", "Sync issue — showing last known data");
+      }
+      showError(msg);
+    } catch (e) { showDiag((e && e.message) ? e.message : String(e)); }
+  }
+
+  function startWatch(mcp){
+    setSyncStatus("pending", "Connecting to Jira…");
+    mcp.watchTool(MCP_SERVER, SEARCH_TOOL, SEARCH_INPUT, handleWatchEvent, { refetchInterval: REFRESH_MS });
+  }
+
+  refreshBtn.addEventListener("click", function(){
+    try {
+      if (!mcpNs) return;
+      setSyncStatus("pending", "Refreshing…");
+      mcpNs.invalidate(MCP_SERVER, SEARCH_TOOL, SEARCH_INPUT).catch(function(){ /* watch will surface any error */ });
+    } catch (e) { showDiag((e && e.message) ? e.message : String(e)); }
+  });
+
+  function noMcpFallback(){
+    setSyncStatus("error", "Live Jira sync isn't available in this view");
+    showError("This view can't reach your connectors. Open this page inside claude.ai to see live batch data from Jira.");
+    refreshBtn.disabled = true;
+  }
+
+  function init(){
+    updateFilterBarUI();
+    renderTable([]);
+    setSyncStatus("pending", "Connecting to Jira…");
+
+    if (!window.claude || typeof window.claude.use !== "function"){
+      noMcpFallback();
+      return;
+    }
+
+    window.claude.use("mcp").then(function(mcp){
+      if (!mcp){ noMcpFallback(); return; }
+      mcpNs = mcp;
+      startWatch(mcp);
+    }).catch(function(){ noMcpFallback(); });
+  }
+
+  init();
+
+  } catch (e) { showDiag((e && e.message) ? e.message : String(e)); }
+})();
+</script>
+

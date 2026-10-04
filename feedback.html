@@ -1,0 +1,797 @@
+<title>Onsor Feedback</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+  /*
+    Onsor brand system, taken from the "Algeria Manufacturing" proposal deck:
+    near-black ground, quiet grey body copy, a single indigo-violet accent
+    reserved for eyebrows, key figures, active states and the wave motif.
+    Committed dark identity — this is the brand, not a light/dark toggle.
+  */
+  :root {
+    --bg: #0f0f12;
+    --surface: #18181c;
+    --surface-2: #202024;
+    --ink: #f3f3f6;
+    --ink-muted: #98979f;
+    --ink-faint: #67666e;
+    --accent: #6d5ef2;
+    --accent-2: #9c8bff;
+    --accent-ink: #ffffff;
+    --accent-soft: #211f38;
+    --line: #29292f;
+    --danger: #e2725b;
+    --danger-soft: #34201b;
+
+    --turs-fg: #93b4ff; --turs-bg: #1b2140;
+    --mouj-fg: #d3b8ff; --mouj-bg: #271c40;
+    --kitab-fg: #7fd6e0; --kitab-bg: #142e33;
+    --hesn-fg: #f0b087; --hesn-bg: #362415;
+
+    --shadow: 0 1px 2px rgba(0,0,0,0.35), 0 14px 32px -14px rgba(0,0,0,0.65);
+    --radius: 10px;
+  }
+
+  * { box-sizing: border-box; }
+  html { color-scheme: dark; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Inter", system-ui, sans-serif;
+    padding: 0 20px;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3 { text-wrap: balance; margin: 0; font-family: "Manrope", "Inter", sans-serif; }
+  .mono { font-family: "IBM Plex Mono", ui-monospace, monospace; }
+  .display { font-family: "Manrope", "Inter", sans-serif; font-weight: 800; }
+
+  a { color: inherit; }
+  button { font-family: inherit; color: inherit; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .wrap { max-width: 1080px; margin: 0 auto; }
+
+  /* ---------- home link (matches the other Onsor pages) ---------- */
+  .home-bar { padding-top: 28px; }
+  .home-link {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: "IBM Plex Mono", monospace; font-size: 12px; font-weight: 500; letter-spacing: .01em;
+    color: var(--ink-faint); text-decoration: none;
+  }
+  .home-link:hover { color: var(--accent-2); }
+  .home-link:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+
+  /* ---------- header ---------- */
+  header.site {
+    display: flex; align-items: center; justify-content: space-between;
+    padding-block: 22px;
+    border-bottom: 1px solid var(--line);
+    gap: 16px; flex-wrap: wrap;
+  }
+  .brand { display: flex; align-items: center; gap: 10px; }
+  .brand .glyph {
+    width: 28px; height: 28px; flex-shrink: 0; display: block;
+  }
+  .brand .mark {
+    font-family: "Manrope", sans-serif;
+    font-weight: 800; font-size: 21px; letter-spacing: -0.01em; color: var(--ink);
+  }
+  .brand .tagline { color: var(--ink-muted); font-size: 13px; padding-left: 10px; margin-left: 2px; border-left: 1px solid var(--line); }
+  nav.top { display: flex; gap: 18px; align-items: center; font-size: 13px; color: var(--ink-muted); }
+  nav.top a { text-decoration: none; cursor: pointer; }
+  nav.top a:hover { color: var(--ink); }
+
+  main { padding-block: 36px 64px; position: relative; }
+  [hidden] { display: none !important; }
+
+  /* ---------- home / hero ---------- */
+  .hero-band {
+    position: relative; margin: 24px 0 28px; padding: 40px 28px;
+    overflow: hidden; background: #0b0b0e; border: 1px solid var(--line);
+    border-radius: 16px;
+  }
+  .hero-band svg.waves { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0.55; }
+  .hero { position: relative; max-width: 660px; }
+  .eyebrow {
+    text-transform: uppercase; letter-spacing: 0.09em; font-size: 11.5px;
+    color: var(--accent-2); font-weight: 700; margin-bottom: 10px; display: block;
+  }
+  .hero h1 { font-size: 32px; line-height: 1.22; font-weight: 800; font-family: "Manrope", sans-serif; }
+  .hero p { color: var(--ink-muted); font-size: 15px; line-height: 1.6; margin-top: 12px; max-width: 58ch; }
+  .hero p.lead { color: var(--ink); font-size: 17px; font-weight: 600; margin-top: 14px; }
+  .hero p.close { color: var(--accent-2); font-weight: 600; }
+
+  .filters {
+    display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 24px;
+  }
+  .chip {
+    border: 1px solid var(--line); background: var(--surface); color: var(--ink-muted);
+    padding: 7px 14px; border-radius: 999px; font-size: 13px; font-weight: 500;
+    cursor: pointer; transition: background .15s, color .15s, border-color .15s;
+  }
+  .chip:hover { border-color: var(--accent); color: var(--ink); }
+  .chip[aria-pressed="true"] {
+    background: var(--accent); border-color: var(--accent); color: var(--accent-ink);
+  }
+
+  .grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 14px;
+  }
+  .card {
+    background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+    color: var(--ink);
+    padding: 18px; cursor: pointer; text-align: left; width: 100%;
+    display: flex; flex-direction: column; gap: 10px;
+    box-shadow: var(--shadow);
+    transition: transform .12s ease, border-color .12s ease;
+  }
+  .card:hover { transform: translateY(-2px); border-color: var(--accent); }
+  .card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+  .card svg.dev-icon { width: 42px; height: 42px; color: var(--ink-muted); flex-shrink: 0; }
+  .badge {
+    font-size: 10.5px; font-weight: 600; letter-spacing: 0.03em; text-transform: uppercase;
+    padding: 3px 8px; border-radius: 5px; white-space: nowrap;
+  }
+  .badge.turs { color: var(--turs-fg); background: var(--turs-bg); }
+  .badge.mouj { color: var(--mouj-fg); background: var(--mouj-bg); }
+  .badge.kitab { color: var(--kitab-fg); background: var(--kitab-bg); }
+  .badge.hesn { color: var(--hesn-fg); background: var(--hesn-bg); }
+
+  .card h3 { font-size: 16.5px; font-weight: 600; }
+  .card .code { color: var(--ink-faint); font-size: 12px; }
+  .card .desc { color: var(--ink-muted); font-size: 13px; line-height: 1.5; flex-grow: 1; }
+  .card .price { font-size: 12.5px; color: var(--ink-muted); margin-top: 2px; }
+  .card .cta {
+    font-size: 12.5px; font-weight: 600; color: var(--accent);
+    display: flex; align-items: center; gap: 5px; margin-top: 2px;
+  }
+
+  /* ---------- feedback view ---------- */
+  .back-link {
+    display: inline-flex; align-items: center; gap: 6px; font-size: 13px;
+    color: var(--ink-muted); background: none; border: none; cursor: pointer; padding: 0;
+    margin-bottom: 22px;
+  }
+  .back-link:hover { color: var(--ink); }
+
+  .fb-layout { display: grid; grid-template-columns: 220px 1fr; gap: 32px; align-items: start; }
+  @media (max-width: 640px) { .fb-layout { grid-template-columns: 1fr; } }
+
+  .device-summary {
+    background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 20px; display: flex; flex-direction: column; gap: 10px; box-shadow: var(--shadow);
+  }
+  .device-summary svg.dev-icon { width: 54px; height: 54px; color: var(--accent); }
+  .device-summary h2 { font-size: 17px; font-weight: 600; }
+  .device-summary .code { color: var(--ink-faint); font-size: 12px; }
+  .device-summary .desc { color: var(--ink-muted); font-size: 12.5px; line-height: 1.5; }
+
+  .fb-form h2.title { font-size: 21px; font-weight: 700; margin-bottom: 4px; }
+  .fb-form > p.sub { color: var(--ink-muted); font-size: 13.5px; margin: 0 0 22px; }
+
+  .field { margin-bottom: 18px; }
+  .field label { display: block; font-size: 13.5px; font-weight: 600; margin-bottom: 6px; }
+  .field .hint { display: block; font-weight: 400; color: var(--ink-muted); font-size: 12.5px; margin-top: 3px; }
+  textarea {
+    width: 100%; min-height: 108px; resize: vertical;
+    background: var(--surface); color: var(--ink); border: 1px solid var(--line);
+    border-radius: 8px; padding: 12px 14px; font: inherit; font-size: 14px; line-height: 1.55;
+  }
+  textarea:focus { border-color: var(--accent); }
+  textarea::placeholder { color: var(--ink-faint); }
+
+  .btn {
+    appearance: none; border: none; border-radius: 8px; cursor: pointer;
+    font-size: 14px; font-weight: 600; padding: 11px 20px;
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .btn.primary { background: var(--accent); color: var(--accent-ink); }
+  .btn.primary:disabled { opacity: 0.45; cursor: not-allowed; }
+  .btn.ghost { background: transparent; border: 1px solid var(--line); color: var(--ink); }
+  .form-actions { display: flex; align-items: center; gap: 14px; }
+  .form-note { font-size: 12.5px; color: var(--ink-faint); }
+
+  .thanks {
+    background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 40px 32px; text-align: center; max-width: 460px; margin: 40px auto; box-shadow: var(--shadow);
+  }
+  .thanks .check {
+    width: 46px; height: 46px; border-radius: 50%; background: var(--accent-soft); color: var(--accent);
+    display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;
+  }
+  .thanks h2 { font-size: 19px; font-weight: 700; margin-bottom: 8px; }
+  .thanks p { color: var(--ink-muted); font-size: 13.5px; line-height: 1.55; margin-bottom: 22px; }
+
+  /* ---------- admin ---------- */
+  .gate {
+    max-width: 380px; margin: 60px auto; background: var(--surface); border: 1px solid var(--line);
+    border-radius: var(--radius); padding: 28px; box-shadow: var(--shadow);
+  }
+  .gate h2 { font-size: 17px; font-weight: 700; margin-bottom: 6px; }
+  .gate p { color: var(--ink-muted); font-size: 13px; margin: 0 0 18px; }
+  .gate input {
+    width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--line);
+    background: var(--bg); color: var(--ink); font: inherit; font-size: 14px; margin-bottom: 12px;
+  }
+  .gate .err { color: var(--danger); font-size: 12.5px; margin: -4px 0 12px; min-height: 1em; }
+
+  .admin-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; margin-bottom: 22px; }
+  .stat-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 22px; }
+  .stat {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 8px;
+    padding: 12px 16px; min-width: 108px;
+  }
+  .stat .num { font-family: "Manrope", sans-serif; font-weight: 800; color: var(--accent-2); font-size: 26px; line-height: 1; font-variant-numeric: tabular-nums; }
+  .stat .lbl { font-size: 11.5px; color: var(--ink-muted); text-transform: uppercase; letter-spacing: 0.04em; margin-top: 4px; }
+
+  .admin-filters { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+  select {
+    background: var(--surface); color: var(--ink); border: 1px solid var(--line); border-radius: 8px;
+    padding: 8px 12px; font: inherit; font-size: 13px;
+  }
+
+  .fb-list { display: flex; flex-direction: column; gap: 10px; }
+  .fb-entry {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 16px 18px;
+  }
+  .fb-entry .row1 { display: flex; justify-content: space-between; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 10px; }
+  .fb-entry .who { display: flex; gap: 8px; align-items: center; font-size: 13.5px; font-weight: 600; }
+  .fb-entry .when { color: var(--ink-faint); font-size: 12px; }
+  .fb-entry .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 560px) { .fb-entry .cols { grid-template-columns: 1fr; } }
+  .fb-entry .col-lbl { font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--ink-faint); margin-bottom: 4px; }
+  .fb-entry .col-txt { font-size: 13.5px; line-height: 1.55; color: var(--ink); white-space: pre-wrap; }
+  .empty { color: var(--ink-faint); font-size: 13.5px; padding: 30px 0; text-align: center; }
+
+  footer.site { border-top: 1px solid var(--line); padding-block: 22px 40px; margin-top: 30px; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  footer.site, footer.site a { font-size: 12px; color: var(--ink-faint); text-decoration: none; }
+  footer.site a:hover { color: var(--ink-muted); }
+</style>
+
+<div class="home-bar wrap">
+  <a class="home-link" href="hub.html">&larr; Home</a>
+</div>
+
+<header class="site wrap">
+  <div class="brand">
+    <img class="glyph" alt="" aria-hidden="true" src="data:image/png;base64,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" />
+    <span class="mark">onsor</span>
+    <span class="tagline">Device Feedback Portal</span>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- HOME -->
+  <section id="view-home">
+    <div class="hero-band">
+      <svg class="waves" viewBox="0 0 1040 220" preserveAspectRatio="none" aria-hidden="true">
+        <defs>
+          <linearGradient id="waveGrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#6d5ef2"/>
+            <stop offset="100%" stop-color="#9c8bff"/>
+          </linearGradient>
+        </defs>
+        <g fill="none" stroke="url(#waveGrad)" stroke-width="1">
+          <path d="M-20,190 C 220,120 340,240 620,60 C 780,-30 900,40 1080,-10" opacity="0.85"/>
+          <path d="M-20,205 C 220,135 340,255 620,75 C 780,-15 900,55 1080,5" opacity="0.6"/>
+          <path d="M-20,220 C 220,150 340,270 620,90 C 780,0 900,70 1080,20" opacity="0.4"/>
+          <path d="M-20,235 C 220,165 340,285 620,105 C 780,15 900,85 1080,35" opacity="0.25"/>
+        </g>
+      </svg>
+      <div class="hero">
+        <h1>Help Us Improve Your Onsor Device</h1>
+        <p class="lead">Select your device and share your feedback.</p>
+        <p>Your feedback helps us continuously improve the performance, reliability, and overall experience of Onsor devices.</p>
+        <p>The process takes only a few moments. Whether you are using an Onsor device within your organization or as an individual customer, your feedback will be reviewed by our Product and Device teams and considered as part of our continuous product improvement process.</p>
+        <p class="close">Your feedback matters. Help us build better devices for you.</p>
+      </div>
+    </div>
+
+    <div class="filters" id="filters" role="group" aria-label="Filter by device family"></div>
+    <div class="grid" id="device-grid"></div>
+  </section>
+
+  <!-- FEEDBACK FORM -->
+  <section id="view-feedback" hidden>
+    <button class="back-link" id="back-to-home">&larr; All devices</button>
+    <div class="fb-layout">
+      <div class="device-summary" id="device-summary"></div>
+      <div>
+        <div id="fb-form-wrap">
+          <div class="fb-form">
+            <h2 class="title">Share your feedback</h2>
+            <p class="sub">Be specific &mdash; "the fan is loud on video calls" helps more than "loud".</p>
+            <form id="feedback-form">
+              <div class="field">
+                <label for="dislike">What aspects of this device would you like us to improve?</label>
+                <textarea id="dislike" placeholder="e.g. battery drains fast on standby, hinge feels loose after a few months, webcam quality is poor in low light&hellip;" required></textarea>
+              </div>
+              <div class="field">
+                <label for="wish">What features or enhancements would you like to see in future versions?</label>
+                <textarea id="wish" placeholder="e.g. a brighter screen option, longer battery life, a lighter chassis for travel&hellip;" required></textarea>
+              </div>
+              <div class="form-actions">
+                <button type="submit" class="btn primary" id="submit-btn">Send feedback</button>
+                <span class="form-note" id="submit-note"></span>
+              </div>
+            </form>
+          </div>
+        </div>
+        <div class="thanks" id="thanks-wrap" hidden>
+          <div class="check">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          </div>
+          <h2>Thanks &mdash; that's on its way to the product team.</h2>
+          <p>Your notes on <strong id="thanks-device"></strong> have been recorded.</p>
+          <button class="btn ghost" id="submit-another">Give feedback on another device</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ADMIN GATE -->
+  <section id="view-admin-gate" hidden>
+    <div class="gate">
+      <h2>Team view</h2>
+      <p>Enter the team passcode to see submitted feedback.</p>
+      <input type="password" id="admin-pass" placeholder="Passcode" autocomplete="off" />
+      <div class="err" id="admin-err"></div>
+      <button class="btn primary" id="admin-unlock" style="width:100%; justify-content:center;">Unlock</button>
+    </div>
+  </section>
+
+  <!-- ADMIN DASHBOARD -->
+  <section id="view-admin" hidden>
+    <div class="admin-head">
+      <div>
+        <span class="eyebrow">Internal</span>
+        <h1 style="font-size:22px; font-weight:700;">Submitted feedback</h1>
+      </div>
+      <button class="back-link" id="admin-back" style="margin:0;">&larr; All devices</button>
+    </div>
+
+    <div class="stat-row" id="admin-stats"></div>
+
+    <div class="admin-filters">
+      <select id="filter-family">
+        <option value="">All families</option>
+      </select>
+      <select id="filter-device">
+        <option value="">All devices</option>
+      </select>
+    </div>
+
+    <div class="fb-list" id="admin-list"></div>
+  </section>
+
+</main>
+
+<footer class="site wrap">
+  <span>Onsor Computing Devices &mdash; internal &amp; customer feedback tool.</span>
+</footer>
+
+<script>
+(function () {
+  "use strict";
+
+  // ---------------- device catalog ----------------
+  var ICONS = {
+    clamshell: '<svg class="dev-icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="9" y="10" width="30" height="19" rx="1.5"/><path d="M9 29 L4 35 H44 L39 29"/><path d="M20 35 H28"/></svg>',
+    twoinone: '<svg class="dev-icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="9" y="9" width="30" height="20" rx="1.5"/><path d="M9 29 L4 35 H44 L39 29"/><path d="M32 6 L36 3 L38 6 L35 9 Z"/></svg>',
+    tablet: '<svg class="dev-icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="12" y="6" width="24" height="34" rx="2.5"/><path d="M22 36 H26"/></svg>',
+    tabletkb: '<svg class="dev-icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="12" y="4" width="24" height="26" rx="2"/><path d="M22 26 H26"/><rect x="7" y="33" width="34" height="9" rx="1.5"/></svg>',
+    micro: '<svg class="dev-icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="14" y="16" width="20" height="20" rx="1.5"/><circle cx="24" cy="26" r="2.4"/></svg>',
+    tower: '<svg class="dev-icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="15" y="6" width="18" height="36" rx="1.5"/><path d="M19 12 H29 M19 17 H29"/><circle cx="24" cy="30" r="2.2"/></svg>',
+    aio: '<svg class="dev-icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="7" y="7" width="34" height="24" rx="2"/><path d="M20 37 H28 M24 31 V37"/><rect x="14" y="41" width="20" height="1.6" fill="currentColor" stroke="none"/></svg>'
+  };
+
+  var FAMILIES = {
+    TURS:  { label: "TURS",  cls: "turs",  blurb: "Business-grade" },
+    MOUJ:  { label: "MOUJ",  cls: "mouj",  blurb: "Executive & premium" },
+    KITAB: { label: "KiTAB", cls: "kitab", blurb: "Education" },
+    HESN:  { label: "HESN",  cls: "hesn",  blurb: "Desktop & AIO" }
+  };
+
+  var DEVICES = [
+    { id: "turs14",  family: "TURS",  name: "TURS 14",  code: "T1420i",
+      icon: "clamshell", desc: "14″ business clamshell, MIL-STD-810 tested, smart-card reader.",
+      price: "241.000 – 348.000 OMR" },
+    { id: "turs16",  family: "TURS",  name: "TURS 16",  code: "T1610i",
+      icon: "clamshell", desc: "16″ business clamshell for heavier daily workloads.",
+      price: "294.000 – 393.000 OMR" },
+    { id: "turstab", family: "TURS",  name: "TURS Tablet", code: "—",
+      icon: "tablet", desc: "Rugged business tablet built for field and B2G use.",
+      price: null },
+
+    { id: "mouj14",  family: "MOUJ",  name: "MOUJ 14", code: "MN1410i",
+      icon: "clamshell", desc: "14″ luxury clamshell for executives, Windows Hello, pen support.",
+      price: "264.000 – 370.000 OMR" },
+    { id: "mouj14t", family: "MOUJ",  name: "MOUJ 14 2-in-1", code: "—",
+      icon: "twoinone", desc: "14″ touchscreen convertible with magnetic precision pen.",
+      price: null },
+    { id: "mouj12",  family: "MOUJ",  name: "MOUJ 12", code: "MT1210i",
+      icon: "tablet", desc: "12.6″ 2K OLED tablet with detachable magnetic keyboard.",
+      price: "251.000 – 377.000 OMR" },
+
+    { id: "kitab11", family: "KITAB", name: "KiTAB 11", code: "—",
+      icon: "clamshell", desc: "Entry 11″ laptop for students — drop-proof, spill-proof.",
+      price: null },
+    { id: "kitab14", family: "KITAB", name: "KiTAB 14", code: "K1410i",
+      icon: "clamshell", desc: "Premium 14″ education laptop with privacy shutter.",
+      price: "149.500 – 200.500 OMR" },
+
+    { id: "hesnmicro", family: "HESN", name: "HESN Micro Desktop", code: "HDU10i",
+      icon: "micro", desc: "Compact business desktop, 187×37×183 mm footprint.",
+      price: "223.000 – 280.500 OMR" },
+    { id: "hesnmini",  family: "HESN", name: "HESN Mini Desktop", code: "HDM10i",
+      icon: "micro", desc: "Mini-tower desktop for everyday office workloads.",
+      price: "279.500 – 355.000 OMR" },
+    { id: "hesntower", family: "HESN", name: "HESN Tower Desktop", code: "HDT10i",
+      icon: "tower", desc: "Full tower with optional RTX3050 graphics.",
+      price: "491.000 – 597.500 OMR" },
+    { id: "hesn24aio", family: "HESN", name: "HESN 24 AIO Business", code: "HAB2410i",
+      icon: "aio", desc: "24″ FHD all-in-one for business desks.",
+      price: "279.000 – 290.500 OMR" },
+    { id: "hesn27aio", family: "HESN", name: "HESN 27 AIO Business", code: "HAB2710i",
+      icon: "aio", desc: "27″ FHD all-in-one for business desks.",
+      price: "293.000 – 304.000 OMR" }
+  ];
+
+  var ADMIN_PASSCODE = null; // team view is disabled in the GitHub copy
+
+  // Submit posts each entry straight into the Notion database
+  // "Onsor Devices Feedback" through the submitter's own Notion connector.
+  var NOTION_SERVER = "Notion";
+  var NOTION_TOOL = "notion-create-pages";
+  var NOTION_DATA_SOURCE_ID = "55ad481f-7e7c-4169-b511-0944b9e99ee8";
+
+  // ---------------- state ----------------
+  var activeFamily = "";
+  var activeDevice = null;
+  var db = null;
+  // Id of the submission in progress. Kept across a failed attempt so a retry
+  // reuses the same stored row and the same Notion "Submission ID".
+  var pendingId = null;
+
+  var views = {
+    home: document.getElementById("view-home"),
+    feedback: document.getElementById("view-feedback"),
+    "admin-gate": document.getElementById("view-admin-gate"),
+    admin: document.getElementById("view-admin")
+  };
+
+  function showView(name) {
+    Object.keys(views).forEach(function (k) { views[k].hidden = (k !== name); });
+    window.scrollTo({ top: 0, behavior: "instant" in window ? "instant" : "auto" });
+  }
+
+  function deviceById(id) {
+    for (var i = 0; i < DEVICES.length; i++) if (DEVICES[i].id === id) return DEVICES[i];
+    return null;
+  }
+
+  // ---------------- home: filters + grid ----------------
+  function renderFilters() {
+    var el = document.getElementById("filters");
+    var chips = [{ key: "", label: "All devices" }].concat(
+      Object.keys(FAMILIES).map(function (k) { return { key: k, label: FAMILIES[k].label }; })
+    );
+    el.innerHTML = chips.map(function (c) {
+      return '<button class="chip" data-family="' + c.key + '" aria-pressed="' + (activeFamily === c.key) + '">' + c.label + '</button>';
+    }).join("");
+    Array.prototype.forEach.call(el.querySelectorAll(".chip"), function (btn) {
+      btn.addEventListener("click", function () {
+        activeFamily = btn.getAttribute("data-family");
+        renderFilters();
+        renderGrid();
+      });
+    });
+  }
+
+  function renderGrid() {
+    var el = document.getElementById("device-grid");
+    var list = activeFamily ? DEVICES.filter(function (d) { return d.family === activeFamily; }) : DEVICES;
+    el.innerHTML = list.map(function (d) {
+      var fam = FAMILIES[d.family];
+      return (
+        '<button class="card" data-id="' + d.id + '">' +
+          '<div class="card-top">' + ICONS[d.icon] + '<span class="badge ' + fam.cls + '">' + fam.label + '</span></div>' +
+          '<h3>' + d.name + '</h3>' +
+          '<span class="cta">Give feedback &rarr;</span>' +
+        '</button>'
+      );
+    }).join("");
+    Array.prototype.forEach.call(el.querySelectorAll(".card"), function (card) {
+      card.addEventListener("click", function () { openFeedback(card.getAttribute("data-id")); });
+    });
+  }
+
+  // ---------------- feedback view ----------------
+  function openFeedback(id) {
+    var d = deviceById(id);
+    if (!d) return;
+    activeDevice = d;
+    pendingId = null;
+    var fam = FAMILIES[d.family];
+    document.getElementById("device-summary").innerHTML =
+      ICONS[d.icon] +
+      '<span class="badge ' + fam.cls + '" style="align-self:flex-start;">' + fam.label + '</span>' +
+      '<h2>' + d.name + '</h2>';
+
+    document.getElementById("feedback-form").reset();
+    document.getElementById("fb-form-wrap").hidden = false;
+    document.getElementById("thanks-wrap").hidden = true;
+    document.getElementById("submit-note").textContent = "";
+    document.getElementById("submit-btn").disabled = false;
+    showView("feedback");
+  }
+
+  document.getElementById("back-to-home").addEventListener("click", function () { showView("home"); });
+  document.getElementById("submit-another").addEventListener("click", function () { showView("home"); });
+
+  document.getElementById("feedback-form").addEventListener("submit", function (e) {
+    e.preventDefault();
+    if (!activeDevice) return;
+    var dislike = document.getElementById("dislike").value.trim();
+    var wish = document.getElementById("wish").value.trim();
+    if (!dislike || !wish) return;
+
+    var btn = document.getElementById("submit-btn");
+    var note = document.getElementById("submit-note");
+    btn.disabled = true;
+    note.textContent = "Sending…";
+
+    var entry = {
+      deviceId: activeDevice.id,
+      deviceName: activeDevice.name,
+      deviceCode: activeDevice.code,
+      family: activeDevice.family,
+      dislike: dislike,
+      wish: wish,
+      submittedAt: new Date().toISOString()
+    };
+
+    if (!pendingId) pendingId = "fb_" + Date.now() + "_" + Math.random().toString(36).slice(2, 8);
+    var id = pendingId;
+
+    saveFeedback(id, entry).then(function () {
+      return postToNotion(id, entry);
+    }).then(function () {
+      pendingId = null;
+      markSynced(id);
+      document.getElementById("thanks-device").textContent = activeDevice.name;
+      document.getElementById("fb-form-wrap").hidden = true;
+      document.getElementById("thanks-wrap").hidden = false;
+    }).catch(function (err) {
+      note.textContent = notionErrorMessage(err);
+      btn.disabled = false;
+    });
+  });
+
+  // The page's own store keeps a copy of every submission (it feeds the team
+  // view). A store failure doesn't stop the Notion post.
+  function saveFeedback(id, entry) {
+    return dbReady.then(function (namespace) {
+      if (!namespace) return null;
+      return namespace.doc("feedback/" + id).set(entry);
+    }).catch(function () { return null; });
+  }
+
+  function markSynced(id) {
+    dbReady.then(function (namespace) {
+      if (namespace) return namespace.doc("feedback/" + id).update({ notionSynced: true });
+    }).catch(function () {});
+  }
+
+  function postToNotion(id, entry) {
+    return mcpReady.then(function (mcp) {
+      if (!mcp) return Promise.reject({ code: "capability_disabled" });
+      var fam = FAMILIES[entry.family];
+      return mcp.callTool(NOTION_SERVER, NOTION_TOOL, {
+        parent: { type: "data_source_id", data_source_id: NOTION_DATA_SOURCE_ID },
+        allow_async: false,
+        pages: [{
+          properties: {
+            "Device name": entry.deviceName,
+            "Device family": fam ? fam.label : "Other",
+            "To improve": entry.dislike,
+            "Wished for": entry.wish,
+            "date:Date:start": entry.submittedAt,
+            "date:Date:is_datetime": 1,
+            "Status": "Not started",
+            "Submission ID": id
+          }
+        }]
+      }, { cache: false });
+    });
+  }
+
+  function notionErrorMessage(err) {
+    var code = err && err.code;
+    if (code === "needs_reauth") return "Not sent to Notion — reconnect Notion in claude.ai Settings → Connectors, then send again.";
+    if (code === "server_not_connected" || code === "selection_required" || code === "server_not_found")
+      return "Not sent to Notion — add the Notion connector in claude.ai Settings → Connectors, then send again.";
+    if (code === "not_in_manifest" || code === "not_granted" || code === "consent_required")
+      return "Not sent to Notion — this page isn't allowed to use your Notion connector. Reload and allow it, then send again.";
+    if (code === "blocked_by_policy" || code === "approval_required")
+      return "Not sent to Notion — your organization's policy blocks this page from writing to Notion.";
+    if (code === "capability_disabled" || code === "capability_removed")
+      return "Not sent to Notion — Notion isn't available in this view. Open the page signed in to claude.ai.";
+    if (code === "tool_error")
+      return "Notion refused the entry" + (err.message ? " (" + String(err.message).slice(0, 140) + ")" : "") + ". Check you have edit access to Onsor Devices Feedback.";
+    return "Notion didn't confirm the entry. Check Onsor Devices Feedback before sending again, to avoid a duplicate.";
+  }
+
+  // ---------------- admin ----------------
+  function goAdminGate() {
+    document.getElementById("admin-pass").value = "";
+    document.getElementById("admin-err").textContent = "";
+    showView("admin-gate");
+  }
+
+  document.getElementById("admin-unlock").addEventListener("click", tryUnlock);
+  document.getElementById("admin-pass").addEventListener("keydown", function (e) {
+    if (e.key === "Enter") tryUnlock();
+  });
+  function tryUnlock() {
+    var val = document.getElementById("admin-pass").value;
+    if (val === ADMIN_PASSCODE) {
+      openAdmin();
+    } else {
+      document.getElementById("admin-err").textContent = "That passcode isn't right.";
+    }
+  }
+  document.getElementById("admin-back").addEventListener("click", function () { showView("home"); });
+
+  function populateAdminFilters() {
+    var famSel = document.getElementById("filter-family");
+    var devSel = document.getElementById("filter-device");
+    famSel.innerHTML = '<option value="">All families</option>' + Object.keys(FAMILIES).map(function (k) {
+      return '<option value="' + k + '">' + FAMILIES[k].label + '</option>';
+    }).join("");
+    function renderDeviceOptions(famFilter) {
+      var list = famFilter ? DEVICES.filter(function (d) { return d.family === famFilter; }) : DEVICES;
+      devSel.innerHTML = '<option value="">All devices</option>' + list.map(function (d) {
+        return '<option value="' + d.id + '">' + d.name + '</option>';
+      }).join("");
+    }
+    renderDeviceOptions("");
+    famSel.addEventListener("change", function () {
+      renderDeviceOptions(famSel.value);
+      devSel.value = "";
+      renderAdminList();
+    });
+    devSel.addEventListener("change", renderAdminList);
+  }
+
+  var allFeedback = [];
+  var unsubscribe = null;
+
+  function openAdmin() {
+    showView("admin");
+    document.getElementById("admin-list").innerHTML = '<div class="empty">Loading feedback…</div>';
+
+    // dbReady is a single memoized connection attempt, so there's nothing to
+    // gain by re-asking for it — but it can occasionally hang, so race it
+    // against a timeout rather than waiting on it forever.
+    var timedOut = false;
+    var timer = setTimeout(function () {
+      timedOut = true;
+      showAdminError("This is taking longer than expected. Try closing and reopening this page.");
+    }, 8000);
+
+    dbReady.then(function (namespace) {
+      clearTimeout(timer);
+      if (timedOut) return;
+      db = namespace;
+      if (!db) {
+        showAdminError("This page couldn't connect to stored feedback (it may need to be reopened, or the connection was refused). Your submitted feedback is not lost — try reloading this page.");
+        return;
+      }
+      if (unsubscribe) { unsubscribe(); unsubscribe = null; }
+      unsubscribe = db.collection("feedback").orderBy("submittedAt", "desc").onSnapshot(
+        function (snapshot) {
+          allFeedback = snapshot.docs.map(function (d) { return d.data(); });
+          renderAdminStats(allFeedback);
+          renderAdminList();
+        },
+        function (err) {
+          showAdminError("Couldn't load feedback (" + (err && err.code ? err.code : "unknown error") + "). Try reloading this page.");
+        }
+      );
+    });
+  }
+
+  function showAdminError(message) {
+    document.getElementById("admin-list").innerHTML = '<div class="empty">' + escapeHtml(message) + '</div>';
+    renderAdminStats([]);
+  }
+
+  function renderAdminStats(list) {
+    var total = list.length;
+    var byDevice = {};
+    list.forEach(function (f) { byDevice[f.deviceId] = (byDevice[f.deviceId] || 0) + 1; });
+    var topId = Object.keys(byDevice).sort(function (a, b) { return byDevice[b] - byDevice[a]; })[0];
+    var topDevice = topId ? deviceById(topId) : null;
+    var el = document.getElementById("admin-stats");
+    el.innerHTML =
+      statHtml(total, "Total submissions") +
+      statHtml(Object.keys(byDevice).length, "Devices with feedback") +
+      statHtml(topDevice ? topDevice.name : "—", "Most discussed", true);
+  }
+  function statHtml(num, label, small) {
+    return '<div class="stat"><div class="num" style="' + (small ? 'font-size:16px;' : '') + '">' + num + '</div><div class="lbl">' + label + '</div></div>';
+  }
+
+  function renderAdminList() {
+    var fam = document.getElementById("filter-family").value;
+    var dev = document.getElementById("filter-device").value;
+    var list = allFeedback.filter(function (f) {
+      if (fam && f.family !== fam) return false;
+      if (dev && f.deviceId !== dev) return false;
+      return true;
+    });
+    var el = document.getElementById("admin-list");
+    if (!list.length) {
+      el.innerHTML = '<div class="empty">No feedback yet' + (fam || dev ? ' for this filter.' : ' — check back once customers start submitting.') + '</div>';
+      return;
+    }
+    el.innerHTML = list.map(function (f) {
+      var famInfo = FAMILIES[f.family] || { label: f.family, cls: "turs" };
+      var d = new Date(f.submittedAt);
+      var when = isNaN(d.getTime()) ? "" : d.toLocaleString(undefined, { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" });
+      return (
+        '<div class="fb-entry">' +
+          '<div class="row1">' +
+            '<div class="who"><span class="badge ' + famInfo.cls + '">' + famInfo.label + '</span>' + escapeHtml(f.deviceName || "") + (f.deviceCode && f.deviceCode !== "—" ? ' <span class="code mono">' + escapeHtml(f.deviceCode) + '</span>' : '') + '</div>' +
+            '<span class="when mono">' + when + '</span>' +
+          '</div>' +
+          '<div class="cols">' +
+            '<div><div class="col-lbl">Doesn’t like</div><div class="col-txt">' + escapeHtml(f.dislike || "") + '</div></div>' +
+            '<div><div class="col-lbl">Wishes for</div><div class="col-txt">' + escapeHtml(f.wish || "") + '</div></div>' +
+          '</div>' +
+        '</div>'
+      );
+    }).join("");
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+
+  // ---------------- nav wiring ----------------
+  Array.prototype.forEach.call(document.querySelectorAll('[data-view="home"]'), function (el) {
+    el.addEventListener("click", function () { showView("home"); });
+  });
+
+  // The team view has no visible link anywhere on the page. It only opens
+  // when the page is loaded with this exact hash in the URL, so reach it by
+  // adding #onsor-team to the page's address (share that address internally,
+  // not the plain link).
+  var ADMIN_HASH = "#onsor-team";
+  function checkAdminHash() {
+    if (window.location.hash === ADMIN_HASH) goAdminGate();
+  }
+  window.addEventListener("hashchange", checkAdminHash);
+
+  // ---------------- boot ----------------
+  renderFilters();
+  renderGrid();
+  populateAdminFilters();
+  showView("home");
+  checkAdminHash();
+
+  var dbReady = (window.claude && window.claude.use)
+    ? window.claude.use("db").then(function (namespace) { db = namespace; return db; }).catch(function () { return null; })
+    : Promise.resolve(null);
+  var mcpReady = (window.claude && window.claude.use)
+    ? window.claude.use("mcp").then(function (namespace) { return namespace; }).catch(function () { return null; })
+    : Promise.resolve(null);
+})();
+</script>
+

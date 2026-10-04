@@ -1,0 +1,374 @@
+<title>TURS 14 Timeline</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* Layout: sticky-label Gantt grid (232px label rail + scrolling day-scale track) with a Gantt/Table view toggle */
+  :root{
+    color-scheme: dark;
+    --bg:#121212;
+    --surface:#19191F;
+    --surface-2:#202027;
+    --border:#302F3B;
+    --text:#F2F1F5;
+    --text-muted:#A4A4AE;
+    --text-faint:#6E6D7A;
+    --phase:#9085E9;
+    --phase-soft:#241F3D;
+    --milestone:#EDA100;
+    --milestone-soft:#3B301A;
+    --today:#E4685A;
+    --focus:#9085E9;
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 12px 28px -14px rgba(0,0,0,.6);
+  }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; }
+  body{
+    background:var(--bg); color:var(--text);
+    font-family:"IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+    padding-inline:20px; padding-block:28px 60px;
+  }
+  .wrap{ max-width:1100px; margin:0 auto; display:flex; flex-direction:column; gap:20px; }
+  .mono{ font-family:"IBM Plex Mono", ui-monospace, monospace; }
+  .tabular{ font-variant-numeric: tabular-nums; }
+  .eyebrow{ font-family:"IBM Plex Mono",monospace; font-size:11.5px; font-weight:600; letter-spacing:.11em; text-transform:uppercase; color:var(--phase); }
+  h1{ margin:6px 0 4px; font-size:clamp(22px,4vw,28px); font-weight:700; letter-spacing:-.01em; }
+  .lede{ margin:0; color:var(--text-muted); font-size:14px; max-width:64ch; }
+
+  .toolbar{ display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; }
+  .legend{ display:flex; flex-wrap:wrap; gap:16px; font-size:12.5px; color:var(--text-muted); }
+  .legend .item{ display:flex; align-items:center; gap:6px; }
+  .legend .dot{ width:10px; height:10px; border-radius:3px; flex:none; }
+  .legend .diamond{ transform:rotate(45deg); border-radius:2px; }
+  .legend .line{ width:14px; height:0; border-top:2px dashed var(--today); }
+
+  .view-toggle{ display:flex; gap:6px; }
+  .view-btn{
+    appearance:none; border:1px solid var(--border); background:var(--surface); color:var(--text-muted);
+    font-family:inherit; font-size:12.5px; font-weight:600; padding:6px 12px; border-radius:7px; cursor:pointer;
+  }
+  .view-btn[aria-pressed="true"]{ background:var(--phase-soft); color:var(--phase); border-color:var(--phase); }
+  .view-btn:hover{ color:var(--text); }
+  .view-btn:focus-visible{ outline:2px solid var(--focus); outline-offset:2px; }
+
+  .card{ background:var(--surface); border:1px solid var(--border); border-radius:12px; box-shadow:var(--shadow); overflow:hidden; }
+
+  .gantt-scroll{ overflow-x:auto; }
+  .gantt-grid{ display:grid; grid-template-columns: 232px 1fr; min-width:900px; position:relative; }
+  .g-label, .g-track{ border-bottom:1px solid var(--border); }
+  .g-label{
+    position:sticky; left:0; z-index:2; background:var(--surface);
+    padding:9px 14px; display:flex; flex-direction:column; justify-content:center; gap:2px;
+    border-right:1px solid var(--border); min-width:0;
+  }
+  .g-label .pid{ font-family:"IBM Plex Mono",monospace; font-size:10.5px; color:var(--text-faint); letter-spacing:.03em; }
+  .g-label .pname{ font-size:12.8px; font-weight:500; line-height:1.25; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .g-row.is-today .g-label{ box-shadow: inset 3px 0 0 var(--today); }
+  .g-row.is-today .g-label .pname{ color:var(--text); font-weight:600; }
+
+  .g-head .g-label{ z-index:3; }
+  .g-head-months{ position:relative; height:32px; }
+  .month-tick{ position:absolute; top:0; bottom:-1px; border-left:1px solid var(--border); }
+  .month-tick span{
+    position:absolute; top:15px; left:6px; font-family:"IBM Plex Mono",monospace;
+    font-size:10.5px; color:var(--text-faint); letter-spacing:.02em; white-space:nowrap;
+  }
+
+  .g-track{ position:relative; height:40px; }
+  .row-grid{ position:absolute; inset:0; }
+  .row-grid .gl{ position:absolute; top:0; bottom:0; border-left:1px solid var(--border); opacity:.5; }
+
+  .bar{
+    position:absolute; top:9px; height:22px; border-radius:5px; cursor:pointer;
+    display:flex; align-items:center; padding-inline:8px; overflow:hidden;
+    background:var(--phase); border:1px solid rgba(0,0,0,.15);
+    transition:filter .12s, transform .12s;
+  }
+  .bar:hover{ filter:brightness(1.1); transform:translateY(-1px); }
+  .bar:focus-visible{ outline:2px solid var(--focus); outline-offset:2px; }
+  .bar .bar-label{ font-family:"IBM Plex Mono",monospace; font-size:10.5px; color:#151027; white-space:nowrap; font-weight:600; }
+
+  .milestone{
+    position:absolute; top:10px; width:20px; height:20px; margin-left:-10px;
+    background:var(--milestone); transform:rotate(45deg); border-radius:3px;
+    cursor:pointer; border:1px solid rgba(0,0,0,.18);
+    transition:filter .12s, transform .12s;
+  }
+  .milestone:hover{ filter:brightness(1.1); transform:rotate(45deg) scale(1.12); }
+  .milestone:focus-visible{ outline:2px solid var(--focus); outline-offset:3px; }
+  .milestone-label{
+    position:absolute; top:6px; font-family:"IBM Plex Mono",monospace; font-size:10.5px;
+    font-weight:600; color:var(--milestone); white-space:nowrap;
+  }
+
+  .today-line{ position:absolute; top:0; bottom:0; width:0; border-left:2px dashed var(--today); pointer-events:none; z-index:1; }
+  .today-line .tag{
+    position:absolute; top:2px; left:6px; background:var(--today); color:#fff;
+    font-family:"IBM Plex Mono",monospace; font-size:9.5px; font-weight:600; letter-spacing:.04em;
+    padding:2px 6px; border-radius:4px; white-space:nowrap; text-transform:uppercase;
+  }
+
+  .tooltip{
+    position:fixed; z-index:20; background:var(--surface-2); border:1px solid var(--border); border-radius:9px;
+    padding:10px 12px; font-size:12.5px; box-shadow:var(--shadow); pointer-events:none; max-width:260px;
+    opacity:0; transform:translateY(4px); transition:opacity .1s, transform .1s;
+  }
+  .tooltip.show{ opacity:1; transform:translateY(0); }
+  .tooltip .tt-title{ font-weight:700; margin-bottom:4px; }
+  .tooltip .tt-row{ display:flex; justify-content:space-between; gap:14px; color:var(--text-muted); }
+  .tooltip .tt-row + .tt-row{ margin-top:2px; }
+  .tooltip .tt-row b{ color:var(--text); font-family:"IBM Plex Mono",monospace; font-weight:600; }
+
+  table.phase-table{ width:100%; border-collapse:collapse; }
+  table.phase-table thead th{
+    text-align:left; font-size:10.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--text-faint);
+    padding:10px 14px; border-bottom:1px solid var(--border); background:var(--surface-2); font-weight:600;
+  }
+  table.phase-table th:last-child, table.phase-table td:last-child{ text-align:right; }
+  table.phase-table td{ padding:10px 14px; border-bottom:1px solid var(--border); font-size:13.5px; border-left:3px solid transparent; }
+  table.phase-table td:first-child{ border-left-color:var(--row-accent, transparent); }
+  table.phase-table td.id{ font-family:"IBM Plex Mono",monospace; color:var(--text-faint); font-size:11.5px; letter-spacing:.02em; }
+  table.phase-table td.dates{ font-family:"IBM Plex Mono",monospace; font-size:12.5px; color:var(--text-muted); white-space:nowrap; }
+  table.phase-table tr:hover td{ background:var(--surface-2); }
+  table.phase-table tr.is-milestone td{ font-weight:600; }
+  table.phase-table tr.is-milestone td.dates{ color:var(--milestone); }
+  table.phase-table tr.is-milestone td.desc{ color:var(--text); }
+
+  .card-foot{
+    display:flex; flex-wrap:wrap; gap:14px; align-items:center; justify-content:space-between;
+    padding:11px 16px; border-top:1px solid var(--border); background:var(--surface-2);
+    font-size:12px; color:var(--text-faint);
+  }
+  footer{ text-align:center; font-size:11.5px; color:var(--text-faint); }
+</style>
+<div class="wrap">
+  <div>
+    <div class="eyebrow">Onsor &middot; Product Committee Proposal</div>
+    <h1>TURS 14 Product Timeline</h1>
+    <p class="lede">Requirements definition through mass production and shipment readiness. Today marks the gate this proposal unlocks &mdash; Phase P3 begins 1 Oct 2026.</p>
+  </div>
+
+  <div class="toolbar">
+    <div class="legend">
+      <div class="item"><span class="dot" style="background:var(--phase)"></span>Phase</div>
+      <div class="item"><span class="dot diamond" style="background:var(--milestone)"></span>Milestone</div>
+      <div class="item"><span class="line"></span>Today</div>
+    </div>
+    <div class="view-toggle" role="group" aria-label="View">
+      <button type="button" class="view-btn" id="btnGantt" aria-pressed="true">Gantt</button>
+      <button type="button" class="view-btn" id="btnTable" aria-pressed="false">Table</button>
+    </div>
+  </div>
+
+  <div class="card" id="ganttCard">
+    <div class="gantt-scroll">
+      <div class="gantt-grid" id="ganttGrid"></div>
+    </div>
+    <div class="card-foot">
+      <span>Dates per the Onsor Laptops Roadmap plan (1 Sep 2026 &ndash; 25 Apr 2027, 236 days)</span>
+      <span class="tabular mono" id="todayLabel"></span>
+    </div>
+  </div>
+
+  <div class="card" id="tableCard" hidden>
+    <table class="phase-table">
+      <thead><tr><th>Phase</th><th>Description</th><th>Dates</th></tr></thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+
+  <footer>Durations are planning estimates until confirmed by contract/PO &middot; TURS 14 Concept &amp; Upgrade Proposal</footer>
+</div>
+
+<div class="tooltip" id="tooltip" role="tooltip"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  var PHASES = [
+    {id:"P1",  name:"Technology Exploration", type:"phase", start:"2026-09-01", end:"2026-09-05"},
+    {id:"P2",  name:"Device Specs & Persona Definition", type:"phase", start:"2026-09-05", end:"2026-09-30"},
+    {id:"P3",  name:"ODM/SI RFI & Device Recommendation", type:"phase", start:"2026-10-01", end:"2026-10-31"},
+    {id:"P4",  name:"Offer Evaluation", type:"phase", start:"2026-10-31", end:"2026-11-15"},
+    {id:"P5",  name:"Device Customization & Testing", type:"phase", start:"2026-11-15", end:"2026-12-15"},
+    {id:"P6",  name:"First Order Placement", type:"milestone", start:"2026-12-31", end:"2026-12-31"},
+    {id:"P7",  name:"Tooling Customization (+ DVT/EVT)", type:"phase", start:"2027-01-01", end:"2027-02-12"},
+    {id:"P8",  name:"PVT", type:"phase", start:"2027-02-12", end:"2027-02-19"},
+    {id:"P9/P10", name:"Cases, PCB, BOM", type:"phase", start:"2027-02-19", end:"2027-04-02"},
+    {id:"P11", name:"Trial Mass Production + Testing", type:"phase", start:"2027-04-02", end:"2027-04-09"},
+    {id:"P12", name:"Mass Production", type:"phase", start:"2027-04-09", end:"2027-04-23"},
+    {id:"P13", name:"Inspection", type:"phase", start:"2027-04-23", end:"2027-04-25"},
+    {id:"P14", name:"Goods Ready to Ship", type:"milestone", start:"2027-04-25", end:"2027-04-25"}
+  ];
+
+  var DAY_MS = 86400000;
+  function toDate(s){ var p=s.split("-"); return new Date(Date.UTC(+p[0],+p[1]-1,+p[2])); }
+  function dayDiff(a,b){ return Math.round((toDate(b)-toDate(a))/DAY_MS); }
+  function fmtDate(s){ return toDate(s).toLocaleDateString("en-GB",{ day:"2-digit", month:"short", year:"numeric", timeZone:"UTC" }); }
+  function todayISO(){ var n=new Date(); return new Date(Date.UTC(n.getFullYear(),n.getMonth(),n.getDate())).toISOString().slice(0,10); }
+  function esc(s){ return String(s==null?"":s).replace(/[&<>]/g,function(c){return c==="&"?"&amp;":(c==="<"?"&lt;":"&gt;");}); }
+
+  var PROJECT_START = PHASES[0].start, PROJECT_END = PHASES[PHASES.length-1].end;
+  var totalDays = dayDiff(PROJECT_START, PROJECT_END);
+  var TRACK_W = 0; // computed from container
+  var pxPerDay = 1;
+  function xOf(d){ return dayDiff(PROJECT_START, d) * pxPerDay; }
+
+  function monthTicks(){
+    var ticks = [];
+    var d = toDate(PROJECT_START);
+    var cursor = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), 1));
+    var end = toDate(PROJECT_END);
+    while (cursor <= end){
+      var iso = cursor.toISOString().slice(0,10);
+      ticks.push({ x: Math.max(0, xOf(iso)), label: cursor.toLocaleDateString("en-GB",{ month:"short", year:"2-digit", timeZone:"UTC" }) });
+      cursor = new Date(Date.UTC(cursor.getUTCFullYear(), cursor.getUTCMonth()+1, 1));
+    }
+    return ticks;
+  }
+
+  var grid = document.getElementById("ganttGrid");
+  var tooltip = document.getElementById("tooltip");
+  var TODAY = todayISO();
+
+  var RIGHT_PAD = 34; // reserves room so a milestone diamond/label at the project end date isn't clipped
+
+  function render(){
+    var scrollW = grid.parentElement.clientWidth;
+    TRACK_W = Math.max(scrollW - 232, 480);
+    pxPerDay = (TRACK_W - RIGHT_PAD) / totalDays;
+    grid.style.gridTemplateColumns = "232px " + TRACK_W + "px";
+
+    var html = "";
+    html += '<div class="g-label g-head" style="grid-column:1"></div>';
+    html += '<div class="g-head-months" style="grid-column:2">';
+    monthTicks().forEach(function(t){
+      html += '<div class="month-tick" style="left:'+t.x.toFixed(1)+'px"><span>'+t.label+'</span></div>';
+    });
+    html += '</div>';
+
+    PHASES.forEach(function(p, i){
+      var isMilestone = p.type === "milestone";
+      var isToday = TODAY >= p.start && TODAY <= p.end;
+      html += '<div class="g-label'+(isToday?" g-row is-today":"")+'" data-row="'+i+'">';
+      html += '<span class="pid mono">'+esc(p.id)+'</span>';
+      html += '<span class="pname">'+esc(p.name)+'</span>';
+      html += '</div>';
+      html += '<div class="g-track" style="grid-column:2">';
+      html += '<div class="row-grid">';
+      monthTicks().forEach(function(t){ html += '<div class="gl" style="left:'+t.x.toFixed(1)+'px"></div>'; });
+      html += '</div>';
+      if (isMilestone){
+        var mx = xOf(p.start);
+        var nearRightEdge = (TRACK_W - mx) < 110;
+        html += '<div class="milestone" tabindex="0" role="button" aria-label="'+esc(p.name)+'" style="left:'+mx.toFixed(1)+'px" data-idx="'+i+'"></div>';
+        if (nearRightEdge){
+          html += '<div class="milestone-label" style="left:auto;right:'+(TRACK_W - mx + 14).toFixed(1)+'px;text-align:right">'+esc(fmtDate(p.start))+'</div>';
+        } else {
+          html += '<div class="milestone-label" style="left:'+(mx+14).toFixed(1)+'px">'+esc(fmtDate(p.start))+'</div>';
+        }
+      } else {
+        var bx = xOf(p.start), bw = Math.max(xOf(p.end) - bx, 6);
+        var dur = dayDiff(p.start, p.end);
+        html += '<div class="bar" tabindex="0" role="button" aria-label="'+esc(p.name)+'" style="left:'+bx.toFixed(1)+'px;width:'+bw.toFixed(1)+'px" data-idx="'+i+'">';
+        if (bw > 42) html += '<span class="bar-label">'+dur+'d</span>';
+        html += '</div>';
+      }
+      html += '</div>';
+    });
+
+    grid.innerHTML = html;
+
+    var todayInRange = TODAY >= PROJECT_START && TODAY <= PROJECT_END;
+    if (todayInRange){
+      var line = document.createElement("div");
+      line.className = "today-line";
+      line.style.gridColumn = "2";
+      line.style.gridRow = "1 / -1";
+      line.style.left = xOf(TODAY).toFixed(1) + "px";
+      line.innerHTML = '<span class="tag">Today</span>';
+      grid.appendChild(line);
+    }
+    document.getElementById("todayLabel").textContent = "Today — " + fmtDate(TODAY);
+
+    wireHover();
+  }
+
+  function wireHover(){
+    var targets = grid.querySelectorAll("[data-idx]");
+    Array.prototype.forEach.call(targets, function(el){
+      el.addEventListener("mouseenter", function(e){ showTip(el, e); });
+      el.addEventListener("mousemove", function(e){ positionTip(e); });
+      el.addEventListener("mouseleave", hideTip);
+      el.addEventListener("focus", function(e){ showTip(el, {clientX: el.getBoundingClientRect().left, clientY: el.getBoundingClientRect().top}); });
+      el.addEventListener("blur", hideTip);
+    });
+  }
+  function showTip(el, e){
+    var p = PHASES[+el.getAttribute("data-idx")];
+    var dur = dayDiff(p.start, p.end);
+    var html = '<div class="tt-title">'+esc(p.id)+' · '+esc(p.name)+'</div>';
+    html += '<div class="tt-row"><span>Start</span><b>'+esc(fmtDate(p.start))+'</b></div>';
+    if (p.type !== "milestone"){
+      html += '<div class="tt-row"><span>End</span><b>'+esc(fmtDate(p.end))+'</b></div>';
+      html += '<div class="tt-row"><span>Duration</span><b>'+dur+' days</b></div>';
+    } else {
+      html += '<div class="tt-row"><span>Type</span><b>Milestone</b></div>';
+    }
+    tooltip.innerHTML = html;
+    tooltip.classList.add("show");
+    positionTip(e);
+  }
+  function positionTip(e){
+    var x = e.clientX + 14, y = e.clientY + 14;
+    var maxX = window.innerWidth - 280, maxY = window.innerHeight - 120;
+    tooltip.style.left = Math.min(x, maxX) + "px";
+    tooltip.style.top = Math.min(y, maxY) + "px";
+  }
+  function hideTip(){ tooltip.classList.remove("show"); }
+
+  function fmtRange(s, e){
+    var ds = toDate(s), de = toDate(e);
+    var d1 = ds.getUTCDate(), d2 = de.getUTCDate();
+    var mon1 = ds.toLocaleDateString("en-GB",{ month:"short", timeZone:"UTC" });
+    var mon2 = de.toLocaleDateString("en-GB",{ month:"short", timeZone:"UTC" });
+    var yr = de.getUTCFullYear();
+    if (s === e) return d2 + " " + mon2 + " " + yr;
+    if (mon1 === mon2) return d1 + "–" + d2 + " " + mon2 + " " + yr;
+    return d1 + " " + mon1 + "–" + d2 + " " + mon2 + " " + yr;
+  }
+
+  function renderTable(){
+    var body = document.getElementById("tableBody");
+    var html = "";
+    PHASES.forEach(function(p){
+      var isMilestone = p.type === "milestone";
+      html += '<tr class="'+(isMilestone?"is-milestone":"")+'" style="--row-accent:'+(isMilestone?"var(--milestone)":"var(--phase)")+'">';
+      html += '<td class="id">'+esc(p.id)+'</td>';
+      html += '<td class="desc">'+esc(p.name)+(isMilestone?' <span style="color:var(--milestone);font-weight:600;">(Milestone)</span>':'')+'</td>';
+      html += '<td class="dates">'+esc(fmtRange(p.start, p.end))+'</td>';
+      html += "</tr>";
+    });
+    body.innerHTML = html;
+  }
+
+  var btnGantt = document.getElementById("btnGantt");
+  var btnTable = document.getElementById("btnTable");
+  var ganttCard = document.getElementById("ganttCard");
+  var tableCard = document.getElementById("tableCard");
+  btnGantt.addEventListener("click", function(){
+    btnGantt.setAttribute("aria-pressed","true"); btnTable.setAttribute("aria-pressed","false");
+    ganttCard.hidden = false; tableCard.hidden = true;
+  });
+  btnTable.addEventListener("click", function(){
+    btnGantt.setAttribute("aria-pressed","false"); btnTable.setAttribute("aria-pressed","true");
+    ganttCard.hidden = true; tableCard.hidden = false;
+  });
+
+  render();
+  renderTable();
+  window.addEventListener("resize", render);
+})();
+</script>
+

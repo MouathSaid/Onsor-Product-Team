@@ -1,0 +1,1503 @@
+<title>Onsor Knowledge — Products Knowledge Base</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    color-scheme: dark;
+    --bg:#121212;
+    --surface:#19191F;
+    --surface-2:#202027;
+    --border:#302F3B;
+    --text:#F2F1F5;
+    --text-muted:#A4A4AE;
+    --text-faint:#6E6D7A;
+    --main:#8377F7;
+    --main-soft:#241F3D;
+    --eng:#63C2B4;
+    --eng-soft:#1D3733;
+    --supply:#D79770;
+    --supply-soft:#3A2A20;
+    --milestone:#E3B655;
+    --milestone-soft:#3B301A;
+    --today:#E4685A;
+    --focus:#8377F7;
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 12px 28px -14px rgba(0,0,0,.6);
+  }
+
+  *{ box-sizing:border-box; }
+  [hidden]{ display:none !important; }
+  html,body{ margin:0; }
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:"IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+    padding-inline:20px;
+    padding-block:28px 60px;
+  }
+  .wrap{ max-width:1200px; margin:0 auto; display:flex; flex-direction:column; gap:22px; }
+  .mono{ font-family:"IBM Plex Mono", ui-monospace, "SF Mono", monospace; }
+  .tabular{ font-variant-numeric: tabular-nums; }
+
+  .back-link{
+    align-self:flex-start; display:inline-flex; align-items:center; gap:6px;
+    font-family:"IBM Plex Mono",monospace; font-size:12px; font-weight:500; letter-spacing:.01em;
+    color:var(--text-faint); text-decoration:none;
+  }
+  .back-link:hover{ color:var(--main); }
+  .back-link:focus-visible{ outline:2px solid var(--focus); outline-offset:2px; border-radius:4px; }
+
+  header{ display:flex; flex-direction:column; gap:10px; }
+  .eyebrow{
+    font-family:"IBM Plex Mono", monospace;
+    font-size:11.5px; font-weight:600; letter-spacing:.11em; text-transform:uppercase;
+    color:var(--main);
+  }
+  h1{ margin:0; font-size:clamp(24px,4vw,32px); font-weight:700; letter-spacing:-.01em; text-wrap:balance; }
+  .lede{ margin:0; color:var(--text-muted); font-size:14.5px; max-width:74ch; }
+  .lede a{ color:var(--main); }
+
+  .editor-toolbar{ display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+  .toolbar-actions{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .save-status{ font-size:12.5px; color:var(--text-faint); display:flex; align-items:center; gap:7px; }
+  .save-status .dot{ width:7px; height:7px; border-radius:50%; background:var(--text-faint); flex:none; }
+  .save-status.is-saved .dot{ background:var(--eng); }
+  .save-status.is-pending .dot{ background:var(--milestone); }
+  .save-status.is-error .dot{ background:var(--today); }
+
+  .btn{
+    appearance:none; border:1px solid var(--border); background:var(--surface); color:var(--text);
+    font-family:inherit; font-size:13px; font-weight:600; padding:8px 14px; border-radius:8px; cursor:pointer;
+    text-decoration:none; display:inline-flex; align-items:center; gap:6px;
+  }
+  .btn:hover{ border-color:var(--text-faint); }
+  .btn:focus-visible{ outline:2px solid var(--focus); outline-offset:2px; }
+  .btn:disabled{ opacity:.45; cursor:not-allowed; }
+  .btn-primary{ background:var(--main); border-color:var(--main); color:#fff; }
+  .btn-primary:hover{ filter:brightness(1.08); border-color:var(--main); }
+
+  .readonly-banner{
+    font-size:12.5px; color:var(--milestone); background:var(--milestone-soft);
+    border:1px solid var(--border); padding:9px 12px; border-radius:8px;
+  }
+
+  .count-line{ font-size:13px; color:var(--text-faint); }
+  .count-line strong{ color:var(--text); font-weight:600; }
+
+  .filter-toolbar{ display:flex; flex-direction:column; gap:10px; }
+  .search-input{
+    width:100%; max-width:420px; background:var(--surface); border:1px solid var(--border); color:var(--text);
+    font-family:inherit; font-size:13.5px; padding:9px 12px; border-radius:8px;
+  }
+  .search-input::placeholder{ color:var(--text-faint); }
+  .search-input:focus-visible{ outline:2px solid var(--focus); outline-offset:1px; }
+
+  .filter-bar{ display:flex; flex-wrap:wrap; gap:8px; }
+  .filter-chip{
+    appearance:none; border:1px solid var(--border); background:var(--surface); color:var(--text-muted);
+    font-family:inherit; font-size:12.5px; font-weight:600; padding:6px 12px; border-radius:999px; cursor:pointer;
+    display:inline-flex; align-items:center; gap:6px;
+  }
+  .filter-chip:hover{ border-color:var(--text-faint); color:var(--text); }
+  .filter-chip:focus-visible{ outline:2px solid var(--focus); outline-offset:2px; }
+  .filter-chip.is-active{ background:var(--main-soft); border-color:var(--main); color:var(--main); }
+  .filter-chip .chip-count{ font-family:"IBM Plex Mono",monospace; font-size:11px; opacity:.8; }
+
+  .kb-grid{ display:grid; grid-template-columns:repeat(3, 1fr); gap:14px; }
+  @media (max-width:920px){ .kb-grid{ grid-template-columns:repeat(2, 1fr); } }
+  @media (max-width:600px){ .kb-grid{ grid-template-columns:1fr; } }
+
+  .kb-card{
+    display:flex; flex-direction:column; gap:10px; width:100%; text-align:left;
+    background:var(--surface); border:1px solid var(--border); border-radius:12px;
+    padding:15px 16px 16px; text-decoration:none; color:inherit; box-shadow:var(--shadow);
+    transition:border-color .15s, transform .15s, background .15s;
+    appearance:none; font-family:inherit; cursor:pointer;
+  }
+  .kb-card:hover{ border-color:var(--main); transform:translateY(-2px); background:var(--surface-2); }
+  .kb-card:focus-visible{ outline:2px solid var(--focus); outline-offset:2px; }
+
+  .kb-top{ display:flex; align-items:center; justify-content:space-between; gap:8px; }
+  .kb-id{
+    font-family:"IBM Plex Mono",monospace; font-size:11px; font-weight:600; letter-spacing:.02em;
+    color:var(--main); background:var(--main-soft); border-radius:6px; padding:3px 7px;
+  }
+  .kb-arrow{ font-family:"IBM Plex Mono",monospace; font-size:14px; color:var(--text-faint); transition:transform .15s, color .15s; }
+  .kb-card:hover .kb-arrow{ color:var(--main); transform:translateX(3px); }
+
+  .kb-card h3{ margin:0; font-size:14.5px; font-weight:600; letter-spacing:-.005em; text-wrap:balance; }
+  .kb-desc{
+    margin:0; font-size:12.5px; color:var(--text-muted); line-height:1.45;
+    display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;
+  }
+  .kb-tags{ display:flex; flex-wrap:wrap; gap:6px; margin-top:auto; padding-top:2px; }
+  .kb-tag{
+    font-family:"IBM Plex Mono",monospace; font-size:10.5px; font-weight:600; letter-spacing:.02em;
+    padding:2px 7px; border-radius:5px; background:var(--surface-2); color:var(--text-faint); border:1px solid var(--border);
+  }
+
+  .empty-state{ padding:30px 10px; text-align:center; color:var(--text-faint); font-size:13px; }
+  .empty-state a{ color:var(--main); }
+
+  footer{ text-align:center; font-size:11.5px; color:var(--text-faint); }
+
+  .detail-overlay{
+    position:fixed; inset:0; background:rgba(8,8,10,.72);
+    display:flex; align-items:flex-start; justify-content:center; padding:40px 16px;
+    z-index:50; overflow-y:auto;
+  }
+  .detail-panel{
+    background:var(--surface); border:1px solid var(--border); border-radius:14px;
+    box-shadow:var(--shadow); width:100%; max-width:760px; max-height:calc(100vh - 80px);
+    display:flex; flex-direction:column; overflow:hidden;
+  }
+  .detail-head{
+    display:flex; align-items:flex-start; justify-content:space-between; gap:12px;
+    padding:16px 20px; border-bottom:1px solid var(--border); flex:none;
+  }
+  .detail-head-left{ display:flex; flex-direction:column; gap:4px; min-width:0; }
+  .detail-breadcrumb{ font-size:11.5px; color:var(--text-faint); }
+  .detail-title{ margin:0; font-size:18px; font-weight:700; letter-spacing:-.01em; text-wrap:balance; }
+  .detail-meta{ font-size:11.5px; color:var(--text-faint); }
+  .detail-head-actions{ display:flex; align-items:center; gap:8px; flex:none; }
+  .icon-btn{
+    appearance:none; border:1px solid var(--border); background:var(--surface-2); color:var(--text-muted);
+    width:30px; height:30px; border-radius:8px; cursor:pointer; display:flex; align-items:center; justify-content:center;
+    font-size:14px; font-family:inherit; text-decoration:none;
+  }
+  .icon-btn:hover{ border-color:var(--text-faint); color:var(--text); }
+  .icon-btn:focus-visible{ outline:2px solid var(--focus); outline-offset:2px; }
+  .detail-body{ padding:18px 20px 24px; overflow-y:auto; font-size:13.5px; line-height:1.6; color:var(--text); }
+  .detail-body h2{ font-size:16.5px; margin:22px 0 8px; }
+  .detail-body h2:first-child{ margin-top:0; }
+  .detail-body h3{ font-size:14.5px; margin:18px 0 7px; }
+  .detail-body h4{ font-size:12.5px; margin:14px 0 6px; color:var(--text-muted); text-transform:uppercase; letter-spacing:.04em; }
+  .detail-body p{ margin:0 0 10px; color:var(--text-muted); }
+  .detail-body ul{ margin:0 0 10px; padding-left:20px; color:var(--text-muted); }
+  .detail-body li{ margin-bottom:4px; }
+  .detail-body strong{ color:var(--text); }
+  .detail-table-wrap{ overflow-x:auto; margin:10px 0 14px; }
+  .detail-table{ width:100%; border-collapse:collapse; font-size:12.5px; }
+  .detail-table td, .detail-table th{ border:1px solid var(--border); padding:6px 8px; text-align:left; vertical-align:top; color:var(--text-muted); }
+  .detail-table th{ background:var(--surface-2); color:var(--text); font-weight:600; }
+  .callout{ display:flex; gap:8px; background:var(--main-soft); border:1px solid var(--border); border-radius:8px; padding:10px 12px; margin:10px 0 14px; }
+  .callout-icon{ flex:none; }
+  .callout-body{ color:var(--text-muted); font-size:13px; }
+  .mention-link{ color:var(--main); text-decoration:underline; cursor:pointer; background:none; border:0; padding:0; font:inherit; }
+  .mention-link:hover{ color:var(--text); }
+  .ext-link{ color:var(--main); text-decoration:underline; word-break:break-word; }
+  .ext-link:hover{ color:var(--text); }
+  .detail-loading, .detail-error{ padding:34px 10px; text-align:center; color:var(--text-faint); font-size:13px; }
+  .detail-error{ color:var(--today); }
+
+  .form-overlay{
+    position:fixed; inset:0; background:rgba(8,8,10,.72);
+    display:flex; align-items:flex-start; justify-content:center; padding:40px 16px;
+    z-index:60; overflow-y:auto;
+  }
+  .form-panel{
+    background:var(--surface); border:1px solid var(--border); border-radius:14px;
+    box-shadow:var(--shadow); width:100%; max-width:520px;
+    display:flex; flex-direction:column; overflow:hidden;
+  }
+  .form-head{ display:flex; align-items:center; justify-content:space-between; padding:16px 20px; border-bottom:1px solid var(--border); }
+  .form-head h2{ margin:0; font-size:16px; font-weight:700; letter-spacing:-.005em; }
+  .form-body{ padding:18px 20px; display:flex; flex-direction:column; gap:14px; overflow-y:auto; }
+  .form-field{ display:flex; flex-direction:column; gap:6px; }
+  .form-field label{ font-size:11.5px; font-weight:600; color:var(--text-faint); text-transform:uppercase; letter-spacing:.05em; }
+  .form-input, .form-textarea{
+    background:var(--surface-2); border:1px solid var(--border); color:var(--text);
+    font-family:inherit; font-size:13.5px; padding:9px 11px; border-radius:8px; resize:vertical;
+  }
+  .form-input:focus-visible, .form-textarea:focus-visible{ outline:2px solid var(--focus); outline-offset:1px; }
+  .checkbox-grid{ display:flex; flex-wrap:wrap; gap:8px; }
+  .checkbox-chip{
+    display:inline-flex; align-items:center; gap:6px; font-size:12.5px; color:var(--text-muted);
+    background:var(--surface-2); border:1px solid var(--border); border-radius:999px; padding:5px 10px 5px 8px; cursor:pointer;
+  }
+  .checkbox-chip input{ accent-color:var(--main); margin:0; }
+  .checkbox-chip.is-checked{ border-color:var(--main); color:var(--text); background:var(--main-soft); }
+  .form-foot{ display:flex; align-items:center; justify-content:flex-end; gap:8px; padding:14px 20px; border-top:1px solid var(--border); flex:none; }
+  .form-error{ font-size:12.5px; color:var(--today); }
+  .form-success{ font-size:12.5px; color:var(--eng); }
+
+  .subform{ background:var(--surface-2); border:1px solid var(--border); border-radius:10px; padding:12px; gap:12px; }
+  .link-btn{
+    appearance:none; background:none; border:0; color:var(--main); font-family:inherit; font-size:12px; font-weight:600;
+    cursor:pointer; padding:0; align-self:flex-start;
+  }
+  .link-btn:hover{ color:var(--text); text-decoration:underline; }
+  .link-btn:focus-visible{ outline:2px solid var(--focus); outline-offset:2px; }
+
+  .chat-panel{
+    background:var(--surface); border:1px solid var(--border); border-radius:14px;
+    box-shadow:var(--shadow); width:100%; max-width:620px; max-height:calc(100vh - 80px);
+    display:flex; flex-direction:column; overflow:hidden;
+  }
+  .chat-head{ display:flex; align-items:center; justify-content:space-between; padding:14px 18px; border-bottom:1px solid var(--border); flex:none; }
+  .chat-head h2{ margin:0; font-size:15.5px; font-weight:700; }
+  .chat-head p{ margin:2px 0 0; font-size:11.5px; color:var(--text-faint); }
+  .chat-messages{ flex:1; overflow-y:auto; padding:16px 18px; display:flex; flex-direction:column; gap:14px; }
+  .chat-empty{ text-align:center; color:var(--text-faint); font-size:12.5px; padding:20px 10px; }
+  .chat-row{ display:flex; flex-direction:column; gap:6px; max-width:88%; }
+  .chat-row.from-user{ align-self:flex-end; align-items:flex-end; }
+  .chat-row.from-assistant{ align-self:flex-start; align-items:flex-start; }
+  .chat-bubble{ border-radius:12px; padding:9px 12px; font-size:13px; line-height:1.5; white-space:pre-wrap; }
+  .chat-row.from-user .chat-bubble{ background:var(--main); color:#fff; }
+  .chat-row.from-assistant .chat-bubble{ background:var(--surface-2); border:1px solid var(--border); color:var(--text); }
+  .chat-row.from-assistant .chat-bubble.is-error{ background:var(--milestone-soft); border-color:var(--milestone); color:var(--milestone); }
+  .chat-row.from-assistant .chat-bubble.is-thinking{ color:var(--text-faint); font-style:italic; }
+  .chat-sources{ display:flex; flex-wrap:wrap; gap:6px; }
+  .chat-source-btn{
+    appearance:none; background:var(--surface-2); border:1px solid var(--border); color:var(--main);
+    font-family:inherit; font-size:11px; font-weight:600; padding:4px 9px; border-radius:999px; cursor:pointer;
+    max-width:220px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  }
+  .chat-source-btn:hover{ border-color:var(--main); color:var(--text); }
+  .chat-source-btn:focus-visible{ outline:2px solid var(--focus); outline-offset:2px; }
+  .chat-foot{ display:flex; gap:8px; padding:12px 18px; border-top:1px solid var(--border); flex:none; }
+  .chat-input{
+    flex:1; background:var(--surface-2); border:1px solid var(--border); color:var(--text);
+    font-family:inherit; font-size:13.5px; padding:9px 12px; border-radius:8px; resize:none;
+  }
+  .chat-input:focus-visible{ outline:2px solid var(--focus); outline-offset:1px; }
+
+  .diag-banner{
+    background:#3B1A1A; border:1px solid #7A3B3B; color:#F5C8C8;
+    font-family:"IBM Plex Mono",monospace; font-size:12.5px; line-height:1.5;
+    padding:12px 14px; border-radius:8px; white-space:pre-wrap; word-break:break-word;
+  }
+</style>
+
+<div class="wrap">
+
+  <div class="diag-banner" id="diagBanner" hidden></div>
+
+  <a class="back-link" href="hub.html">&larr; Home</a>
+
+  <header>
+    <div class="eyebrow">Onsor · Knowledge Base</div>
+    <h1>Products Knowledge Base</h1>
+    <p class="lede">Live view of the <a href="https://app.notion.com/p/79df24b4e3f143db8b49189b3eb016ea" target="_blank" rel="noopener">Onsor Kowledge</a> database in Notion — component research, investigations, standards, and device notes across the TURS, MOUJ, KiTAB, and HESN families. Click any card to read the full entry right here.</p>
+  </header>
+
+  <div class="editor-toolbar">
+    <div class="save-status" id="syncStatus"><span class="dot"></span><span id="syncStatusText">Connecting to Notion&hellip;</span></div>
+    <div class="toolbar-actions">
+      <button type="button" class="btn" id="refreshBtn">&#8635; Refresh now</button>
+      <button type="button" class="btn btn-primary" id="addItemBtn">+ Add item</button>
+      <button type="button" class="btn" id="askBtn">&#128172; Ask</button>
+      <a class="btn" href="https://app.notion.com/p/79df24b4e3f143db8b49189b3eb016ea" target="_blank" rel="noopener">Open in Notion &rarr;</a>
+    </div>
+  </div>
+  <div id="errorBanner" class="readonly-banner" hidden></div>
+
+  <div class="count-line" id="countLine"></div>
+
+  <div class="filter-toolbar">
+    <input type="search" class="search-input" id="searchInput" placeholder="Search title or description&hellip;" autocomplete="off">
+    <div class="filter-bar" id="filterBar"></div>
+  </div>
+
+  <div class="kb-grid" id="kbGrid"></div>
+
+  <footer>Pulls live from the Onsor Kowledge database in Notion · polls automatically while this page is open · read-only here — add or edit entries directly in Notion.</footer>
+
+</div>
+
+<div class="detail-overlay" id="detailOverlay" hidden>
+  <div class="detail-panel" role="dialog" aria-modal="true" aria-labelledby="detailTitle">
+    <div class="detail-head">
+      <div class="detail-head-left">
+        <div class="detail-breadcrumb" id="detailBreadcrumb"></div>
+        <h2 class="detail-title" id="detailTitle">&nbsp;</h2>
+        <div class="detail-meta" id="detailMeta"></div>
+      </div>
+      <div class="detail-head-actions">
+        <button type="button" class="icon-btn" id="detailBackBtn" title="Back" hidden>&larr;</button>
+        <button type="button" class="icon-btn" id="detailEditBtn" title="Edit" hidden>&#9998;</button>
+        <a class="icon-btn" id="detailOpenLink" href="#" target="_blank" rel="noopener" title="Open in Notion">&#8599;</a>
+        <button type="button" class="icon-btn" id="detailCloseBtn" title="Close">&times;</button>
+      </div>
+    </div>
+    <div class="detail-body" id="detailBody"></div>
+  </div>
+</div>
+
+<div class="form-overlay" id="createOverlay" hidden>
+  <div class="form-panel" role="dialog" aria-modal="true" aria-labelledby="createTitleHead">
+    <div class="form-head">
+      <h2 id="createTitleHead">Add knowledge item</h2>
+      <button type="button" class="icon-btn" id="createCloseBtn" title="Close">&times;</button>
+    </div>
+    <div class="form-body">
+      <div class="form-field">
+        <label for="formTitle">Title</label>
+        <input type="text" class="form-input" id="formTitle" placeholder="e.g. Battery vendor comparison" autocomplete="off">
+      </div>
+      <div class="form-field">
+        <label for="formDescription">Description</label>
+        <textarea class="form-textarea" id="formDescription" rows="3" placeholder="Short summary of this entry"></textarea>
+      </div>
+      <div class="form-field">
+        <label>Devices</label>
+        <div class="checkbox-grid" id="formDevices"></div>
+      </div>
+      <div class="form-field">
+        <label for="formPageLink">Page link (optional)</label>
+        <input type="url" class="form-input" id="formPageLink" placeholder="Leave blank, or create a new page below" autocomplete="off">
+        <button type="button" class="link-btn" id="toggleNewPageBtn">+ Create a new page</button>
+      </div>
+      <div class="form-field subform" id="newPageWrap" hidden>
+        <div class="form-field">
+          <label for="formNewPageTitle">New page name</label>
+          <input type="text" class="form-input" id="formNewPageTitle" placeholder="e.g. Battery vendor comparison" autocomplete="off">
+        </div>
+        <div class="form-field">
+          <label for="formNewPageBody">New page body (Notion markdown)</label>
+          <textarea class="form-textarea" id="formNewPageBody" rows="6" placeholder="## Overview&#10;Write the page content here…"></textarea>
+        </div>
+        <div class="form-error" id="newPageError" hidden></div>
+        <div style="display:flex; align-items:center; justify-content:flex-end; gap:8px;">
+          <button type="button" class="btn" id="newPageCancelBtn">Cancel</button>
+          <button type="button" class="btn btn-primary" id="newPageCreateBtn">Create page &amp; link it</button>
+        </div>
+      </div>
+      <div class="form-error" id="formError" hidden></div>
+    </div>
+    <div class="form-foot">
+      <button type="button" class="btn" id="createCancelBtn">Cancel</button>
+      <button type="button" class="btn btn-primary" id="createSubmitBtn">Create in Notion</button>
+    </div>
+  </div>
+</div>
+
+<div class="form-overlay" id="chatOverlay" hidden>
+  <div class="chat-panel" role="dialog" aria-modal="true" aria-labelledby="chatTitleHead">
+    <div class="chat-head">
+      <div>
+        <h2 id="chatTitleHead">Ask about Onsor Knowledge</h2>
+        <p>Searches the Onsor Roadmap pages in Notion and answers from what it finds — with sources.</p>
+      </div>
+      <button type="button" class="icon-btn" id="chatCloseBtn" title="Close">&times;</button>
+    </div>
+    <div class="chat-messages" id="chatMessages">
+      <div class="chat-empty" id="chatEmptyState">Ask something like &ldquo;What's the battery target for TURS 14?&rdquo; or &ldquo;What devices does MOUJ cover?&rdquo;</div>
+    </div>
+    <div class="chat-foot">
+      <textarea class="chat-input" id="chatInput" rows="1" placeholder="Ask a question…"></textarea>
+      <button type="button" class="btn btn-primary" id="chatSendBtn">Send</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  function showDiag(msg){
+    try {
+      var b = document.getElementById("diagBanner");
+      if (!b) return;
+      b.hidden = false;
+      b.textContent = "Something went wrong on this page: " + msg + "\n\nPlease screenshot this message and share it so it can be fixed.";
+    } catch (ignored) { /* nothing more we can do */ }
+  }
+  window.addEventListener("error", function(e){ showDiag(e && e.message ? e.message : "unknown script error"); });
+  window.addEventListener("unhandledrejection", function(e){
+    var reason = e && e.reason;
+    showDiag(reason && reason.message ? reason.message : String(reason));
+  });
+
+  try {
+
+  var MCP_SERVER = "Notion";
+  var MCP_TOOL = "notion-query-data-sources";
+  var MCP_TOOL_FETCH = "notion-fetch";
+  var MCP_TOOL_CREATE = "notion-create-pages";
+  var MCP_TOOL_UPDATE = "notion-update-page";
+  var MCP_TOOL_SEARCH = "notion-search";
+  var ASK_SCOPE_PAGE_URL = "https://app.notion.com/p/3c2086c765278062854ff00cef84361a"; // Onsor Roadmap 2026 (and its subpages)
+  var DATA_SOURCE_URL = "collection://f123fdcc-efc4-40fc-bd4a-1eb7c467b7b4";
+  var DATA_SOURCE_ID = DATA_SOURCE_URL.replace(/^collection:\/\//, "");
+  var DEVICE_OPTIONS = [
+    { value: "TURS 14", label: "TURS 14" },
+    { value: "TURS 16", label: "TURS 16" },
+    { value: "TURS Tablet", label: "TURS Tablet" },
+    { value: "MOUJ 14", label: "MOUJ 14" },
+    { value: "MOUJ 14 2-in-1", label: "MOUJ 14 2-in-1" },
+    { value: "MOUJ 12", label: "MOUJ 12" },
+    { value: "KiTAB 11", label: "KiTAB 11" },
+    { value: "KiTAB 14", label: "KiTAB 14" },
+    { value: "KiTAB Chrome", label: "KiTAB Chrome" },
+    { value: "HESN", label: "HESN" },
+    { value: "all", label: "All / General" }
+  ];
+  var SQL_QUERY = 'SELECT url, createdTime, "Page Link", "Tracking ID", "Devices", "Description", "Title" '
+    + 'FROM "' + DATA_SOURCE_URL + '" ORDER BY "Tracking ID" ASC LIMIT 100';
+  var TOOL_INPUT = {
+    data: {
+      data_source_urls: [DATA_SOURCE_URL],
+      query: SQL_QUERY
+    }
+  };
+  var REFRESH_MS = 300000; // ~5 min poll while the page stays open
+  var NOTION_DB_URL = "https://app.notion.com/p/79df24b4e3f143db8b49189b3eb016ea";
+
+  var TAG_PALETTE = ["main", "eng", "supply", "milestone", "today"];
+
+  function escapeHtml(s){
+    return String(s == null ? "" : s).replace(/[&<>]/g, function(c){
+      return c === "&" ? "&amp;" : (c === "<" ? "&lt;" : "&gt;");
+    });
+  }
+  function escAttr(s){ return escapeHtml(s).replace(/"/g, "&quot;"); }
+
+  function extractNotionId(s){
+    if (!s) return s;
+    var m = /([0-9a-fA-F]{32}|[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})(?:[^0-9a-fA-F]|$)/.exec(String(s) + " ");
+    return m ? m[1] : s;
+  }
+
+  function parseDevices(raw){
+    if (Array.isArray(raw)) return raw.filter(Boolean);
+    if (typeof raw !== "string" || !raw.trim()) return [];
+    try {
+      var parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) return parsed.filter(Boolean);
+      return [String(parsed)];
+    } catch (e){
+      return [raw];
+    }
+  }
+
+  function normalizeRow(r){
+    var id = (typeof r["Tracking ID"] === "number") ? r["Tracking ID"] : null;
+    var pageLink = r["Page Link"] || r.url || "";
+    return {
+      id: id,
+      idLabel: id != null ? ("KB-" + id) : "KB",
+      title: r["Title"] || "Untitled",
+      description: r["Description"] || "",
+      devices: parseDevices(r["Devices"]),
+      href: pageLink,
+      notionId: extractNotionId(pageLink),
+      created: r.createdTime ? String(r.createdTime).slice(0, 10) : ""
+    };
+  }
+
+  var syncStatusEl = document.getElementById("syncStatus");
+  var syncStatusText = document.getElementById("syncStatusText");
+  var errorBanner = document.getElementById("errorBanner");
+  var refreshBtn = document.getElementById("refreshBtn");
+  var countLine = document.getElementById("countLine");
+  var filterBar = document.getElementById("filterBar");
+  var kbGrid = document.getElementById("kbGrid");
+  var searchInput = document.getElementById("searchInput");
+
+  var mcpNs = null;
+  var allRows = [];
+  var activeFilter = "all";
+  var searchTerm = "";
+  var tagColorMap = {};
+
+  function colorForTag(tag){
+    if (!tagColorMap[tag]){
+      var idx = Object.keys(tagColorMap).length % TAG_PALETTE.length;
+      tagColorMap[tag] = TAG_PALETTE[idx];
+    }
+    return tagColorMap[tag];
+  }
+
+  function getFilterFromHash(){
+    var m = /filter=([^&]+)/.exec(window.location.hash || "");
+    return m ? decodeURIComponent(m[1]) : "all";
+  }
+
+  function setFilter(f){
+    activeFilter = f;
+    var newHash = f === "all" ? "" : ("#filter=" + encodeURIComponent(f));
+    try { history.replaceState(null, "", window.location.pathname + window.location.search + newHash); } catch (e) {}
+    renderGrid();
+    renderFilterBar();
+  }
+
+  function renderFilterBar(){
+    var counts = {};
+    allRows.forEach(function(r){
+      r.devices.forEach(function(d){ counts[d] = (counts[d] || 0) + 1; });
+    });
+    var tags = Object.keys(counts).sort(function(a, b){ return counts[b] - counts[a]; });
+
+    var chips = [{ key: "all", label: "All", count: allRows.length }].concat(
+      tags.map(function(t){ return { key: t, label: t, count: counts[t] }; })
+    );
+
+    filterBar.innerHTML = chips.map(function(c){
+      var active = c.key === activeFilter;
+      return '<button type="button" class="filter-chip' + (active ? " is-active" : "") + '" data-filter="' + escAttr(c.key) + '">'
+        + escapeHtml(c.label) + ' <span class="chip-count">' + c.count + '</span>'
+        + '</button>';
+    }).join("");
+
+    Array.prototype.forEach.call(filterBar.querySelectorAll(".filter-chip"), function(btn){
+      btn.addEventListener("click", function(){ setFilter(btn.getAttribute("data-filter")); });
+    });
+  }
+
+  function matchesFilter(row){
+    if (activeFilter !== "all" && row.devices.indexOf(activeFilter) === -1) return false;
+    if (searchTerm){
+      var hay = (row.title + " " + row.description).toLowerCase();
+      if (hay.indexOf(searchTerm) === -1) return false;
+    }
+    return true;
+  }
+
+  function renderGrid(){
+    var visible = allRows.filter(matchesFilter);
+    countLine.innerHTML = allRows.length
+      ? ('<strong>' + visible.length + '</strong> of ' + allRows.length + ' knowledge item' + (allRows.length === 1 ? "" : "s"))
+      : "";
+
+    if (!allRows.length){
+      kbGrid.innerHTML = '<div class="empty-state">No knowledge items yet. <a href="' + escAttr(NOTION_DB_URL) + '" target="_blank" rel="noopener">Add the first one in Notion &rarr;</a></div>';
+      return;
+    }
+    if (!visible.length){
+      kbGrid.innerHTML = '<div class="empty-state">No items match this filter or search.</div>';
+      return;
+    }
+
+    kbGrid.innerHTML = visible.map(function(r){
+      var fallbackUrl = r.href || NOTION_DB_URL;
+      var tags = r.devices.map(function(d){
+        return '<span class="kb-tag" style="color:var(--' + colorForTag(d) + ');border-color:var(--' + colorForTag(d) + ')">' + escapeHtml(d) + '</span>';
+      }).join("");
+      return ''
+        + '<button type="button" class="kb-card" data-open="' + escAttr(r.notionId || "") + '" data-url="' + escAttr(fallbackUrl) + '" data-title="' + escAttr(r.title) + '" data-tid="' + escAttr(r.id == null ? "" : String(r.id)) + '">'
+        +   '<div class="kb-top">'
+        +     '<span class="kb-id">' + escapeHtml(r.idLabel) + '</span>'
+        +     '<span class="kb-arrow">&rarr;</span>'
+        +   '</div>'
+        +   '<h3>' + escapeHtml(r.title) + '</h3>'
+        +   (r.description ? '<p class="kb-desc">' + escapeHtml(r.description) + '</p>' : '')
+        +   (tags ? '<div class="kb-tags">' + tags + '</div>' : '')
+        + '</button>';
+    }).join("");
+  }
+
+  kbGrid.addEventListener("click", function(e){
+    var card = e.target.closest ? e.target.closest(".kb-card") : null;
+    if (!card) return;
+    var openId = card.getAttribute("data-open");
+    var fallbackUrl = card.getAttribute("data-url");
+    var title = card.getAttribute("data-title");
+    var tid = card.getAttribute("data-tid");
+    var row = tid ? allRows.find(function(r){ return String(r.id) === tid; }) : null;
+    openDetail(openId || fallbackUrl, fallbackUrl, title, false, row || null);
+  });
+
+  function setSyncStatus(kind, text){
+    syncStatusEl.className = "save-status" + (kind === "ok" ? " is-saved" : kind === "pending" ? " is-pending" : kind === "error" ? " is-error" : "");
+    syncStatusText.textContent = text;
+  }
+  function showError(message){
+    errorBanner.hidden = false;
+    errorBanner.textContent = message;
+  }
+  function clearError(){
+    errorBanner.hidden = true;
+    errorBanner.textContent = "";
+  }
+  function formatStoredAt(ms){
+    if (!ms) return "";
+    try { return new Date(ms).toLocaleString(); } catch (e) { return ""; }
+  }
+
+  function handleToolResult(result){
+    var payload = result && result.payload;
+    var results = (payload && Array.isArray(payload.results)) ? payload.results : [];
+    allRows = results.map(normalizeRow);
+    renderFilterBar();
+    renderGrid();
+    clearError();
+    var storedAt = (result && result.cache && result.cache.storedAt) ? result.cache.storedAt : Date.now();
+    var revalidating = !!(result && result.cache && result.cache.revalidating);
+    setSyncStatus("ok", (revalidating ? "Refreshing… last synced " : "Synced from Notion · ") + formatStoredAt(storedAt));
+  }
+
+  var RETRACTING_CODES = {
+    needs_reauth: 1, server_not_connected: 1, blocked_by_policy: 1,
+    approval_required: 1, not_in_manifest: 1, consent_required: 1, user_changed: 1
+  };
+
+  function friendlyErrorMessage(err){
+    var code = err && err.code;
+    switch (code){
+      case "needs_reauth":
+        return "Your " + MCP_SERVER + " connection needs to be reconnected — go to claude.ai Settings → Connectors to reconnect.";
+      case "server_not_connected":
+        return "Add " + MCP_SERVER + " in claude.ai Settings → Connectors to see live knowledge base data here.";
+      case "selection_required":
+        return "More than one " + MCP_SERVER + " connection is available — choose one when prompted, then reload this page.";
+      case "not_in_manifest":
+        return "This view isn't allowed to read " + MCP_SERVER + " data.";
+      case "blocked_by_policy":
+        return "Your organization's policy blocks this page from reading " + MCP_SERVER + " data.";
+      case "approval_required":
+        return "This Notion query needs approval before it can run — check claude.ai for a pending approval.";
+      case "server_unavailable":
+        return "Notion is temporarily unreachable — retrying automatically.";
+      case "consent_required":
+        return "Allow " + MCP_SERVER + " for this page when prompted to see live knowledge base data.";
+      case "not_granted":
+      case "capability_disabled":
+      case "capability_removed":
+        return "Live Notion sync isn't available in this view.";
+      case "user_changed":
+        return "The signed-in account changed — reload this page.";
+      default:
+        return "Couldn't reach Notion right now" + (code ? " (" + code + ")" : (err && err.message ? (": " + err.message) : "")) + " — will retry automatically.";
+    }
+  }
+
+  function handleWatchEvent(ev){
+    try {
+      if (ev.type === "data"){
+        handleToolResult(ev.result);
+        return;
+      }
+      var err = ev.error || {};
+      var msg = friendlyErrorMessage(err);
+      if (RETRACTING_CODES[err.code]){
+        allRows = [];
+        renderFilterBar();
+        renderGrid();
+        setSyncStatus("error", "Not connected to Notion");
+      } else {
+        setSyncStatus("error", "Sync issue — showing last known data");
+      }
+      showError(msg);
+    } catch (e) { showDiag((e && e.message) ? e.message : String(e)); }
+  }
+
+  function startWatch(mcp){
+    setSyncStatus("pending", "Connecting to Notion…");
+    mcp.watchTool(MCP_SERVER, MCP_TOOL, TOOL_INPUT, handleWatchEvent, { refetchInterval: REFRESH_MS });
+  }
+
+  refreshBtn.addEventListener("click", function(){
+    try {
+      if (!mcpNs) return;
+      setSyncStatus("pending", "Refreshing…");
+      mcpNs.invalidate(MCP_SERVER, MCP_TOOL, TOOL_INPUT).catch(function(){ /* watch will surface any error */ });
+    } catch (e) { showDiag((e && e.message) ? e.message : String(e)); }
+  });
+
+  searchInput.addEventListener("input", function(){
+    searchTerm = searchInput.value.trim().toLowerCase();
+    renderGrid();
+  });
+
+  window.addEventListener("hashchange", function(){
+    var f = getFilterFromHash();
+    if (f !== activeFilter){ activeFilter = f; renderGrid(); renderFilterBar(); }
+  });
+
+  // ---- In-page detail panel: fetches a Notion page's content and shows it
+  // inline (no new tab). Opened from a knowledge-card click, and from any
+  // <mention-page>/<database> reference inside the fetched content itself. ----
+
+  var detailOverlay = document.getElementById("detailOverlay");
+  var detailBreadcrumb = document.getElementById("detailBreadcrumb");
+  var detailTitleEl = document.getElementById("detailTitle");
+  var detailMetaEl = document.getElementById("detailMeta");
+  var detailBody = document.getElementById("detailBody");
+  var detailBackBtn = document.getElementById("detailBackBtn");
+  var detailEditBtn = document.getElementById("detailEditBtn");
+  var detailOpenLink = document.getElementById("detailOpenLink");
+  var detailCloseBtn = document.getElementById("detailCloseBtn");
+
+  var detailStack = [];
+  var currentDetail = null;
+  var detailRequestSeq = 0;
+  var currentRow = null;
+  var currentRawContent = "";
+  var currentRenderedHtml = "";
+  var currentPageUrl = "";
+
+  function inlineFormat(s){
+    return s.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+  }
+
+  function shortenMentionUrl(u){
+    try {
+      var path = String(u).split("?")[0];
+      var seg = path.split("/").filter(Boolean).pop() || "";
+      seg = seg.replace(/^p-/, "");
+      if (/^[0-9a-fA-F-]{16,}$/.test(seg)) return "View linked page";
+      seg = seg.replace(/-/g, " ").trim();
+      return seg ? seg.slice(0, 60) : "View linked page";
+    } catch (e) { return "View linked page"; }
+  }
+
+  function extractTagContent(raw, tag){
+    var re = new RegExp("<" + tag + ">([\\s\\S]*?)<\\/" + tag + ">");
+    var m = re.exec(raw);
+    return m ? m[1] : null;
+  }
+
+  function renderEnhancedMarkdown(raw){
+    if (typeof raw !== "string" || !raw) return "";
+    var blocks = [];
+    function stash(html){
+      var token = "\u0000B" + blocks.length + "\u0000";
+      blocks.push(html);
+      return token;
+    }
+
+    var content = extractTagContent(raw, "content");
+    var text = content != null ? content : raw;
+
+    text = text.replace(/<callout\b([^>]*)>([\s\S]*?)<\/callout>/g, function(_, attrs, inner){
+      var iconMatch = /icon="([^"]*)"/.exec(attrs);
+      var icon = iconMatch ? iconMatch[1] : "";
+      var body = inlineFormat(escapeHtml(inner.trim()));
+      return stash('<div class="callout">' + (icon ? '<span class="callout-icon">' + escapeHtml(icon) + '</span>' : '') + '<div class="callout-body">' + body + '</div></div>');
+    });
+
+    text = text.replace(/<table\b([^>]*)>([\s\S]*?)<\/table>/g, function(_, attrs, inner){
+      var headerRow = /header-row="true"/.test(attrs);
+      var rows = inner.match(/<tr>[\s\S]*?<\/tr>/g) || [];
+      var htmlRows = rows.map(function(rowHtml, idx){
+        var cells = rowHtml.match(/<td>[\s\S]*?<\/td>/g) || [];
+        var cellTag = (headerRow && idx === 0) ? "th" : "td";
+        var cellsHtml = cells.map(function(c){
+          var innerCell = c.replace(/^<td>/, "").replace(/<\/td>$/, "");
+          return "<" + cellTag + ">" + inlineFormat(escapeHtml(innerCell.trim())) + "</" + cellTag + ">";
+        }).join("");
+        return "<tr>" + cellsHtml + "</tr>";
+      }).join("");
+      return stash('<div class="detail-table-wrap"><table class="detail-table">' + htmlRows + '</table></div>');
+    });
+
+    text = text.replace(/<mention-page\s+url="([^"]*)"\s*\/>/g, function(_, url){
+      return stash('<button type="button" class="mention-link" data-open="' + escAttr(extractNotionId(url)) + '" data-url="' + escAttr(url) + '">' + escapeHtml(shortenMentionUrl(url)) + '</button>');
+    });
+    text = text.replace(/<mention-page\s+url="([^"]*)">([\s\S]*?)<\/mention-page>/g, function(_, url, label){
+      return stash('<button type="button" class="mention-link" data-open="' + escAttr(extractNotionId(url)) + '" data-url="' + escAttr(url) + '">' + escapeHtml(label.trim()) + '</button>');
+    });
+    text = text.replace(/<database\s+url="([^"]*)"[^>]*>([\s\S]*?)<\/database>/g, function(_, url, label){
+      return stash('<button type="button" class="mention-link" data-open="' + escAttr(extractNotionId(url)) + '" data-url="' + escAttr(url) + '">' + escapeHtml((label || "Open database").trim()) + '</button>');
+    });
+
+    // external markdown links: [label](https://...)
+    text = text.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, function(_, label, url){
+      return stash('<a class="ext-link" href="' + escAttr(url) + '" target="_blank" rel="noopener">' + escapeHtml(label.trim()) + '</a>');
+    });
+
+    // bare URLs left over in the text (not already part of a link above)
+    text = text.replace(/(^|[\s(])(https?:\/\/[^\s<>()]+)/g, function(_, pre, url){
+      return pre + stash('<a class="ext-link" href="' + escAttr(url) + '" target="_blank" rel="noopener">' + escapeHtml(url) + '</a>');
+    });
+
+    text = escapeHtml(text);
+    text = text.replace(/\u0000B(\d+)\u0000/g, function(_, i){ return blocks[Number(i)]; });
+
+    var lines = text.split("\n");
+    var out = [];
+    var inList = false;
+    lines.forEach(function(line){
+      var trimmed = line.trim();
+      if (!trimmed){
+        if (inList){ out.push("</ul>"); inList = false; }
+        return;
+      }
+      if (/^<(div|table)\b/.test(trimmed)){
+        if (inList){ out.push("</ul>"); inList = false; }
+        out.push(trimmed);
+        return;
+      }
+      var h = /^(#{1,4})\s+(.*)$/.exec(trimmed);
+      if (h){
+        if (inList){ out.push("</ul>"); inList = false; }
+        var level = Math.min(h[1].length + 1, 4);
+        out.push("<h" + level + ">" + inlineFormat(h[2]) + "</h" + level + ">");
+        return;
+      }
+      var li = /^[-*]\s+(.*)$/.exec(trimmed);
+      if (li){
+        if (!inList){ out.push("<ul>"); inList = true; }
+        out.push("<li>" + inlineFormat(li[1]) + "</li>");
+        return;
+      }
+      if (inList){ out.push("</ul>"); inList = false; }
+      out.push("<p>" + inlineFormat(trimmed) + "</p>");
+    });
+    if (inList) out.push("</ul>");
+    return out.join("\n");
+  }
+
+  var isEditingDetail = false;
+  var detailMouseDownOnBackdrop = false;
+
+  function onDetailKeydown(e){
+    if (e.key !== "Escape") return;
+    if (isEditingDetail){ exitEditMode(); return; }
+    closeDetail();
+  }
+
+  function showDetailOverlay(){
+    detailOverlay.hidden = false;
+    document.addEventListener("keydown", onDetailKeydown);
+  }
+  function hideDetailOverlay(){
+    detailOverlay.hidden = true;
+    document.removeEventListener("keydown", onDetailKeydown);
+  }
+  function closeDetail(){
+    hideDetailOverlay();
+    detailStack = [];
+    currentDetail = null;
+    currentRow = null;
+    currentRawContent = "";
+    currentRenderedHtml = "";
+    currentPageUrl = "";
+    isEditingDetail = false;
+  }
+
+  function updateEditButtonVisibility(){
+    detailEditBtn.hidden = !currentRow;
+  }
+
+  function loadDetail(openId, fallbackUrl, titleHint){
+    var seq = ++detailRequestSeq;
+    detailTitleEl.textContent = titleHint || "Loading…";
+    detailBreadcrumb.textContent = "";
+    detailMetaEl.textContent = "";
+    detailOpenLink.href = fallbackUrl || NOTION_DB_URL;
+    detailBody.innerHTML = '<div class="detail-loading">Loading from Notion&hellip;</div>';
+
+    if (!window.claude || typeof window.claude.use !== "function"){
+      detailBody.innerHTML = '<div class="detail-error">Live Notion sync isn&#39;t available in this view.<br><br><a href="' + escAttr(fallbackUrl || NOTION_DB_URL) + '" target="_blank" rel="noopener">Open in Notion instead &rarr;</a></div>';
+      return;
+    }
+
+    window.claude.use("mcp").then(function(mcp){
+      if (!mcp){ var e = new Error("not granted"); e.code = "not_granted"; throw e; }
+      return mcp.callTool(MCP_SERVER, MCP_TOOL_FETCH, { id: openId });
+    }).then(function(result){
+      if (seq !== detailRequestSeq) return;
+      var payload = result && result.payload;
+      if (!payload){ var e = new Error("empty"); e.code = "empty"; throw e; }
+      detailTitleEl.textContent = payload.title || titleHint || "Untitled";
+      detailBreadcrumb.textContent = payload.path || "";
+      detailMetaEl.textContent = payload.page_last_edited_at ? ("Last edited " + formatStoredAt(Date.parse(payload.page_last_edited_at))) : "";
+      currentPageUrl = payload.url || fallbackUrl || "";
+      if (payload.url) detailOpenLink.href = payload.url;
+      var rawContent = extractTagContent(payload.text || "", "content");
+      currentRawContent = rawContent != null ? rawContent : (payload.text || "");
+      var html = renderEnhancedMarkdown(payload.text || "");
+      currentRenderedHtml = html || '<div class="detail-loading">No content on this page.</div>';
+      detailBody.innerHTML = currentRenderedHtml;
+    }).catch(function(err){
+      if (seq !== detailRequestSeq) return;
+      var msg = friendlyErrorMessage(err || {});
+      detailBody.innerHTML = '<div class="detail-error">' + escapeHtml(msg) + '<br><br><a href="' + escAttr(fallbackUrl || NOTION_DB_URL) + '" target="_blank" rel="noopener">Open in Notion instead &rarr;</a></div>';
+    });
+  }
+
+  function openDetail(openId, fallbackUrl, title, isBack, row){
+    if (currentDetail && !isBack) detailStack.push(currentDetail);
+    currentDetail = { openId: openId, fallbackUrl: fallbackUrl, title: title, row: row || null };
+    currentRow = row || null;
+    detailBackBtn.hidden = detailStack.length === 0;
+    updateEditButtonVisibility();
+    showDetailOverlay();
+    loadDetail(openId, fallbackUrl, title);
+  }
+
+  detailBackBtn.addEventListener("click", function(){
+    var prev = detailStack.pop();
+    if (!prev){ closeDetail(); return; }
+    currentDetail = prev;
+    currentRow = prev.row || null;
+    detailBackBtn.hidden = detailStack.length === 0;
+    updateEditButtonVisibility();
+    loadDetail(prev.openId, prev.fallbackUrl, prev.title);
+  });
+  detailCloseBtn.addEventListener("click", closeDetail);
+  // Only close on a genuine click on the backdrop itself — require the press
+  // to have STARTED there too, so dragging to select text inside the panel
+  // (which can release over the backdrop) never closes the panel out from
+  // under you, and never while actively editing.
+  detailOverlay.addEventListener("mousedown", function(e){
+    detailMouseDownOnBackdrop = (e.target === detailOverlay);
+  });
+  detailOverlay.addEventListener("click", function(e){
+    var shouldClose = e.target === detailOverlay && detailMouseDownOnBackdrop && !isEditingDetail;
+    detailMouseDownOnBackdrop = false;
+    if (shouldClose) closeDetail();
+  });
+  detailBody.addEventListener("click", function(e){
+    var m = e.target.closest ? e.target.closest(".mention-link") : null;
+    if (!m) return;
+    openDetail(m.getAttribute("data-open") || m.getAttribute("data-url"), m.getAttribute("data-url"), null, false, null);
+  });
+
+  // ---- Edit mode: switches the detail panel into an editable form for the
+  // currently open knowledge item (only available when it's one of our own
+  // rows — not an arbitrary page reached via a mention link) and writes
+  // changes back to Notion with notion-update-page. ----
+
+  function buildDeviceCheckboxesHtml(selectedValues){
+    var selected = selectedValues || [];
+    return DEVICE_OPTIONS.map(function(opt){
+      var checked = selected.indexOf(opt.value) !== -1;
+      return '<label class="checkbox-chip' + (checked ? " is-checked" : "") + '">'
+        + '<input type="checkbox" value="' + escAttr(opt.value) + '" data-edit-device="1"' + (checked ? " checked" : "") + '>'
+        + escapeHtml(opt.label)
+        + '</label>';
+    }).join("");
+  }
+
+  function renderEditForm(row, rawContent){
+    var hasContent = !!(rawContent && rawContent.trim());
+    var pageLinkValue = row.href || "";
+    detailBody.innerHTML = ''
+      + '<div class="form-field"><label for="editTitle">Title</label><input type="text" class="form-input" id="editTitle" value="' + escAttr(row.title) + '"></div>'
+      + '<div class="form-field"><label for="editDescription">Description</label><textarea class="form-textarea" id="editDescription" rows="3">' + escapeHtml(row.description || "") + '</textarea></div>'
+      + '<div class="form-field"><label>Devices</label><div class="checkbox-grid" id="editDevices">' + buildDeviceCheckboxesHtml(row.devices) + '</div></div>'
+      + '<div class="form-field">'
+      +   '<label for="editContent">Page content (Notion markdown)</label>'
+      +   (hasContent ? '' : '<div class="detail-meta" style="margin-bottom:2px;">This item has no page content yet — write some below to create it on this page.</div>')
+      +   '<textarea class="form-textarea" id="editContent" rows="10">' + escapeHtml(rawContent || "") + '</textarea>'
+      + '</div>'
+      + '<div class="form-field">'
+      +   '<label for="editPageLink">Page link</label>'
+      +   '<div style="display:flex;gap:8px;">'
+      +     '<input type="url" class="form-input" id="editPageLink" value="' + escAttr(pageLinkValue) + '" placeholder="Leave blank, or use this page’s own link" style="flex:1;">'
+      +     '<button type="button" class="btn" id="editUseOwnLinkBtn" title="Fill with this item’s own Notion page link">Use this page</button>'
+      +   '</div>'
+      + '</div>'
+      + '<div class="form-error" id="editError" hidden></div>'
+      + '<div style="display:flex;justify-content:flex-end;gap:8px;">'
+      +   '<button type="button" class="btn" id="editCancelBtn">Cancel</button>'
+      +   '<button type="button" class="btn btn-primary" id="editSaveBtn">Save to Notion</button>'
+      + '</div>';
+
+    Array.prototype.forEach.call(detailBody.querySelectorAll('#editDevices .checkbox-chip'), function(chip){
+      var input = chip.querySelector("input");
+      input.addEventListener("change", function(){ chip.classList.toggle("is-checked", input.checked); });
+    });
+    document.getElementById("editUseOwnLinkBtn").addEventListener("click", function(){
+      document.getElementById("editPageLink").value = currentPageUrl || row.href || "";
+    });
+    document.getElementById("editCancelBtn").addEventListener("click", exitEditMode);
+    document.getElementById("editSaveBtn").addEventListener("click", function(){ saveEdit(row, rawContent); });
+  }
+
+  function enterEditMode(){
+    if (!currentRow) return;
+    isEditingDetail = true;
+    detailEditBtn.hidden = true;
+    detailBackBtn.disabled = true;
+    renderEditForm(currentRow, currentRawContent);
+  }
+
+  function exitEditMode(){
+    isEditingDetail = false;
+    detailBody.innerHTML = currentRenderedHtml;
+    detailBackBtn.disabled = false;
+    updateEditButtonVisibility();
+  }
+
+  function saveEdit(row, originalRawContent){
+    var newTitle = document.getElementById("editTitle").value.trim();
+    var newDescription = document.getElementById("editDescription").value.trim();
+    var newDevices = Array.prototype.filter.call(detailBody.querySelectorAll('#editDevices input[type=checkbox]'), function(cb){ return cb.checked; })
+      .map(function(cb){ return cb.value; });
+    var newContent = document.getElementById("editContent").value;
+    var newPageLink = document.getElementById("editPageLink").value.trim();
+    var errorEl = document.getElementById("editError");
+    var saveBtn = document.getElementById("editSaveBtn");
+
+    if (!newTitle){ errorEl.hidden = false; errorEl.textContent = "Title is required."; return; }
+
+    var propChanges = {};
+    if (newTitle !== row.title) propChanges["Title"] = newTitle;
+    if (newDescription !== (row.description || "")) propChanges["Description"] = newDescription;
+    var oldDevicesKey = (row.devices || []).slice().sort().join("\u0001");
+    var newDevicesKey = newDevices.slice().sort().join("\u0001");
+    if (newDevicesKey !== oldDevicesKey) propChanges["Devices"] = newDevices;
+    if (newPageLink !== (row.href || "")) propChanges["Page Link"] = newPageLink ? newPageLink : null;
+    var contentChanged = newContent !== (originalRawContent || "");
+
+    if (!Object.keys(propChanges).length && !contentChanged){
+      exitEditMode();
+      return;
+    }
+
+    if (!row.notionId){
+      errorEl.hidden = false;
+      errorEl.textContent = "Can't determine this item's Notion page — try reopening it from the card.";
+      return;
+    }
+
+    errorEl.hidden = true;
+    saveBtn.disabled = true;
+    saveBtn.textContent = "Saving…";
+
+    window.claude.use("mcp").then(function(mcp){
+      if (!mcp){ var e = new Error("not granted"); e.code = "not_granted"; throw e; }
+      var chain = Promise.resolve();
+      if (Object.keys(propChanges).length){
+        chain = chain.then(function(){
+          return mcp.callTool(MCP_SERVER, MCP_TOOL_UPDATE, {
+            page_id: row.notionId, command: "update_properties", properties: propChanges, allow_async: false
+          });
+        });
+      }
+      if (contentChanged){
+        chain = chain.then(function(){
+          return mcp.callTool(MCP_SERVER, MCP_TOOL_UPDATE, {
+            page_id: row.notionId, command: "replace_content", new_str: newContent, allow_async: false
+          });
+        });
+      }
+      return chain;
+    }).then(function(){
+      if (mcpNs) mcpNs.invalidate(MCP_SERVER, MCP_TOOL, TOOL_INPUT).catch(function(){ /* watch will surface any error */ });
+      // Update the local copy immediately so the panel reflects the edit
+      // even before the next poll refreshes the grid, then reload the
+      // page fresh from Notion to confirm what actually landed.
+      row.title = newTitle;
+      row.description = newDescription;
+      row.devices = newDevices;
+      row.href = newPageLink || row.href;
+      exitEditMode();
+      loadDetail(row.notionId, row.href || NOTION_DB_URL, newTitle);
+    }).catch(function(err){
+      errorEl.hidden = false;
+      errorEl.textContent = friendlyErrorMessage(err || {});
+    }).then(function(){
+      saveBtn.disabled = false;
+      saveBtn.textContent = "Save to Notion";
+    });
+  }
+
+  detailEditBtn.addEventListener("click", enterEditMode);
+
+  // ---- Create form: adds a new page directly into the Onsor Kowledge data
+  // source in Notion. Writes with notion-create-pages, then refreshes the
+  // live query so the new card shows up here immediately. ----
+
+  var addItemBtn = document.getElementById("addItemBtn");
+  var createOverlay = document.getElementById("createOverlay");
+  var createCloseBtn = document.getElementById("createCloseBtn");
+  var createCancelBtn = document.getElementById("createCancelBtn");
+  var createSubmitBtn = document.getElementById("createSubmitBtn");
+  var formTitle = document.getElementById("formTitle");
+  var formDescription = document.getElementById("formDescription");
+  var formDevices = document.getElementById("formDevices");
+  var formPageLink = document.getElementById("formPageLink");
+  var formError = document.getElementById("formError");
+  var toggleNewPageBtn = document.getElementById("toggleNewPageBtn");
+  var newPageWrap = document.getElementById("newPageWrap");
+  var formNewPageTitle = document.getElementById("formNewPageTitle");
+  var formNewPageBody = document.getElementById("formNewPageBody");
+  var newPageError = document.getElementById("newPageError");
+  var newPageCancelBtn = document.getElementById("newPageCancelBtn");
+  var newPageCreateBtn = document.getElementById("newPageCreateBtn");
+
+  formDevices.innerHTML = DEVICE_OPTIONS.map(function(opt, i){
+    return '<label class="checkbox-chip" id="chipWrap' + i + '">'
+      + '<input type="checkbox" value="' + escAttr(opt.value) + '" id="chip' + i + '">'
+      + escapeHtml(opt.label)
+      + '</label>';
+  }).join("");
+  Array.prototype.forEach.call(formDevices.querySelectorAll(".checkbox-chip"), function(chip){
+    var input = chip.querySelector("input");
+    input.addEventListener("change", function(){
+      chip.classList.toggle("is-checked", input.checked);
+    });
+  });
+
+  function onCreateKeydown(e){ if (e.key === "Escape" && !createSubmitBtn.disabled) closeCreateForm(); }
+
+  function showFormError(msg){
+    formError.hidden = false;
+    formError.textContent = msg;
+  }
+  function clearFormError(){
+    formError.hidden = true;
+    formError.textContent = "";
+  }
+
+  function openCreateForm(){
+    formTitle.value = "";
+    formDescription.value = "";
+    formPageLink.value = "";
+    formNewPageTitle.value = "";
+    formNewPageBody.value = "";
+    newPageWrap.hidden = true;
+    newPageError.hidden = true;
+    newPageError.textContent = "";
+    newPageCreateBtn.disabled = false;
+    newPageCreateBtn.textContent = "Create page & link it";
+    Array.prototype.forEach.call(formDevices.querySelectorAll("input[type=checkbox]"), function(cb){
+      cb.checked = false;
+      cb.closest(".checkbox-chip").classList.remove("is-checked");
+    });
+    clearFormError();
+    createSubmitBtn.disabled = false;
+    createSubmitBtn.textContent = "Create in Notion";
+    createOverlay.hidden = false;
+    document.addEventListener("keydown", onCreateKeydown);
+    formTitle.focus();
+  }
+  function closeCreateForm(){
+    createOverlay.hidden = true;
+    document.removeEventListener("keydown", onCreateKeydown);
+  }
+
+  addItemBtn.addEventListener("click", openCreateForm);
+  createCloseBtn.addEventListener("click", closeCreateForm);
+  createCancelBtn.addEventListener("click", closeCreateForm);
+  var createMouseDownOnBackdrop = false;
+  createOverlay.addEventListener("mousedown", function(e){
+    createMouseDownOnBackdrop = (e.target === createOverlay);
+  });
+  createOverlay.addEventListener("click", function(e){
+    var shouldClose = e.target === createOverlay && createMouseDownOnBackdrop && !createSubmitBtn.disabled;
+    createMouseDownOnBackdrop = false;
+    if (shouldClose) closeCreateForm();
+  });
+
+  function extractCreatedPageRef(result){
+    var payload = result && result.payload;
+    if (!payload) return null;
+    var candidates = [];
+    if (Array.isArray(payload.pages)) candidates = payload.pages;
+    else if (Array.isArray(payload.results)) candidates = payload.results;
+    else if (Array.isArray(payload)) candidates = payload;
+    else if (payload.url || payload.id || payload.page_id) candidates = [payload];
+    var first = candidates[0];
+    if (!first) return null;
+    var url = first.url || null;
+    var id = first.id || first.page_id || (url ? extractNotionId(url) : null);
+    if (!url && !id) return null;
+    return { url: url, id: id };
+  }
+
+  // ---- "Create a new page" sub-flow inside the Add Item form: creates a
+  // standalone Notion page (name + body) as a private draft, then copies its
+  // real link straight into the Page link field above — a separate action
+  // from creating the knowledge item itself, which happens on submit below. ----
+
+  toggleNewPageBtn.addEventListener("click", function(){
+    newPageWrap.hidden = !newPageWrap.hidden;
+    if (!newPageWrap.hidden) formNewPageTitle.focus();
+  });
+  newPageCancelBtn.addEventListener("click", function(){
+    newPageWrap.hidden = true;
+    newPageError.hidden = true;
+  });
+
+  newPageCreateBtn.addEventListener("click", function(){
+    var pageTitle = formNewPageTitle.value.trim();
+    if (!pageTitle){
+      newPageError.hidden = false;
+      newPageError.textContent = "Give the new page a name first.";
+      formNewPageTitle.focus();
+      return;
+    }
+    newPageError.hidden = true;
+    newPageCreateBtn.disabled = true;
+    newPageCreateBtn.textContent = "Creating…";
+
+    if (!window.claude || typeof window.claude.use !== "function"){
+      newPageError.hidden = false;
+      newPageError.textContent = "Live Notion sync isn't available in this view — open this page inside claude.ai to create pages.";
+      newPageCreateBtn.disabled = false;
+      newPageCreateBtn.textContent = "Create page & link it";
+      return;
+    }
+
+    window.claude.use("mcp").then(function(mcp){
+      if (!mcp){ var e = new Error("not granted"); e.code = "not_granted"; throw e; }
+      return mcp.callTool(MCP_SERVER, MCP_TOOL_CREATE, {
+        pages: [{ properties: { title: pageTitle }, content: formNewPageBody.value }],
+        creation_mode: "draft",
+        allow_async: false
+      });
+    }).then(function(result){
+      var ref = extractCreatedPageRef(result);
+      if (!ref || (!ref.url && !ref.id)){
+        var e = new Error("no page reference in response"); e.code = "empty"; throw e;
+      }
+      formPageLink.value = ref.url || ref.id;
+      newPageWrap.hidden = true;
+    }).catch(function(err){
+      newPageError.hidden = false;
+      newPageError.textContent = friendlyErrorMessage(err || {});
+    }).then(function(){
+      newPageCreateBtn.disabled = false;
+      newPageCreateBtn.textContent = "Create page & link it";
+    });
+  });
+
+  createSubmitBtn.addEventListener("click", function(){
+    var title = formTitle.value.trim();
+    if (!title){ showFormError("Title is required."); formTitle.focus(); return; }
+    clearFormError();
+
+    var selectedDevices = Array.prototype.filter.call(formDevices.querySelectorAll("input[type=checkbox]"), function(cb){ return cb.checked; })
+      .map(function(cb){ return cb.value; });
+    var description = formDescription.value.trim();
+    var pageLink = formPageLink.value.trim();
+
+    var properties = { "Title": title };
+    if (description) properties["Description"] = description;
+    if (selectedDevices.length) properties["Devices"] = selectedDevices;
+    if (pageLink) properties["Page Link"] = pageLink;
+
+    createSubmitBtn.disabled = true;
+    createSubmitBtn.textContent = "Creating…";
+
+    if (!window.claude || typeof window.claude.use !== "function"){
+      showFormError("Live Notion sync isn't available in this view — open this page inside claude.ai to create items.");
+      createSubmitBtn.disabled = false;
+      createSubmitBtn.textContent = "Create in Notion";
+      return;
+    }
+
+    window.claude.use("mcp").then(function(mcp){
+      if (!mcp){ var e = new Error("not granted"); e.code = "not_granted"; throw e; }
+      return mcp.callTool(MCP_SERVER, MCP_TOOL_CREATE, {
+        pages: [{ properties: properties, content: "" }],
+        parent: { type: "data_source_id", data_source_id: DATA_SOURCE_ID },
+        allow_async: false
+      });
+    }).then(function(){
+      closeCreateForm();
+      setSyncStatus("pending", "Refreshing…");
+      if (mcpNs) mcpNs.invalidate(MCP_SERVER, MCP_TOOL, TOOL_INPUT).catch(function(){ /* watch will surface any error */ });
+    }).catch(function(err){
+      showFormError(friendlyErrorMessage(err || {}));
+    }).then(function(){
+      createSubmitBtn.disabled = false;
+      createSubmitBtn.textContent = "Create in Notion";
+    });
+  });
+
+  // ---- Ask: a small RAG chat. Each question searches Notion (scoped to the
+  // Onsor Roadmap pages) for relevant content, then asks Claude to answer
+  // using only what was found, citing the pages that grounded the answer. ----
+
+  var askBtn = document.getElementById("askBtn");
+  var chatOverlay = document.getElementById("chatOverlay");
+  var chatCloseBtn = document.getElementById("chatCloseBtn");
+  var chatMessagesEl = document.getElementById("chatMessages");
+  var chatEmptyState = document.getElementById("chatEmptyState");
+  var chatInput = document.getElementById("chatInput");
+  var chatSendBtn = document.getElementById("chatSendBtn");
+
+  var chatHistory = []; // { role: "user"|"assistant", text, sources? }
+  var chatBusy = false;
+  var chatMouseDownOnBackdrop = false;
+
+  function onChatKeydown(e){ if (e.key === "Escape" && !chatBusy) closeChat(); }
+
+  function openChat(){
+    chatOverlay.hidden = false;
+    document.addEventListener("keydown", onChatKeydown);
+    chatInput.focus();
+  }
+  function closeChat(){
+    chatOverlay.hidden = true;
+    document.removeEventListener("keydown", onChatKeydown);
+  }
+
+  askBtn.addEventListener("click", openChat);
+  chatCloseBtn.addEventListener("click", function(){ if (!chatBusy) closeChat(); });
+  chatOverlay.addEventListener("mousedown", function(e){
+    chatMouseDownOnBackdrop = (e.target === chatOverlay);
+  });
+  chatOverlay.addEventListener("click", function(e){
+    var shouldClose = e.target === chatOverlay && chatMouseDownOnBackdrop && !chatBusy;
+    chatMouseDownOnBackdrop = false;
+    if (shouldClose) closeChat();
+  });
+
+  function renderChat(){
+    chatEmptyState.hidden = chatHistory.length > 0;
+    chatMessagesEl.innerHTML = chatHistory.map(function(m, i){
+      var bubbleClass = "chat-bubble" + (m.error ? " is-error" : "") + (m.thinking ? " is-thinking" : "");
+      var sourcesHtml = "";
+      if (m.sources && m.sources.length){
+        sourcesHtml = '<div class="chat-sources">' + m.sources.map(function(s, si){
+          return '<button type="button" class="chat-source-btn" data-msg="' + i + '" data-src="' + si + '" title="' + escAttr(s.title) + '">' + escapeHtml(s.title) + '</button>';
+        }).join("") + '</div>';
+      }
+      return '<div class="chat-row from-' + (m.role === "user" ? "user" : "assistant") + '">'
+        + '<div class="' + bubbleClass + '">' + escapeHtml(m.text) + '</div>'
+        + sourcesHtml
+        + '</div>';
+    }).join("");
+    chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
+  }
+
+  chatMessagesEl.addEventListener("click", function(e){
+    var btn = e.target.closest ? e.target.closest(".chat-source-btn") : null;
+    if (!btn) return;
+    var m = chatHistory[Number(btn.getAttribute("data-msg"))];
+    var s = m && m.sources && m.sources[Number(btn.getAttribute("data-src"))];
+    if (!s) return;
+    closeChat();
+    openDetail(extractNotionId(s.url) || s.url, s.url, s.title, false, null);
+  });
+
+  function askErrorMessage(err){
+    var code = err && err.code;
+    switch (code){
+      case "not_granted":
+      case "capability_disabled":
+      case "capability_removed":
+        return "Ask isn't available in this view.";
+      case "rate_limited":
+        return "Too many questions at once — wait a moment and try again.";
+      case "cancelled":
+        return "Cancelled.";
+      default:
+        return "Couldn't get an answer" + (code ? " (" + code + ")" : (err && err.message ? (": " + err.message) : "")) + ".";
+    }
+  }
+
+  function buildAskContext(searchResults){
+    if (!searchResults.length){
+      return "No matching pages were found in the Onsor Roadmap knowledge base for this question.";
+    }
+    return searchResults.map(function(r, i){
+      return "[" + (i + 1) + "] " + (r.title || "Untitled") + "\n" + (r.highlight || "").trim();
+    }).join("\n\n");
+  }
+
+  function sendQuestion(){
+    if (chatBusy) return;
+    var question = chatInput.value.trim();
+    if (!question) return;
+
+    chatHistory.push({ role: "user", text: question });
+    var thinkingMsg = { role: "assistant", text: "Searching Onsor Knowledge…", thinking: true };
+    chatHistory.push(thinkingMsg);
+    renderChat();
+    chatInput.value = "";
+    chatBusy = true;
+    chatSendBtn.disabled = true;
+
+    if (!window.claude || typeof window.claude.use !== "function"){
+      thinkingMsg.text = "Ask isn't available in this view — open this page inside claude.ai.";
+      thinkingMsg.thinking = false;
+      thinkingMsg.error = true;
+      renderChat();
+      chatBusy = false;
+      chatSendBtn.disabled = false;
+      return;
+    }
+
+    var mcpRef = null;
+    var searchResults = [];
+    window.claude.use("mcp").then(function(mcp){
+      if (!mcp){ var e = new Error("not granted"); e.code = "not_granted"; throw e; }
+      mcpRef = mcp;
+      return mcp.callTool(MCP_SERVER, MCP_TOOL_SEARCH, {
+        query: question,
+        page_url: ASK_SCOPE_PAGE_URL,
+        page_size: 6,
+        max_highlight_length: 320
+      });
+    }).then(function(searchResult){
+      var payload = searchResult && searchResult.payload;
+      var results = (payload && Array.isArray(payload.results)) ? payload.results : [];
+      searchResults = results.filter(function(r){ return r && r.url; }).map(function(r){
+        return { title: r.title || "Untitled", url: r.url, highlight: r.highlight || "" };
+      });
+      thinkingMsg.text = "Thinking…";
+      renderChat();
+
+      return window.claude.use("sample");
+    }).then(function(sample){
+      if (!sample){ var e = new Error("not granted"); e.code = "not_granted"; throw e; }
+      var contextBlock = buildAskContext(searchResults);
+      var priorTurns = chatHistory.slice(0, -2).filter(function(m){ return !m.thinking && !m.error; }).slice(-6)
+        .map(function(m){ return { role: m.role, content: m.text }; });
+      var instructions = "You answer questions about Onsor's product roadmap knowledge base (device families TURS, MOUJ, KiTAB, HESN — specs, positioning, research, standards). "
+        + "Use ONLY the numbered context below to answer — it was retrieved from the actual Notion pages. "
+        + "If the context doesn't contain the answer, say plainly that you couldn't find it in the knowledge base rather than guessing. "
+        + "Keep the answer concise and reference sources by their number, e.g. \"[2]\". Do not invent page titles or facts not present in the context.\n\n"
+        + "CONTEXT:\n" + contextBlock + "\n\nQUESTION: " + question;
+      var turns = priorTurns.concat([{ role: "user", content: instructions }]);
+      return sample(turns, {
+        onText: function(ev){
+          thinkingMsg.text = (ev && ev.text) ? ev.text : thinkingMsg.text;
+          thinkingMsg.thinking = false;
+          renderChat();
+        }
+      });
+    }).then(function(res){
+      thinkingMsg.text = (res && res.text) ? res.text : "(no answer)";
+      thinkingMsg.thinking = false;
+      thinkingMsg.sources = searchResults;
+      renderChat();
+    }).catch(function(err){
+      thinkingMsg.text = askErrorMessage(err || {});
+      thinkingMsg.thinking = false;
+      thinkingMsg.error = true;
+      renderChat();
+    }).then(function(){
+      chatBusy = false;
+      chatSendBtn.disabled = false;
+      chatInput.focus();
+    });
+  }
+
+  chatSendBtn.addEventListener("click", sendQuestion);
+  chatInput.addEventListener("keydown", function(e){
+    if (e.key === "Enter" && !e.shiftKey){
+      e.preventDefault();
+      sendQuestion();
+    }
+  });
+
+  function noMcpFallback(){
+    setSyncStatus("error", "Live Notion sync isn't available in this view");
+    showError("This view can't reach your connectors. Open this page inside claude.ai to see live data from Notion.");
+    refreshBtn.disabled = true;
+  }
+
+  function init(){
+    activeFilter = getFilterFromHash();
+    renderFilterBar();
+    renderGrid();
+    setSyncStatus("pending", "Connecting to Notion…");
+
+    if (!window.claude || typeof window.claude.use !== "function"){
+      noMcpFallback();
+      return;
+    }
+
+    window.claude.use("mcp").then(function(mcp){
+      if (!mcp){ noMcpFallback(); return; }
+      mcpNs = mcp;
+      startWatch(mcp);
+    }).catch(function(){ noMcpFallback(); });
+  }
+
+  init();
+
+  } catch (e) { showDiag((e && e.message) ? e.message : String(e)); }
+})();
+</script>
+

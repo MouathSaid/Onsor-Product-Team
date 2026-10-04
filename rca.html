@@ -1,0 +1,570 @@
+<title>RCA — Onsor Function</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    color-scheme: dark;
+    --bg:#121212;
+    --surface:#19191F;
+    --surface-2:#202027;
+    --border:#302F3B;
+    --text:#F2F1F5;
+    --text-muted:#A4A4AE;
+    --text-faint:#6E6D7A;
+    --main:#8377F7;
+    --main-soft:#241F3D;
+    --eng:#63C2B4;
+    --eng-soft:#1D3733;
+    --supply:#D79770;
+    --supply-soft:#3A2A20;
+    --milestone:#E3B655;
+    --milestone-soft:#3B301A;
+    --today:#E4685A;
+    --focus:#8377F7;
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 12px 28px -14px rgba(0,0,0,.6);
+  }
+
+  *{ box-sizing:border-box; }
+  [hidden]{ display:none !important; }
+  html,body{ margin:0; }
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:"IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+    padding-inline:20px;
+    padding-block:28px 60px;
+  }
+  .wrap{ max-width:920px; margin:0 auto; display:flex; flex-direction:column; gap:22px; }
+  .mono{ font-family:"IBM Plex Mono", ui-monospace, "SF Mono", monospace; }
+
+  .back-link{
+    align-self:flex-start; display:inline-flex; align-items:center; gap:6px;
+    font-family:"IBM Plex Mono",monospace; font-size:12px; font-weight:500; letter-spacing:.01em;
+    color:var(--text-faint); text-decoration:none;
+  }
+  .back-link:hover{ color:var(--main); }
+  .back-link:focus-visible{ outline:2px solid var(--focus); outline-offset:2px; border-radius:4px; }
+
+  header{ display:flex; flex-direction:column; gap:10px; }
+  .eyebrow{
+    font-family:"IBM Plex Mono", monospace;
+    font-size:11.5px; font-weight:600; letter-spacing:.11em; text-transform:uppercase;
+    color:var(--main);
+  }
+  h1{ margin:0; font-size:clamp(24px,4vw,32px); font-weight:700; letter-spacing:-.01em; text-wrap:balance; }
+  .lede{ margin:0; color:var(--text-muted); font-size:14.5px; max-width:74ch; }
+  .lede a{ color:var(--main); }
+
+  .toolbar{ display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+  .save-status{ font-size:12.5px; color:var(--text-faint); display:flex; align-items:center; gap:7px; }
+  .save-status .dot{ width:7px; height:7px; border-radius:50%; background:var(--text-faint); flex:none; }
+  .save-status.is-saved .dot{ background:var(--eng); }
+  .save-status.is-pending .dot{ background:var(--milestone); }
+  .save-status.is-error .dot{ background:var(--today); }
+
+  .btn{
+    appearance:none; border:1px solid var(--border); background:var(--surface); color:var(--text);
+    font-family:inherit; font-size:13px; font-weight:600; padding:8px 14px; border-radius:8px; cursor:pointer;
+    text-decoration:none; display:inline-flex; align-items:center; gap:6px;
+  }
+  .btn:hover{ border-color:var(--text-faint); }
+  .btn:focus-visible{ outline:2px solid var(--focus); outline-offset:2px; }
+  .btn:disabled{ opacity:.45; cursor:not-allowed; }
+
+  .readonly-banner{
+    font-size:12.5px; color:var(--milestone); background:var(--milestone-soft);
+    border:1px solid var(--border); padding:9px 12px; border-radius:8px;
+  }
+
+  .jump-grid{ display:grid; grid-template-columns:repeat(4, 1fr); gap:10px; }
+  @media (max-width:720px){ .jump-grid{ grid-template-columns:repeat(2, 1fr); } }
+
+  .jump-card{
+    display:flex; flex-direction:column; gap:8px; width:100%; text-align:left;
+    background:var(--surface); border:1px solid var(--border); border-radius:12px;
+    padding:13px 14px 14px; text-decoration:none; color:inherit; box-shadow:var(--shadow);
+    transition:border-color .15s, transform .15s, background .15s;
+    appearance:none; font-family:inherit; cursor:pointer;
+  }
+  .jump-card:hover{ border-color:var(--main); transform:translateY(-2px); background:var(--surface-2); }
+  .jump-card:focus-visible{ outline:2px solid var(--focus); outline-offset:2px; }
+  .jump-card.is-active{ border-color:var(--main); background:var(--main-soft); }
+  .jump-icon{ font-size:18px; }
+  .jump-card h3{ margin:0; font-size:13px; font-weight:600; letter-spacing:-.005em; }
+  .jump-meta{ font-size:11px; color:var(--text-faint); }
+
+  .panel{
+    background:var(--surface); border:1px solid var(--border); border-radius:14px;
+    box-shadow:var(--shadow); display:flex; flex-direction:column; overflow:hidden;
+  }
+  .panel-head{
+    display:flex; align-items:flex-start; justify-content:space-between; gap:12px;
+    padding:16px 20px; border-bottom:1px solid var(--border); flex:none;
+  }
+  .panel-head-left{ display:flex; flex-direction:column; gap:4px; min-width:0; }
+  .panel-breadcrumb{ font-size:11.5px; color:var(--text-faint); }
+  .panel-title{ margin:0; font-size:18px; font-weight:700; letter-spacing:-.01em; text-wrap:balance; }
+  .panel-meta{ font-size:11.5px; color:var(--text-faint); }
+  .panel-head-actions{ display:flex; align-items:center; gap:8px; flex:none; }
+  .icon-btn{
+    appearance:none; border:1px solid var(--border); background:var(--surface-2); color:var(--text-muted);
+    width:30px; height:30px; border-radius:8px; cursor:pointer; display:flex; align-items:center; justify-content:center;
+    font-size:14px; font-family:inherit; text-decoration:none;
+  }
+  .icon-btn:hover{ border-color:var(--text-faint); color:var(--text); }
+  .icon-btn:focus-visible{ outline:2px solid var(--focus); outline-offset:2px; }
+  .panel-body{ padding:18px 20px 26px; font-size:13.5px; line-height:1.6; color:var(--text); }
+  .panel-body h2{ font-size:16.5px; margin:22px 0 8px; }
+  .panel-body h2:first-child{ margin-top:0; }
+  .panel-body h3{ font-size:14.5px; margin:18px 0 7px; }
+  .panel-body h4{ font-size:12.5px; margin:14px 0 6px; color:var(--text-muted); text-transform:uppercase; letter-spacing:.04em; }
+  .panel-body p{ margin:0 0 10px; color:var(--text-muted); }
+  .panel-body ul{ margin:0 0 10px; padding-left:20px; color:var(--text-muted); }
+  .panel-body li{ margin-bottom:4px; }
+  .panel-body strong{ color:var(--text); }
+  .detail-table-wrap{ overflow-x:auto; margin:10px 0 14px; }
+  .detail-table{ width:100%; border-collapse:collapse; font-size:12.5px; }
+  .detail-table td, .detail-table th{ border:1px solid var(--border); padding:6px 8px; text-align:left; vertical-align:top; color:var(--text-muted); }
+  .detail-table th{ background:var(--surface-2); color:var(--text); font-weight:600; }
+  .callout{ display:flex; gap:8px; background:var(--main-soft); border:1px solid var(--border); border-radius:8px; padding:10px 12px; margin:10px 0 14px; }
+  .callout-icon{ flex:none; }
+  .callout-body{ color:var(--text-muted); font-size:13px; }
+  .mention-link{ color:var(--main); text-decoration:underline; cursor:pointer; background:none; border:0; padding:0; font:inherit; }
+  .mention-link:hover{ color:var(--text); }
+  .mention-user{ color:var(--eng); font-weight:600; }
+  .ext-link{ color:var(--main); text-decoration:underline; word-break:break-word; }
+  .ext-link:hover{ color:var(--text); }
+  .panel-loading, .panel-error{ padding:40px 10px; text-align:center; color:var(--text-faint); font-size:13px; }
+  .panel-error{ color:var(--today); }
+
+  footer{ text-align:center; font-size:11.5px; color:var(--text-faint); }
+
+  .diag-banner{
+    background:#3B1A1A; border:1px solid #7A3B3B; color:#F5C8C8;
+    font-family:"IBM Plex Mono",monospace; font-size:12.5px; line-height:1.5;
+    padding:12px 14px; border-radius:8px; white-space:pre-wrap; word-break:break-word;
+  }
+</style>
+
+<div class="wrap">
+
+  <div class="diag-banner" id="diagBanner" hidden></div>
+
+  <a class="back-link" href="function.html">&larr; Function</a>
+
+  <header>
+    <div class="eyebrow">Onsor · Function</div>
+    <h1>RCA</h1>
+    <p class="lede">Live view of the <a href="https://app.notion.com/p/74343a28be344ebe8132eb40bc269d52" target="_blank" rel="noopener">Device Investigations Hub</a> in Notion &mdash; root-cause investigations for fan noise, battery life, and storage across Onsor devices. Read-only here; edit the investigation directly in Notion.</p>
+  </header>
+
+  <div class="toolbar">
+    <div class="save-status" id="syncStatus"><span class="dot"></span><span id="syncStatusText">Connecting to Notion&hellip;</span></div>
+    <button type="button" class="btn" id="refreshBtn">&#8635; Refresh</button>
+  </div>
+  <div id="errorBanner" class="readonly-banner" hidden></div>
+
+  <div class="jump-grid" id="jumpGrid"></div>
+
+  <div class="panel">
+    <div class="panel-head">
+      <div class="panel-head-left">
+        <div class="panel-breadcrumb" id="panelBreadcrumb"></div>
+        <h2 class="panel-title" id="panelTitle">&nbsp;</h2>
+        <div class="panel-meta" id="panelMeta"></div>
+      </div>
+      <div class="panel-head-actions">
+        <button type="button" class="icon-btn" id="panelBackBtn" title="Back" hidden>&larr;</button>
+        <a class="icon-btn" id="panelOpenLink" href="#" target="_blank" rel="noopener" title="Open in Notion">&#8599;</a>
+      </div>
+    </div>
+    <div class="panel-body" id="panelBody"><div class="panel-loading">Loading from Notion&hellip;</div></div>
+  </div>
+
+  <footer>Pulls live from the Device Investigations Hub in Notion &middot; read-only here &middot; click any linked page to open it inline.</footer>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  function showDiag(msg){
+    try {
+      var b = document.getElementById("diagBanner");
+      if (!b) return;
+      b.hidden = false;
+      b.textContent = "Something went wrong on this page: " + msg + "\n\nPlease screenshot this message and share it so it can be fixed.";
+    } catch (ignored) { /* nothing more we can do */ }
+  }
+  window.addEventListener("error", function(e){ showDiag(e && e.message ? e.message : "unknown script error"); });
+  window.addEventListener("unhandledrejection", function(e){
+    var reason = e && e.reason;
+    showDiag(reason && reason.message ? reason.message : String(reason));
+  });
+
+  try {
+
+  var MCP_SERVER = "Notion";
+  var MCP_TOOL_FETCH = "notion-fetch";
+  var HUB_URL = "https://app.notion.com/p/74343a28be344ebe8132eb40bc269d52";
+  var HUB_ID = "74343a28be344ebe8132eb40bc269d52";
+
+  var JUMP_PAGES = [
+    { key: "hub", icon: "🕵️", title: "Hub overview", meta: "Start here", url: HUB_URL, id: HUB_ID },
+    { key: "fans", icon: "🌀", title: "Fans", meta: "Issue investigation", url: "https://app.notion.com/p/a0710b23f20c4cc1b276526b6da925d1", id: "a0710b23f20c4cc1b276526b6da925d1" },
+    { key: "battery", icon: "🔋", title: "Battery", meta: "Issue investigation", url: "https://app.notion.com/p/668c8029b61a49e7ba2d9399caab95d2", id: "668c8029b61a49e7ba2d9399caab95d2" },
+    { key: "storage", icon: "💾", title: "Storage", meta: "Cross-device sourcing", url: "https://app.notion.com/p/3da086c765278119ad3af9f5295ad578", id: "3da086c765278119ad3af9f5295ad578" },
+    { key: "benchmarking", icon: "📊", title: "Benchmarking", meta: "Comparison devices", url: "https://app.notion.com/p/f0ae052da4dc4a179ddf7ef9840b5e3a", id: "f0ae052da4dc4a179ddf7ef9840b5e3a" }
+  ];
+
+  function escapeHtml(s){
+    return String(s == null ? "" : s).replace(/[&<>]/g, function(c){
+      return c === "&" ? "&amp;" : (c === "<" ? "&lt;" : "&gt;");
+    });
+  }
+  function escAttr(s){ return escapeHtml(s).replace(/"/g, "&quot;"); }
+
+  function extractNotionId(s){
+    if (!s) return s;
+    var m = /([0-9a-fA-F]{32}|[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})(?:[^0-9a-fA-F]|$)/.exec(String(s) + " ");
+    return m ? m[1] : s;
+  }
+
+  var syncStatusEl = document.getElementById("syncStatus");
+  var syncStatusText = document.getElementById("syncStatusText");
+  var errorBanner = document.getElementById("errorBanner");
+  var refreshBtn = document.getElementById("refreshBtn");
+  var jumpGrid = document.getElementById("jumpGrid");
+
+  var mcpNs = null;
+
+  function setSyncStatus(kind, text){
+    syncStatusEl.className = "save-status" + (kind === "ok" ? " is-saved" : kind === "pending" ? " is-pending" : kind === "error" ? " is-error" : "");
+    syncStatusText.textContent = text;
+  }
+  function showError(message){
+    errorBanner.hidden = false;
+    errorBanner.textContent = message;
+  }
+  function clearError(){
+    errorBanner.hidden = true;
+    errorBanner.textContent = "";
+  }
+  function formatStoredAt(ms){
+    if (!ms) return "";
+    try { return new Date(ms).toLocaleString(); } catch (e) { return ""; }
+  }
+
+  var RETRACTING_CODES = {
+    needs_reauth: 1, server_not_connected: 1, blocked_by_policy: 1,
+    approval_required: 1, not_in_manifest: 1, consent_required: 1, user_changed: 1
+  };
+
+  function friendlyErrorMessage(err){
+    var code = err && err.code;
+    switch (code){
+      case "needs_reauth":
+        return "Your " + MCP_SERVER + " connection needs to be reconnected — go to claude.ai Settings → Connectors to reconnect.";
+      case "server_not_connected":
+        return "Add " + MCP_SERVER + " in claude.ai Settings → Connectors to see live investigation data here.";
+      case "selection_required":
+        return "More than one " + MCP_SERVER + " connection is available — choose one when prompted, then reload this page.";
+      case "not_in_manifest":
+        return "This view isn't allowed to read " + MCP_SERVER + " data.";
+      case "blocked_by_policy":
+        return "Your organization's policy blocks this page from reading " + MCP_SERVER + " data.";
+      case "approval_required":
+        return "This Notion request needs approval before it can run — check claude.ai for a pending approval.";
+      case "server_unavailable":
+        return "Notion is temporarily unreachable — retrying automatically.";
+      case "consent_required":
+        return "Allow " + MCP_SERVER + " for this page when prompted to see live investigation data.";
+      case "not_granted":
+      case "capability_disabled":
+      case "capability_removed":
+        return "Live Notion sync isn't available in this view.";
+      case "user_changed":
+        return "The signed-in account changed — reload this page.";
+      default:
+        return "Couldn't reach Notion right now" + (code ? " (" + code + ")" : (err && err.message ? (": " + err.message) : "")) + " — will retry automatically.";
+    }
+  }
+
+  // ---- Jump cards ----
+  function renderJumpGrid(){
+    jumpGrid.innerHTML = JUMP_PAGES.map(function(p){
+      var active = p.id === currentId;
+      return '<button type="button" class="jump-card' + (active ? " is-active" : "") + '" data-open="' + escAttr(p.id) + '" data-url="' + escAttr(p.url) + '" data-title="' + escAttr(p.title) + '">'
+        + '<div class="jump-icon">' + p.icon + '</div>'
+        + '<h3>' + escapeHtml(p.title) + '</h3>'
+        + '<div class="jump-meta">' + escapeHtml(p.meta) + '</div>'
+        + '</button>';
+    }).join("");
+    Array.prototype.forEach.call(jumpGrid.querySelectorAll(".jump-card"), function(btn){
+      btn.addEventListener("click", function(){
+        openPage(btn.getAttribute("data-open"), btn.getAttribute("data-url"), btn.getAttribute("data-title"), false);
+      });
+    });
+  }
+
+  // ---- Content rendering (same enhanced-markdown pattern as the Knowledge Base page) ----
+
+  function inlineFormat(s){
+    return s.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+  }
+
+  function shortenMentionUrl(u){
+    try {
+      var path = String(u).split("?")[0];
+      var seg = path.split("/").filter(Boolean).pop() || "";
+      seg = seg.replace(/^p-/, "");
+      if (/^[0-9a-fA-F-]{16,}$/.test(seg)) return "View linked page";
+      seg = seg.replace(/-/g, " ").trim();
+      return seg ? seg.slice(0, 60) : "View linked page";
+    } catch (e) { return "View linked page"; }
+  }
+
+  function extractTagContent(raw, tag){
+    var re = new RegExp("<" + tag + ">([\\s\\S]*?)<\\/" + tag + ">");
+    var m = re.exec(raw);
+    return m ? m[1] : null;
+  }
+
+  function renderEnhancedMarkdown(raw){
+    if (typeof raw !== "string" || !raw) return "";
+    var blocks = [];
+    function stash(html){
+      var token = "\u0000B" + blocks.length + "\u0000";
+      blocks.push(html);
+      return token;
+    }
+
+    var content = extractTagContent(raw, "content");
+    var text = content != null ? content : raw;
+
+    text = text.replace(/<callout\b([^>]*)>([\s\S]*?)<\/callout>/g, function(_, attrs, inner){
+      var iconMatch = /icon="([^"]*)"/.exec(attrs);
+      var icon = iconMatch ? iconMatch[1] : "";
+      var body = inlineFormat(escapeHtml(inner.trim()));
+      return stash('<div class="callout">' + (icon ? '<span class="callout-icon">' + escapeHtml(icon) + '</span>' : '') + '<div class="callout-body">' + body + '</div></div>');
+    });
+
+    text = text.replace(/<table\b([^>]*)>([\s\S]*?)<\/table>/g, function(_, attrs, inner){
+      var headerRow = /header-row="true"/.test(attrs);
+      var rows = inner.match(/<tr>[\s\S]*?<\/tr>/g) || [];
+      var htmlRows = rows.map(function(rowHtml, idx){
+        var cells = rowHtml.match(/<td>[\s\S]*?<\/td>/g) || [];
+        var cellTag = (headerRow && idx === 0) ? "th" : "td";
+        var cellsHtml = cells.map(function(c){
+          var innerCell = c.replace(/^<td>/, "").replace(/<\/td>$/, "");
+          return "<" + cellTag + ">" + renderInlineWithMentions(innerCell.trim()) + "</" + cellTag + ">";
+        }).join("");
+        return "<tr>" + cellsHtml + "</tr>";
+      }).join("");
+      return stash('<div class="detail-table-wrap"><table class="detail-table">' + htmlRows + '</table></div>');
+    });
+
+    text = text.replace(/<mention-user\s+url="([^"]*)"\s*\/>/g, function(_, url){
+      return stash('<span class="mention-user">' + escapeHtml(shortenMentionUrl(url)) + '</span>');
+    });
+    text = text.replace(/<mention-page\s+url="([^"]*)"\s*\/>/g, function(_, url){
+      return stash('<button type="button" class="mention-link" data-open="' + escAttr(extractNotionId(url)) + '" data-url="' + escAttr(url) + '">' + escapeHtml(shortenMentionUrl(url)) + '</button>');
+    });
+    text = text.replace(/<mention-page\s+url="([^"]*)">([\s\S]*?)<\/mention-page>/g, function(_, url, label){
+      return stash('<button type="button" class="mention-link" data-open="' + escAttr(extractNotionId(url)) + '" data-url="' + escAttr(url) + '">' + escapeHtml(label.trim()) + '</button>');
+    });
+    text = text.replace(/<page\s+url="([^"]*)">([\s\S]*?)<\/page>/g, function(_, url, label){
+      return stash('<button type="button" class="mention-link" data-open="' + escAttr(extractNotionId(url)) + '" data-url="' + escAttr(url) + '">' + escapeHtml(label.trim()) + '</button>');
+    });
+    text = text.replace(/<database\s+url="([^"]*)"[^>]*>([\s\S]*?)<\/database>/g, function(_, url, label){
+      return stash('<button type="button" class="mention-link" data-open="' + escAttr(extractNotionId(url)) + '" data-url="' + escAttr(url) + '">' + escapeHtml((label || "Open database").trim()) + '</button>');
+    });
+
+    // external markdown links: [label](https://...)
+    text = text.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, function(_, label, url){
+      return stash('<a class="ext-link" href="' + escAttr(url) + '" target="_blank" rel="noopener">' + escapeHtml(label.trim()) + '</a>');
+    });
+
+    // bare URLs left over in the text (not already part of a link above)
+    text = text.replace(/(^|[\s(])(https?:\/\/[^\s<>()]+)/g, function(_, pre, url){
+      return pre + stash('<a class="ext-link" href="' + escAttr(url) + '" target="_blank" rel="noopener">' + escapeHtml(url) + '</a>');
+    });
+
+    text = escapeHtml(text);
+    text = text.replace(/\u0000B(\d+)\u0000/g, function(_, i){ return blocks[Number(i)]; });
+
+    var lines = text.split("\n");
+    var out = [];
+    var inList = false;
+    lines.forEach(function(line){
+      var trimmed = line.trim();
+      if (!trimmed){
+        if (inList){ out.push("</ul>"); inList = false; }
+        return;
+      }
+      if (/^<(div|table|button|span)\b/.test(trimmed) && !/^[-*]\s/.test(trimmed)){
+        if (inList){ out.push("</ul>"); inList = false; }
+        out.push(trimmed);
+        return;
+      }
+      var h = /^(#{1,4})\s+(.*)$/.exec(trimmed);
+      if (h){
+        if (inList){ out.push("</ul>"); inList = false; }
+        var level = Math.min(h[1].length + 1, 4);
+        out.push("<h" + level + ">" + inlineFormat(h[2]) + "</h" + level + ">");
+        return;
+      }
+      var li = /^[-*]\s+(.*)$/.exec(trimmed) || /^\t*[-*]\s+(.*)$/.exec(line);
+      if (li){
+        if (!inList){ out.push("<ul>"); inList = true; }
+        out.push("<li>" + inlineFormat(li[1]) + "</li>");
+        return;
+      }
+      if (inList){ out.push("</ul>"); inList = false; }
+      out.push("<p>" + inlineFormat(trimmed) + "</p>");
+    });
+    if (inList) out.push("</ul>");
+    return out.join("\n");
+  }
+
+  // Small helper used only inside table cells, where we still want mention
+  // buttons to work but don't want the block-level stash/markdown pipeline.
+  function renderInlineWithMentions(s){
+    var blocks = [];
+    function stash(html){
+      var token = "\u0000C" + blocks.length + "\u0000";
+      blocks.push(html);
+      return token;
+    }
+    var out = s.replace(/<mention-page\s+url="([^"]*)"\s*\/>/g, function(_, url){
+      return stash('<button type="button" class="mention-link" data-open="' + escAttr(extractNotionId(url)) + '" data-url="' + escAttr(url) + '">' + escapeHtml(shortenMentionUrl(url)) + '</button>');
+    });
+    out = out.replace(/<mention-user\s+url="([^"]*)"\s*\/>/g, function(_, url){
+      return stash('<span class="mention-user">' + escapeHtml(shortenMentionUrl(url)) + '</span>');
+    });
+    out = inlineFormat(escapeHtml(out));
+    out = out.replace(/\u0000C(\d+)\u0000/g, function(_, i){ return blocks[Number(i)]; });
+    return out;
+  }
+
+  // ---- Panel navigation ----
+  var panelBreadcrumb = document.getElementById("panelBreadcrumb");
+  var panelTitleEl = document.getElementById("panelTitle");
+  var panelMetaEl = document.getElementById("panelMeta");
+  var panelBody = document.getElementById("panelBody");
+  var panelBackBtn = document.getElementById("panelBackBtn");
+  var panelOpenLink = document.getElementById("panelOpenLink");
+
+  var navStack = [];
+  var currentId = HUB_ID;
+  var currentUrl = HUB_URL;
+  var currentTitle = "";
+  var requestSeq = 0;
+
+  function loadPage(openId, fallbackUrl, titleHint){
+    var seq = ++requestSeq;
+    currentId = extractNotionId(openId) || openId;
+    currentUrl = fallbackUrl || HUB_URL;
+    panelTitleEl.textContent = titleHint || "Loading…";
+    panelBreadcrumb.textContent = "";
+    panelMetaEl.textContent = "";
+    panelOpenLink.href = fallbackUrl || HUB_URL;
+    panelBody.innerHTML = '<div class="panel-loading">Loading from Notion&hellip;</div>';
+    renderJumpGrid();
+
+    if (!window.claude || typeof window.claude.use !== "function"){
+      panelBody.innerHTML = '<div class="panel-error">Live Notion sync isn&#39;t available in this view.<br><br><a href="' + escAttr(fallbackUrl || HUB_URL) + '" target="_blank" rel="noopener">Open in Notion instead &rarr;</a></div>';
+      return;
+    }
+
+    window.claude.use("mcp").then(function(mcp){
+      if (!mcp){ var e = new Error("not granted"); e.code = "not_granted"; throw e; }
+      mcpNs = mcp;
+      return mcp.callTool(MCP_SERVER, MCP_TOOL_FETCH, { id: openId });
+    }).then(function(result){
+      if (seq !== requestSeq) return;
+      var payload = result && result.payload;
+      if (!payload){ var e = new Error("empty"); e.code = "empty"; throw e; }
+      currentTitle = payload.title || titleHint || "Untitled";
+      panelTitleEl.textContent = currentTitle;
+      panelBreadcrumb.textContent = payload.path || "";
+      panelMetaEl.textContent = payload.page_last_edited_at ? ("Last edited " + formatStoredAt(Date.parse(payload.page_last_edited_at))) : "";
+      if (payload.url){ currentUrl = payload.url; panelOpenLink.href = payload.url; }
+      var html = renderEnhancedMarkdown(payload.text || "");
+      panelBody.innerHTML = html || '<div class="panel-loading">No content on this page.</div>';
+      clearError();
+      var storedAt = (result && result.cache && result.cache.storedAt) ? result.cache.storedAt : Date.now();
+      var revalidating = !!(result && result.cache && result.cache.revalidating);
+      setSyncStatus("ok", (revalidating ? "Refreshing… last synced " : "Synced from Notion · ") + formatStoredAt(storedAt));
+    }).catch(function(err){
+      if (seq !== requestSeq) return;
+      var msg = friendlyErrorMessage(err || {});
+      panelBody.innerHTML = '<div class="panel-error">' + escapeHtml(msg) + '<br><br><a href="' + escAttr(fallbackUrl || HUB_URL) + '" target="_blank" rel="noopener">Open in Notion instead &rarr;</a></div>';
+      if (RETRACTING_CODES[err && err.code]){
+        setSyncStatus("error", "Not connected to Notion");
+      } else {
+        setSyncStatus("error", "Sync issue");
+      }
+      showError(msg);
+    });
+  }
+
+  function openPage(openId, fallbackUrl, titleHint, isBack){
+    if (!isBack && currentId){
+      navStack.push({ id: currentId, url: currentUrl, title: currentTitle });
+    }
+    panelBackBtn.hidden = navStack.length === 0;
+    loadPage(openId, fallbackUrl, titleHint);
+  }
+
+  panelBackBtn.addEventListener("click", function(){
+    var prev = navStack.pop();
+    panelBackBtn.hidden = navStack.length === 0;
+    if (!prev){ loadPage(HUB_ID, HUB_URL, "Device Investigations Hub"); return; }
+    loadPage(prev.id, prev.url, prev.title);
+  });
+
+  panelBody.addEventListener("click", function(e){
+    var m = e.target.closest ? e.target.closest(".mention-link") : null;
+    if (!m) return;
+    openPage(m.getAttribute("data-open") || m.getAttribute("data-url"), m.getAttribute("data-url"), null, false);
+  });
+
+  refreshBtn.addEventListener("click", function(){
+    if (!mcpNs) return;
+    setSyncStatus("pending", "Refreshing…");
+    mcpNs.invalidate(MCP_SERVER, MCP_TOOL_FETCH, { id: currentId }).catch(function(){});
+    loadPage(currentId, currentUrl, currentTitle);
+  });
+
+  function noMcpFallback(){
+    setSyncStatus("error", "Live Notion sync isn't available in this view");
+    showError("This view can't reach your connectors. Open this page inside claude.ai to see live data from Notion.");
+    refreshBtn.disabled = true;
+    panelBody.innerHTML = '<div class="panel-error">Live Notion sync isn&#39;t available in this view.<br><br><a href="' + escAttr(HUB_URL) + '" target="_blank" rel="noopener">Open in Notion instead &rarr;</a></div>';
+  }
+
+  function init(){
+    renderJumpGrid();
+    setSyncStatus("pending", "Connecting to Notion…");
+
+    if (!window.claude || typeof window.claude.use !== "function"){
+      noMcpFallback();
+      return;
+    }
+
+    window.claude.use("mcp").then(function(mcp){
+      if (!mcp){ noMcpFallback(); return; }
+      mcpNs = mcp;
+      loadPage(HUB_ID, HUB_URL, "Device Investigations Hub");
+    }).catch(function(){ noMcpFallback(); });
+  }
+
+  init();
+
+  } catch (e) { showDiag((e && e.message) ? e.message : String(e)); }
+})();
+</script>
+

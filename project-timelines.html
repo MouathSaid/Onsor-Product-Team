@@ -1,0 +1,927 @@
+<title>Onsor Project Timelines</title>
+<style>
+  .app-root {
+    color-scheme: light;
+    --surface-1:      #fcfcfb;
+    --page-plane:     #f9f9f7;
+    --text-primary:   #0b0b0b;
+    --text-secondary: #52514e;
+    --text-muted:     #898781;
+    --gridline:       #e1e0d9;
+    --baseline:       #c3c2b7;
+    --border:         rgba(11,11,11,0.10);
+    --series-main:    #2a78d6;
+    --series-eng:     #eb6834;
+    --series-supply:  #1baf7a;
+    --series-marketing: #eda100;
+    --series-sales:   #e87ba4;
+    --milestone:      #4a3aa7;
+    --status-good:    #0ca30c;
+    --status-warning: #fab219;
+    --status-serious: #ec835a;
+    --status-critical:#d03b3b;
+    --danger-bg:      #fbeceb;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:where(:not([data-theme="light"])) .app-root {
+      color-scheme: dark;
+      --surface-1:      #1a1a19;
+      --page-plane:     #0d0d0d;
+      --text-primary:   #ffffff;
+      --text-secondary: #c3c2b7;
+      --text-muted:     #898781;
+      --gridline:       #2c2c2a;
+      --baseline:       #383835;
+      --border:         rgba(255,255,255,0.10);
+      --series-main:    #3987e5;
+      --series-eng:     #d95926;
+      --series-supply:  #199e70;
+      --series-marketing: #c98500;
+      --series-sales:   #d55181;
+      --milestone:      #9085e9;
+      --status-good:    #0ca30c;
+      --status-warning: #fab219;
+      --status-serious: #ec835a;
+      --status-critical:#e66767;
+      --danger-bg:      #2e1b1a;
+    }
+  }
+  :root[data-theme="dark"] .app-root {
+    color-scheme: dark;
+    --surface-1:      #1a1a19;
+    --page-plane:     #0d0d0d;
+    --text-primary:   #ffffff;
+    --text-secondary: #c3c2b7;
+    --text-muted:     #898781;
+    --gridline:       #2c2c2a;
+    --baseline:       #383835;
+    --border:         rgba(255,255,255,0.10);
+    --series-main:    #3987e5;
+    --series-eng:     #d95926;
+    --series-supply:  #199e70;
+    --milestone:      #9085e9;
+    --status-good:    #0ca30c;
+    --status-warning: #fab219;
+    --status-serious: #ec835a;
+    --status-critical:#e66767;
+    --danger-bg:      #2e1b1a;
+  }
+
+  * { box-sizing: border-box; }
+  .app-root {
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    background: var(--page-plane);
+    color: var(--text-primary);
+    min-height: 100%;
+    padding: 20px 16px 64px;
+  }
+  .app-shell { max-width: 1080px; margin: 0 auto; }
+
+  a, button, input, select, textarea { font: inherit; color: inherit; }
+  button { cursor: pointer; }
+
+  .topbar { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 22px; }
+  .topbar h1 { font-size: 22px; font-weight: 700; margin: 0 0 2px; letter-spacing: -0.01em; }
+  .topbar p { margin: 0; color: var(--text-secondary); font-size: 13.5px; }
+  .live-dot { display:inline-flex; align-items:center; gap:6px; font-size:12px; color: var(--text-muted); }
+  .live-dot i { width:7px; height:7px; border-radius:50%; background: var(--status-good); display:inline-block; box-shadow: 0 0 0 3px color-mix(in srgb, var(--status-good) 20%, transparent); }
+
+  .btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    border-radius: 8px; border: 1px solid var(--border);
+    background: var(--surface-1); color: var(--text-primary);
+    padding: 8px 13px; font-size: 13.5px; font-weight: 600;
+    line-height: 1.2; white-space: nowrap;
+  }
+  .btn:hover { border-color: var(--text-muted); }
+  .btn-accent { background: var(--series-main); border-color: var(--series-main); color: #fff; }
+  .btn-accent:hover { filter: brightness(1.07); border-color: var(--series-main); }
+  .btn-ghost { background: transparent; border-color: transparent; padding: 6px 8px; }
+  .btn-ghost:hover { background: var(--border); }
+  .btn-sm { padding: 5px 9px; font-size: 12.5px; }
+  .btn-danger-confirm { background: var(--status-critical); border-color: var(--status-critical); color: #fff; }
+
+  .card {
+    background: var(--surface-1); border: 1px solid var(--border);
+    border-radius: 14px;
+  }
+
+  /* ---- Home: project grid ---- */
+  .project-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 14px; }
+  .project-card { padding: 16px; display: flex; flex-direction: column; gap: 10px; text-align: left; }
+  .project-card:hover { border-color: var(--text-muted); }
+  .project-card h3 { margin: 0; font-size: 15.5px; font-weight: 700; }
+  .project-card .desc { margin: 0; font-size: 13px; color: var(--text-secondary); line-height: 1.45; min-height: 19px; }
+  .project-card .meta { font-size: 12px; color: var(--text-muted); display:flex; flex-direction:column; gap:4px; }
+  .progress-track { height: 5px; border-radius: 3px; background: var(--gridline); overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--series-main); border-radius: 3px; }
+  .card-actions { display:flex; justify-content:flex-end; gap:6px; margin-top:2px; }
+
+  .empty-state { text-align:center; padding: 56px 20px; color: var(--text-secondary); border: 1px dashed var(--border); border-radius: 14px; }
+  .empty-state .big { font-size:15px; font-weight:600; color: var(--text-primary); margin-bottom:6px; }
+
+  .inline-form { padding: 16px; display: grid; gap: 10px; margin-bottom: 14px; }
+  .inline-form .row { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(150px,1fr)); }
+  .field { display:flex; flex-direction:column; gap:4px; }
+  .field label { font-size: 11.5px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: .03em; }
+  .field input, .field select, .field textarea {
+    border: 1px solid var(--border); border-radius: 7px; background: var(--page-plane);
+    color: var(--text-primary); padding: 7px 9px; font-size: 13.5px; width: 100%;
+  }
+  .field textarea { resize: vertical; min-height: 44px; }
+  .form-actions { display:flex; gap:8px; justify-content:flex-end; }
+
+  /* ---- Project detail ---- */
+  .back-link { display:inline-flex; align-items:center; gap:6px; font-size:13px; color: var(--text-secondary); background:none; border:none; padding:4px 0; margin-bottom: 14px; font-weight:600; }
+  .back-link:hover { color: var(--text-primary); }
+
+  .project-header { display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap; margin-bottom: 18px; }
+  .project-header h2 { margin: 0 0 4px; font-size: 21px; font-weight: 700; }
+  .project-header p { margin:0; color: var(--text-secondary); font-size: 13.5px; max-width: 60ch; }
+  .project-header .range { color: var(--text-muted); font-size: 12.5px; margin-top: 6px; }
+  .header-actions { display:flex; gap:6px; }
+
+  section.block { margin-bottom: 26px; }
+  .block-head { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom: 10px; }
+  .block-head h3 { margin:0; font-size: 14px; font-weight: 700; }
+
+  .legend { display:flex; gap:16px; flex-wrap:wrap; font-size:12.5px; color: var(--text-secondary); margin-bottom: 12px; }
+  .legend .item { display:flex; align-items:center; gap:6px; }
+  .legend .dot { width:9px; height:9px; border-radius:50%; display:inline-block; }
+  .legend .diamond { width:9px; height:9px; display:inline-block; transform: rotate(45deg); }
+
+  /* ---- Gantt ---- */
+  .gantt-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 12px; background: var(--surface-1); }
+  .gantt-grid { display: grid; grid-template-rows: 34px; }
+  .gantt-row { display: grid; height: 40px; border-top: 1px solid var(--gridline); }
+  .gantt-row:first-child { border-top: none; }
+  .gantt-label {
+    position: sticky; left: 0; z-index: 2; background: var(--surface-1);
+    display:flex; align-items:center; gap:7px; padding: 0 10px;
+    font-size: 12.5px; font-weight: 600; border-right: 1px solid var(--gridline);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .gantt-label .tdot { width:7px; height:7px; border-radius:50%; flex: none; }
+  .gantt-head-label { position: sticky; left:0; z-index:3; background: var(--surface-1); border-right: 1px solid var(--gridline); }
+  .gantt-track { position: relative; }
+  .gantt-month-line { position:absolute; top:0; bottom:0; width:1px; background: var(--gridline); }
+  .gantt-month-label { position:absolute; top: 9px; font-size: 10.5px; color: var(--text-muted); white-space:nowrap; transform: translateX(4px); }
+  .gantt-today-line { position:absolute; top:0; bottom:0; width:1px; background: var(--status-critical); z-index: 1; }
+  .gantt-today-label { position:absolute; top:2px; font-size: 9.5px; font-weight:700; color: var(--status-critical); background: var(--surface-1); padding: 0 3px; transform: translateX(-50%); white-space:nowrap; }
+  .gantt-bar { position:absolute; top:50%; transform: translateY(-50%); height:18px; border-radius:4px; cursor:pointer; }
+  .gantt-milestone { position:absolute; top:50%; width:12px; height:12px; transform: translate(-50%,-50%) rotate(45deg); cursor:pointer; }
+  .gantt-bar:hover, .gantt-milestone:hover { filter: brightness(1.12); }
+
+  /* ---- Phase list ---- */
+  .phase-list { display:flex; flex-direction:column; gap:8px; }
+  .phase-card { border: 1px solid var(--border); border-left-width: 4px; border-radius: 12px; background: var(--surface-1); transition: background .5s; }
+  .badge-factory { display:inline-flex; align-items:center; gap:4px; font-size:11px; font-weight:700; padding:3px 8px 3px 6px; border-radius:999px; background: color-mix(in srgb, var(--text-muted) 16%, transparent); color: var(--text-secondary); border: 1px solid var(--border); white-space:nowrap; flex: none; }
+  .task-name-row { display:flex; align-items:center; gap:6px; }
+  .team-dot { width:7px; height:7px; border-radius:50%; flex:none; }
+  .phase-card.flash { background: color-mix(in srgb, var(--series-main) 10%, var(--surface-1)); }
+  .phase-row { display:flex; align-items:center; gap:10px; padding: 11px 13px; }
+  .phase-row .caret { border:none; background:none; padding:2px; color: var(--text-muted); display:flex; }
+  .phase-row .tdot { width:9px; height:9px; border-radius:50%; flex:none; }
+  .phase-row .tdiamond { width:9px; height:9px; flex:none; transform: rotate(45deg); }
+  .phase-row .main { flex:1; min-width:0; }
+  .phase-row .main .name { font-size: 14px; font-weight: 700; }
+  .phase-row .main .sub { font-size: 12px; color: var(--text-muted); margin-top: 1px; }
+  .phase-row .pill { flex:none; }
+  .phase-actions { display:flex; gap:4px; flex:none; }
+
+  .pill { display:inline-flex; align-items:center; gap:5px; font-size:11.5px; font-weight:600; padding: 3px 8px 3px 6px; border-radius: 999px; color: var(--text-secondary); background: var(--page-plane); border: 1px solid var(--border); white-space:nowrap; }
+  .pill .dot { width:7px; height:7px; border-radius:50%; }
+
+  .task-panel { border-top: 1px solid var(--border); padding: 10px 13px 13px 36px; }
+  .task-table { width:100%; border-collapse: collapse; font-size: 12.5px; }
+  .task-table th { text-align:left; font-size: 10.5px; text-transform:uppercase; letter-spacing:.03em; color: var(--text-muted); font-weight:700; padding: 0 8px 6px 8px; }
+  .task-table td { padding: 7px 8px; border-top: 1px solid var(--gridline); vertical-align: top; }
+  .task-table tr:first-child td { border-top:none; }
+  .task-name { font-weight:600; }
+  .task-notes { color: var(--text-muted); font-size: 11.5px; margin-top:2px; }
+  .task-empty { color: var(--text-muted); font-size: 12.5px; padding: 8px; }
+  .task-row-actions { display:flex; gap:3px; white-space:nowrap; }
+
+  .edit-form { padding: 12px 13px; display:grid; gap:9px; border-top: 1px solid var(--border); }
+
+  .skeleton { color: var(--text-muted); font-size: 13px; padding: 40px 0; text-align:center; }
+  .hint { font-size: 11.5px; color: var(--text-muted); margin-top:2px; }
+
+  @media (max-width: 480px) {
+    .project-grid { grid-template-columns: 1fr; }
+    .gantt-label { width: 150px; }
+  }
+</style>
+
+<div class="app-root">
+  <div class="app-shell" id="appShell">
+    <div class="skeleton">Loading projects…</div>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var TRACKS = [
+    { key: "Main", label: "Main", varName: "--series-main" },
+    { key: "Engineering", label: "Engineering (parallel)", varName: "--series-eng" },
+    { key: "Supply Chain", label: "Supply Chain (parallel)", varName: "--series-supply" },
+    { key: "Marketing", label: "Marketing", varName: "--series-marketing" },
+    { key: "Sales", label: "Sales (B2B & Retail)", varName: "--series-sales" }
+  ];
+  var TRACK_MAP = {};
+  TRACKS.forEach(function (t) { TRACK_MAP[t.key] = t; });
+
+  var STATUS = [
+    { key: "not-started", label: "Not started", varName: "--text-muted" },
+    { key: "in-progress", label: "In progress", varName: "--series-main" },
+    { key: "at-risk", label: "At risk", varName: "--status-warning" },
+    { key: "blocked", label: "Blocked", varName: "--status-critical" },
+    { key: "done", label: "Done", varName: "--status-good" }
+  ];
+  var STATUS_MAP = {};
+  STATUS.forEach(function (s) { STATUS_MAP[s.key] = s; });
+
+  var state = {
+    db: null,
+    dbReady: false,
+    projects: [],
+    projectStats: {},
+    currentProjectId: null,
+    phases: [],
+    tasks: [],
+    expanded: {},
+    confirmingDelete: null,
+    unsubProjects: null,
+    unsubPhases: null,
+    unsubTasks: null,
+    openForm: null,
+    editingPhase: null,
+    editingTask: null
+  };
+
+  var shell = document.getElementById("appShell");
+
+  function css(v) { return "var(" + v + ")"; }
+
+  function esc(s) {
+    return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+
+  function parseDate(s) {
+    if (!s) return null;
+    var d = new Date(s + "T00:00:00");
+    return isNaN(d.getTime()) ? null : d;
+  }
+  function fmtDate(s) {
+    var d = parseDate(s);
+    if (!d) return "—";
+    return d.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+  }
+  function fmtShort(d) {
+    return d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+  }
+  function todayStr() {
+    var d = new Date();
+    return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+  }
+  var TODAY = todayStr();
+  var TODAY_DATE = parseDate(TODAY);
+
+  function daysBetween(a, b) { return (b - a) / 86400000; }
+
+  function phaseStatus(p) {
+    var s = parseDate(p.start), e = parseDate(p.end);
+    if (!s || !e) return "unknown";
+    if (TODAY_DATE < s) return "upcoming";
+    if (p.type === "milestone") return TODAY_DATE >= s ? "reached" : "upcoming";
+    if (TODAY_DATE > e) return "complete";
+    return "active";
+  }
+
+  // ---------------------------------------------------------------------
+  // DB bootstrap
+  // ---------------------------------------------------------------------
+  function boot() {
+    render();
+    if (!window.claude || !window.claude.use) { renderNoDb(); return; }
+    window.claude.use("db").then(function (db) {
+      if (!db) { renderNoDb(); return; }
+      state.db = db;
+      state.dbReady = true;
+      subscribeProjects();
+    }).catch(function () { renderNoDb(); });
+  }
+
+  function renderNoDb() {
+    shell.innerHTML =
+      '<div class="topbar"><div><h1>Onsor Project Timelines</h1>' +
+      '<p>Live database of Onsor projects — phases, tasks, and timelines.</p></div></div>' +
+      '<div class="empty-state"><div class="big">Live sync isn\'t available in this view</div>' +
+      "Open this page as a published Claude artifact to read and edit the shared project database.</div>";
+  }
+
+  function subscribeProjects() {
+    if (state.unsubProjects) state.unsubProjects();
+    state.unsubProjects = state.db.collection("projects").orderBy("createdAt", "asc").onSnapshot(
+      function (snap) {
+        state.projects = snap.docs.map(function (d) { return Object.assign({ id: d.id }, d.data()); });
+        state.projects.forEach(function (p) { ensureStats(p.id); });
+        render();
+      },
+      function () { render(); }
+    );
+  }
+
+  function ensureStats(pid) {
+    if (state.projectStats[pid]) return;
+    state.projectStats[pid] = { loading: true };
+    state.db.collection("phases").where("projectId", "==", pid).get().then(function (snap) {
+      var docs = snap.docs.map(function (d) { return d.data(); });
+      var start = null, end = null;
+      docs.forEach(function (p) {
+        var s = parseDate(p.start), e = parseDate(p.end);
+        if (s && (!start || s < start)) start = s;
+        if (e && (!end || e > end)) end = e;
+      });
+      var pct = null;
+      if (start && end && end > start) {
+        pct = Math.max(0, Math.min(100, Math.round(daysBetween(start, TODAY_DATE) / daysBetween(start, end) * 100)));
+      }
+      state.projectStats[pid] = { loading: false, count: docs.length, start: start, end: end, pct: pct };
+      render();
+    }).catch(function () {
+      state.projectStats[pid] = { loading: false, count: 0, start: null, end: null, pct: null };
+    });
+  }
+
+  function openProject(pid) {
+    state.currentProjectId = pid;
+    state.expanded = {};
+    state.openForm = null;
+    state.editingPhase = null;
+    state.editingTask = null;
+    state.phases = [];
+    state.tasks = [];
+    render();
+    if (state.unsubPhases) state.unsubPhases();
+    if (state.unsubTasks) state.unsubTasks();
+    state.unsubPhases = state.db.collection("phases").where("projectId", "==", pid).orderBy("order", "asc").onSnapshot(
+      function (snap) { state.phases = snap.docs.map(function (d) { return Object.assign({ id: d.id }, d.data()); }); render(); },
+      function () {}
+    );
+    state.unsubTasks = state.db.collection("tasks").where("projectId", "==", pid).onSnapshot(
+      function (snap) { state.tasks = snap.docs.map(function (d) { return Object.assign({ id: d.id }, d.data()); }); render(); },
+      function () {}
+    );
+  }
+
+  function closeProject() {
+    if (state.unsubPhases) { state.unsubPhases(); state.unsubPhases = null; }
+    if (state.unsubTasks) { state.unsubTasks(); state.unsubTasks = null; }
+    state.currentProjectId = null;
+    state.projectStats = {};
+    render();
+  }
+
+  // ---------------------------------------------------------------------
+  // Mutations
+  // ---------------------------------------------------------------------
+  function addProject(data) {
+    state.db.collection("projects").add({
+      name: data.name, description: data.description || "", createdAt: new Date().toISOString()
+    }).then(function (ref) { state.openForm = null; render(); openProject(ref.id); });
+  }
+  function updateProject(pid, data) {
+    state.db.collection("projects").doc(pid).update(data).then(function () { state.openForm = null; render(); });
+  }
+  function deleteProjectCascade(pid) {
+    var db = state.db;
+    Promise.all([
+      db.collection("phases").where("projectId", "==", pid).get(),
+      db.collection("tasks").where("projectId", "==", pid).get()
+    ]).then(function (res) {
+      var dels = [];
+      res[0].docs.forEach(function (d) { dels.push(db.collection("phases").doc(d.id).delete()); });
+      res[1].docs.forEach(function (d) { dels.push(db.collection("tasks").doc(d.id).delete()); });
+      dels.push(db.collection("projects").doc(pid).delete());
+      return Promise.all(dels);
+    }).then(function () { closeProject(); });
+  }
+
+  function addPhase(pid, data) {
+    var order = state.phases.length ? Math.max.apply(null, state.phases.map(function (p) { return p.order || 0; })) + 1 : 1;
+    state.db.collection("phases").add(Object.assign({ projectId: pid, order: order }, data)).then(function () {
+      state.openForm = null; render();
+    });
+  }
+  function updatePhase(id, data) {
+    state.db.collection("phases").doc(id).update(data).then(function () { state.editingPhase = null; render(); });
+  }
+  function deletePhaseCascade(id) {
+    var db = state.db;
+    db.collection("tasks").where("phaseId", "==", id).get().then(function (snap) {
+      var dels = snap.docs.map(function (d) { return db.collection("tasks").doc(d.id).delete(); });
+      dels.push(db.collection("phases").doc(id).delete());
+      return Promise.all(dels);
+    });
+  }
+
+  function addTask(pid, phaseId, data) {
+    var siblings = state.tasks.filter(function (t) { return t.phaseId === phaseId; });
+    var order = siblings.length ? Math.max.apply(null, siblings.map(function (t) { return t.order || 0; })) + 1 : 1;
+    state.db.collection("tasks").add(Object.assign({ projectId: pid, phaseId: phaseId, order: order }, data)).then(function () {
+      state.openForm = null; render();
+    });
+  }
+  function updateTask(id, data) {
+    state.db.collection("tasks").doc(id).update(data).then(function () { state.editingTask = null; render(); });
+  }
+  function deleteTask(id) { state.db.collection("tasks").doc(id).delete(); }
+
+  // ---------------------------------------------------------------------
+  // Rendering — home
+  // ---------------------------------------------------------------------
+  function render() {
+    if (!state.dbReady) return;
+    if (state.currentProjectId) { renderProjectView(); } else { renderHome(); }
+  }
+
+  function renderHome() {
+    var html = "";
+    html += '<div class="topbar"><div><h1>Onsor Project Timelines</h1>' +
+      '<p>A live, shared database of Onsor projects — phases, tasks, and timelines everyone can edit.</p></div>' +
+      '<span class="live-dot"><i></i>live</span></div>';
+
+    if (state.openForm === "new-project") {
+      html += renderProjectForm();
+    } else {
+      html += '<div style="margin-bottom:14px;"><button class="btn btn-accent" id="btnNewProject">+ New project</button></div>';
+    }
+
+    if (!state.projects.length) {
+      html += '<div class="empty-state"><div class="big">No projects yet</div>Create your first project to start tracking phases, tasks, and timelines.</div>';
+    } else {
+      html += '<div class="project-grid">';
+      state.projects.forEach(function (p) { html += renderProjectCard(p); });
+      html += "</div>";
+    }
+
+    shell.innerHTML = html;
+    wireHome();
+  }
+
+  function renderProjectForm(prefill) {
+    prefill = prefill || {};
+    return '<div class="card inline-form" id="projectForm">' +
+      '<div class="row">' +
+      '<div class="field"><label>Project name</label><input id="pfName" value="' + esc(prefill.name || "") + '" placeholder="e.g. Onsor Tablets Roadmap"></div>' +
+      '</div>' +
+      '<div class="field"><label>Description</label><textarea id="pfDesc" placeholder="What is this project?">' + esc(prefill.description || "") + "</textarea></div>" +
+      '<div class="form-actions"><button class="btn" id="pfCancel">Cancel</button>' +
+      '<button class="btn btn-accent" id="pfSave">' + (prefill.id ? "Save" : "Create project") + "</button></div>" +
+      "</div>";
+  }
+
+  function renderProjectCard(p) {
+    var stats = state.projectStats[p.id] || { loading: true };
+    var meta = "";
+    if (stats.loading) {
+      meta = "Loading…";
+    } else if (stats.count === 0) {
+      meta = "No phases yet";
+    } else {
+      meta = stats.count + (stats.count === 1 ? " phase" : " phases");
+      if (stats.start && stats.end) meta += " · " + fmtShort(stats.start) + " – " + fmtShort(stats.end);
+    }
+    var bar = "";
+    if (stats.pct !== null && stats.pct !== undefined) {
+      bar = '<div class="progress-track"><div class="progress-fill" style="width:' + stats.pct + '%"></div></div>';
+    }
+    return '<button class="card project-card" data-open="' + esc(p.id) + '">' +
+      "<h3>" + esc(p.name) + "</h3>" +
+      '<p class="desc">' + esc(p.description || "") + "</p>" +
+      bar +
+      '<div class="meta"><span>' + esc(meta) + "</span></div>" +
+      "</button>";
+  }
+
+  function wireHome() {
+    var btnNew = document.getElementById("btnNewProject");
+    if (btnNew) btnNew.onclick = function () { state.openForm = "new-project"; render(); };
+    var cancel = document.getElementById("pfCancel");
+    if (cancel) cancel.onclick = function () { state.openForm = null; render(); };
+    var save = document.getElementById("pfSave");
+    if (save) save.onclick = function () {
+      var name = document.getElementById("pfName").value.trim();
+      if (!name) return;
+      var desc = document.getElementById("pfDesc").value.trim();
+      addProject({ name: name, description: desc });
+    };
+    Array.prototype.forEach.call(document.querySelectorAll("[data-open]"), function (el) {
+      el.onclick = function () { openProject(el.getAttribute("data-open")); };
+    });
+  }
+
+  // ---------------------------------------------------------------------
+  // Rendering — project detail
+  // ---------------------------------------------------------------------
+  function renderProjectView() {
+    var p = state.projects.filter(function (x) { return x.id === state.currentProjectId; })[0];
+    if (!p) { html_notfound(); return; }
+    var phases = state.phases.slice().sort(function (a, b) { return (a.order || 0) - (b.order || 0); });
+
+    var range = null;
+    if (phases.length) {
+      var start = null, end = null;
+      phases.forEach(function (ph) {
+        var s = parseDate(ph.start), e = parseDate(ph.end);
+        if (s && (!start || s < start)) start = s;
+        if (e && (!end || e > end)) end = e;
+      });
+      if (start && end) range = fmtShort(start) + " – " + fmtShort(end);
+    }
+
+    var html = "";
+    html += '<button class="back-link" id="btnBack">&larr; All projects</button>';
+    html += '<div class="project-header"><div>';
+    html += "<h2>" + esc(p.name) + "</h2>";
+    if (p.description) html += "<p>" + esc(p.description) + "</p>";
+    if (range) html += '<div class="range">' + phases.length + (phases.length === 1 ? " phase" : " phases") + " · " + range + "</div>";
+    html += "</div><div class=\"header-actions\">" +
+      '<button class="btn btn-sm" id="btnEditProject">Edit</button>' +
+      deleteButton("project", p.id, "Delete project") +
+      "</div></div>";
+
+    if (state.openForm === "edit-project") html += renderProjectForm(p);
+
+    // Timeline
+    html += '<section class="block"><div class="block-head"><h3>Timeline</h3></div>';
+    html += renderLegend();
+    html += renderGantt(phases);
+    html += "</section>";
+
+    // Phases
+    html += '<section class="block"><div class="block-head"><h3>Phases &amp; tasks</h3>' +
+      '<button class="btn btn-sm btn-accent" id="btnAddPhase">+ Add phase</button></div>';
+    if (state.openForm === "new-phase") html += renderPhaseForm();
+    if (!phases.length && state.openForm !== "new-phase") {
+      html += '<div class="empty-state"><div class="big">No phases yet</div>Add the first phase to start building this project\'s timeline.</div>';
+    } else {
+      html += '<div class="phase-list">';
+      phases.forEach(function (ph) { html += renderPhaseCard(ph); });
+      html += "</div>";
+    }
+    html += "</section>";
+
+    shell.innerHTML = html;
+    wireProjectView(phases);
+  }
+
+  function html_notfound() {
+    shell.innerHTML = '<button class="back-link" id="btnBack">&larr; All projects</button><div class="empty-state">Project not found.</div>';
+    document.getElementById("btnBack").onclick = closeProject;
+  }
+
+  function renderLegend() {
+    var html = '<div class="legend">';
+    TRACKS.forEach(function (t) {
+      html += '<span class="item"><span class="dot" style="background:' + css(t.varName) + '"></span>' + esc(t.label) + "</span>";
+    });
+    html += '<span class="item"><span class="diamond" style="background:' + css("--milestone") + '"></span>Milestone</span>';
+    html += '<span class="item"><span class="dot" style="background:' + css("--status-critical") + '"></span>Today</span>';
+    html += '<span class="item"><span class="badge-factory" style="padding:1px 7px 1px 5px;">🏭 Factory</span>happens at the ODM site</span>';
+    html += "</div>";
+    return html;
+  }
+
+  function deleteButton(kind, id, label) {
+    var key = kind + ":" + id;
+    if (state.confirmingDelete === key) {
+      return '<button class="btn btn-sm btn-danger-confirm" data-confirm-del="' + esc(key) + '">Confirm delete?</button>';
+    }
+    return '<button class="btn btn-sm" data-ask-del="' + esc(key) + '">' + esc(label) + "</button>";
+  }
+
+  // ---- Gantt ----
+  function renderGantt(phases) {
+    if (!phases.length) return '<div class="empty-state">Add phases to see the timeline.</div>';
+    var start = null, end = null;
+    phases.forEach(function (p) {
+      var s = parseDate(p.start), e = parseDate(p.end);
+      if (s && (!start || s < start)) start = s;
+      if (e && (!end || e > end)) end = e;
+    });
+    if (!start || !end) return '<div class="empty-state">Phases need valid dates to plot a timeline.</div>';
+    var padDays = Math.max(3, Math.round(daysBetween(start, end) * 0.03));
+    var domainStart = new Date(start.getTime() - padDays * 86400000);
+    var domainEnd = new Date(end.getTime() + padDays * 86400000);
+    var totalDays = Math.max(1, daysBetween(domainStart, domainEnd));
+    var pxPerDay = Math.max(2, Math.min(9, 1500 / totalDays));
+    var trackWidth = Math.max(560, Math.round(totalDays * pxPerDay));
+
+    function x(d) { return Math.round(daysBetween(domainStart, d) * pxPerDay); }
+
+    // month ticks
+    var ticks = "";
+    var cursor = new Date(domainStart.getFullYear(), domainStart.getMonth(), 1);
+    if (cursor < domainStart) cursor = new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1);
+    while (cursor <= domainEnd) {
+      var px = x(cursor);
+      ticks += '<div class="gantt-month-line" style="left:' + px + 'px"></div>';
+      ticks += '<div class="gantt-month-label" style="left:' + px + 'px">' + cursor.toLocaleDateString(undefined, { month: "short", year: "2-digit" }) + "</div>";
+      cursor = new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1);
+    }
+    var todayLine = "";
+    if (TODAY_DATE >= domainStart && TODAY_DATE <= domainEnd) {
+      var tx = x(TODAY_DATE);
+      todayLine = '<div class="gantt-today-line" style="left:' + tx + 'px"></div>' +
+        '<div class="gantt-today-label" style="left:' + tx + 'px">Today</div>';
+    }
+
+    var html = '<div class="gantt-wrap"><div class="gantt-grid" style="grid-template-columns:150px ' + trackWidth + 'px;">';
+    html += '<div class="gantt-row" style="grid-template-columns:150px ' + trackWidth + 'px;height:30px;">' +
+      '<div class="gantt-head-label"></div>' +
+      '<div class="gantt-track" style="position:relative;">' + ticks + "</div></div>";
+
+    phases.forEach(function (p) {
+      var track = TRACK_MAP[p.track] || TRACKS[0];
+      var color = p.type === "milestone" ? css("--milestone") : css(track.varName);
+      var mark = "";
+      if (p.type === "milestone") {
+        var s = parseDate(p.start);
+        if (s) mark = '<div class="gantt-milestone" data-scroll-phase="' + esc(p.id) + '" style="left:' + x(s) + 'px;background:' + color + '" title="' + esc(p.name) + '"></div>';
+      } else {
+        var s2 = parseDate(p.start), e2 = parseDate(p.end);
+        if (s2 && e2) {
+          var left = x(s2), width = Math.max(4, x(e2) - x(s2));
+          mark = '<div class="gantt-bar" data-scroll-phase="' + esc(p.id) + '" style="left:' + left + "px;width:" + width + "px;background:" + color + '" title="' + esc(p.name) + '"></div>';
+        }
+      }
+      html += '<div class="gantt-row" style="grid-template-columns:150px ' + trackWidth + 'px;">' +
+        '<div class="gantt-label" title="' + esc(p.name) + '"><span class="tdot" style="background:' + color + '"></span>' + esc(p.name) + "</div>" +
+        '<div class="gantt-track" style="position:relative;">' + todayLine + mark + "</div></div>";
+    });
+
+    html += "</div></div>";
+    return html;
+  }
+
+  // ---- Phase form ----
+  function renderPhaseForm(prefill) {
+    prefill = prefill || {};
+    var trackOpts = TRACKS.map(function (t) {
+      return '<option value="' + esc(t.key) + '"' + (prefill.track === t.key ? " selected" : "") + ">" + esc(t.label) + "</option>";
+    }).join("");
+    return '<div class="card inline-form">' +
+      '<div class="row">' +
+      '<div class="field"><label>Phase name</label><input id="phName" value="' + esc(prefill.name || "") + '" placeholder="e.g. Tooling Customization"></div>' +
+      '<div class="field"><label>Track</label><select id="phTrack">' + trackOpts + "</select></div>" +
+      '<div class="field"><label>Type</label><select id="phType">' +
+      '<option value="phase"' + (prefill.type !== "milestone" ? " selected" : "") + ">Phase</option>" +
+      '<option value="milestone"' + (prefill.type === "milestone" ? " selected" : "") + ">Milestone</option>" +
+      "</select></div>" +
+      "</div>" +
+      '<div class="row">' +
+      '<div class="field"><label>Start date</label><input type="date" id="phStart" value="' + esc(prefill.start || "") + '"></div>' +
+      '<div class="field"><label>End date</label><input type="date" id="phEnd" value="' + esc(prefill.end || "") + '"></div>' +
+      "</div>" +
+      '<div class="field"><label>Notes</label><textarea id="phNotes" placeholder="Optional notes">' + esc(prefill.notes || "") + "</textarea></div>" +
+      '<label style="display:flex;align-items:center;gap:7px;font-size:13px;font-weight:600;color:var(--text-secondary);"><input type="checkbox" id="phFactory"' + (prefill.factory ? " checked" : "") + "> 🏭 Happens at the factory / ODM site</label>" +
+      '<div class="form-actions"><button class="btn" id="phCancel">Cancel</button>' +
+      '<button class="btn btn-accent" id="phSave">' + (prefill.id ? "Save phase" : "Add phase") + "</button></div>" +
+      "</div>";
+  }
+
+  function renderPhaseCard(p) {
+    var track = TRACK_MAP[p.track] || TRACKS[0];
+    var isMilestone = p.type === "milestone";
+    var color = isMilestone ? css("--milestone") : css(track.varName);
+    var st = phaseStatus(p);
+    var stLabel = { upcoming: "Upcoming", active: "In progress", complete: "Complete", reached: "Reached", unknown: "" }[st];
+    var stVar = st === "complete" || st === "reached" ? "--status-good" : st === "active" ? "--series-main" : "--text-muted";
+    var expanded = !!state.expanded[p.id];
+    var tasks = state.tasks.filter(function (t) { return t.phaseId === p.id; }).sort(function (a, b) { return (a.order || 0) - (b.order || 0); });
+
+    var html = '<div class="phase-card" id="phasecard-' + esc(p.id) + '" style="border-left-color:' + color + '">';
+    html += '<div class="phase-row">';
+    html += '<button class="caret" data-toggle="' + esc(p.id) + '">' + (expanded ? "▾" : "▸") + "</button>";
+    html += isMilestone ? '<span class="tdiamond" style="background:' + color + '"></span>' : '<span class="tdot" style="background:' + color + '"></span>';
+    html += '<div class="main" data-toggle="' + esc(p.id) + '"><div class="name">' + esc(p.name) + "</div>" +
+      '<div class="sub">' + esc(track.label) + (isMilestone ? "" : " · " + (p.duration != null ? p.duration + "d" : "")) + " · " + fmtDate(p.start) + (isMilestone ? "" : " – " + fmtDate(p.end)) + "</div></div>";
+    if (p.factory) html += '<span class="badge-factory">🏭 Factory</span>';
+    if (stLabel) html += '<span class="pill"><span class="dot" style="background:' + css(stVar) + '"></span>' + stLabel + "</span>";
+    html += '<div class="phase-actions">' +
+      '<button class="btn btn-ghost btn-sm" data-edit-phase="' + esc(p.id) + '">Edit</button>' +
+      deleteButton("phase", p.id, "Delete") +
+      "</div>";
+    html += "</div>";
+
+    if (state.editingPhase === p.id) html += renderPhaseForm(p);
+
+    if (expanded) {
+      html += '<div class="task-panel">';
+      if (!tasks.length && state.openForm !== "new-task:" + p.id) {
+        html += '<div class="task-empty">No tasks yet.</div>';
+      } else if (tasks.length) {
+        html += '<table class="task-table"><thead><tr><th>Task</th><th>Team</th><th>Owner</th><th>Status</th><th>Dates</th><th></th></tr></thead><tbody>';
+        tasks.forEach(function (t) { html += renderTaskRow(t, p.track); });
+        html += "</tbody></table>";
+      }
+      if (state.openForm === "new-task:" + p.id) html += renderTaskForm(p.id);
+      else html += '<div style="margin-top:8px;"><button class="btn btn-sm" data-add-task="' + esc(p.id) + '">+ Add task</button></div>';
+      html += "</div>";
+    }
+
+    html += "</div>";
+    return html;
+  }
+
+  function renderTaskRow(t, phaseTrack) {
+    if (state.editingTask === t.id) {
+      return '<tr><td colspan="6">' + renderTaskForm(t.phaseId, t) + "</td></tr>";
+    }
+    var s = STATUS_MAP[t.status] || STATUS[0];
+    var teamKey = t.team || phaseTrack;
+    var team = TRACK_MAP[teamKey] || TRACKS[0];
+    var dates = fmtDate(t.start) + (t.end && t.end !== t.start ? " – " + fmtDate(t.end) : "");
+    return "<tr>" +
+      '<td><div class="task-name">' + esc(t.name) + "</div>" + (t.notes ? '<div class="task-notes">' + esc(t.notes) + "</div>" : "") + (t.factory ? '<div style="margin-top:4px;"><span class="badge-factory">🏭 Factory</span></div>' : "") + "</td>" +
+      '<td><span class="pill"><span class="dot" style="background:' + css(team.varName) + '"></span>' + esc(team.label) + "</span></td>" +
+      "<td>" + esc(t.owner || "—") + "</td>" +
+      '<td><span class="pill"><span class="dot" style="background:' + css(s.varName) + '"></span>' + esc(s.label) + "</span></td>" +
+      "<td>" + esc(dates || "—") + "</td>" +
+      '<td><div class="task-row-actions">' +
+      '<button class="btn btn-ghost btn-sm" data-edit-task="' + esc(t.id) + '">Edit</button>' +
+      deleteButton("task", t.id, "Del") +
+      "</div></td></tr>";
+  }
+
+  function renderTaskForm(phaseId, prefill) {
+    prefill = prefill || {};
+    var phaseForDefault = state.phases.filter(function (p) { return p.id === phaseId; })[0];
+    var defaultTeam = prefill.team || (phaseForDefault && phaseForDefault.track) || TRACKS[0].key;
+    var teamOpts = TRACKS.map(function (t) {
+      return '<option value="' + esc(t.key) + '"' + (defaultTeam === t.key ? " selected" : "") + ">" + esc(t.label) + "</option>";
+    }).join("");
+    var statusOpts = STATUS.map(function (s) {
+      return '<option value="' + esc(s.key) + '"' + (prefill.status === s.key ? " selected" : "") + ">" + esc(s.label) + "</option>";
+    }).join("");
+    return '<div class="card inline-form" style="margin-top:8px;">' +
+      '<div class="row">' +
+      '<div class="field"><label>Task name</label><input id="tkName" value="' + esc(prefill.name || "") + '" placeholder="e.g. Draft spec doc"></div>' +
+      '<div class="field"><label>Team</label><select id="tkTeam">' + teamOpts + "</select></div>" +
+      "</div>" +
+      '<div class="row">' +
+      '<div class="field"><label>Owner</label><input id="tkOwner" value="' + esc(prefill.owner || "") + '" placeholder="Name"></div>' +
+      '<div class="field"><label>Status</label><select id="tkStatus">' + statusOpts + "</select></div>" +
+      "</div>" +
+      '<div class="row">' +
+      '<div class="field"><label>Start date</label><input type="date" id="tkStart" value="' + esc(prefill.start || "") + '"></div>' +
+      '<div class="field"><label>End date</label><input type="date" id="tkEnd" value="' + esc(prefill.end || "") + '"></div>' +
+      "</div>" +
+      '<div class="field"><label>Notes</label><textarea id="tkNotes" placeholder="Optional notes">' + esc(prefill.notes || "") + "</textarea></div>" +
+      '<label style="display:flex;align-items:center;gap:7px;font-size:13px;font-weight:600;color:var(--text-secondary);"><input type="checkbox" id="tkFactory"' + (prefill.factory ? " checked" : "") + "> 🏭 Happens at the factory / ODM site</label>" +
+      '<div class="form-actions"><button class="btn" data-task-cancel="1">Cancel</button>' +
+      '<button class="btn btn-accent" data-task-save="' + esc(phaseId) + '" data-task-id="' + esc(prefill.id || "") + '">' + (prefill.id ? "Save task" : "Add task") + "</button></div>" +
+      "</div>";
+  }
+
+  // ---------------------------------------------------------------------
+  // Wiring
+  // ---------------------------------------------------------------------
+  function wireProjectView(phases) {
+    document.getElementById("btnBack").onclick = closeProject;
+    var p = state.projects.filter(function (x) { return x.id === state.currentProjectId; })[0];
+
+    var edP = document.getElementById("btnEditProject");
+    if (edP) edP.onclick = function () { state.openForm = state.openForm === "edit-project" ? null : "edit-project"; render(); };
+    var pfCancel = document.getElementById("pfCancel");
+    if (pfCancel) pfCancel.onclick = function () { state.openForm = null; render(); };
+    var pfSave = document.getElementById("pfSave");
+    if (pfSave) pfSave.onclick = function () {
+      var name = document.getElementById("pfName").value.trim();
+      if (!name) return;
+      updateProject(p.id, { name: name, description: document.getElementById("pfDesc").value.trim() });
+    };
+
+    var addPhaseBtn = document.getElementById("btnAddPhase");
+    if (addPhaseBtn) addPhaseBtn.onclick = function () { state.openForm = state.openForm === "new-phase" ? null : "new-phase"; render(); };
+    var phCancel = document.getElementById("phCancel");
+    if (phCancel) phCancel.onclick = function () { state.openForm = null; state.editingPhase = null; render(); };
+    var phSave = document.getElementById("phSave");
+    if (phSave) phSave.onclick = function () {
+      var name = document.getElementById("phName").value.trim();
+      var start = document.getElementById("phStart").value;
+      var end = document.getElementById("phEnd").value;
+      var type = document.getElementById("phType").value;
+      if (!name || !start || (type === "phase" && !end)) return;
+      if (type === "milestone") end = start;
+      var duration = Math.round(daysBetween(parseDate(start), parseDate(end)));
+      var data = {
+        name: name, track: document.getElementById("phTrack").value, type: type,
+        start: start, end: end, duration: duration,
+        notes: document.getElementById("phNotes").value.trim(),
+        factory: document.getElementById("phFactory").checked
+      };
+      if (state.editingPhase) updatePhase(state.editingPhase, data);
+      else addPhase(p.id, data);
+    };
+
+    // toggle expand
+    Array.prototype.forEach.call(document.querySelectorAll("[data-toggle]"), function (el) {
+      el.onclick = function () {
+        var id = el.getAttribute("data-toggle");
+        state.expanded[id] = !state.expanded[id];
+        render();
+      };
+    });
+
+    // edit phase
+    Array.prototype.forEach.call(document.querySelectorAll("[data-edit-phase]"), function (el) {
+      el.onclick = function () {
+        var id = el.getAttribute("data-edit-phase");
+        state.editingPhase = state.editingPhase === id ? null : id;
+        render();
+      };
+    });
+
+    // add task
+    Array.prototype.forEach.call(document.querySelectorAll("[data-add-task]"), function (el) {
+      el.onclick = function () {
+        var pid = el.getAttribute("data-add-task");
+        state.openForm = "new-task:" + pid;
+        render();
+      };
+    });
+    Array.prototype.forEach.call(document.querySelectorAll("[data-task-cancel]"), function (el) {
+      el.onclick = function () { state.openForm = null; state.editingTask = null; render(); };
+    });
+    Array.prototype.forEach.call(document.querySelectorAll("[data-edit-task]"), function (el) {
+      el.onclick = function () {
+        var id = el.getAttribute("data-edit-task");
+        state.editingTask = state.editingTask === id ? null : id;
+        render();
+      };
+    });
+    Array.prototype.forEach.call(document.querySelectorAll("[data-task-save]"), function (el) {
+      el.onclick = function () {
+        var phaseId = el.getAttribute("data-task-save");
+        var taskId = el.getAttribute("data-task-id");
+        var name = document.getElementById("tkName").value.trim();
+        if (!name) return;
+        var data = {
+          name: name, team: document.getElementById("tkTeam").value,
+          owner: document.getElementById("tkOwner").value.trim(),
+          status: document.getElementById("tkStatus").value,
+          start: document.getElementById("tkStart").value,
+          end: document.getElementById("tkEnd").value || document.getElementById("tkStart").value,
+          notes: document.getElementById("tkNotes").value.trim(),
+          factory: document.getElementById("tkFactory").checked
+        };
+        if (taskId) updateTask(taskId, data);
+        else addTask(p.id, phaseId, data);
+      };
+    });
+
+    // delete confirm pattern
+    Array.prototype.forEach.call(document.querySelectorAll("[data-ask-del]"), function (el) {
+      el.onclick = function () {
+        state.confirmingDelete = el.getAttribute("data-ask-del");
+        render();
+        setTimeout(function () {
+          if (state.confirmingDelete === el.getAttribute("data-ask-del")) { state.confirmingDelete = null; render(); }
+        }, 3000);
+      };
+    });
+    Array.prototype.forEach.call(document.querySelectorAll("[data-confirm-del]"), function (el) {
+      el.onclick = function () {
+        var key = el.getAttribute("data-confirm-del");
+        var parts = key.split(":");
+        state.confirmingDelete = null;
+        if (parts[0] === "project") deleteProjectCascade(parts[1]);
+        else if (parts[0] === "phase") deletePhaseCascade(parts[1]);
+        else if (parts[0] === "task") deleteTask(parts[1]);
+      };
+    });
+
+    // gantt bar -> scroll to phase card
+    Array.prototype.forEach.call(document.querySelectorAll("[data-scroll-phase]"), function (el) {
+      el.onclick = function () {
+        var id = el.getAttribute("data-scroll-phase");
+        var card = document.getElementById("phasecard-" + id);
+        if (!card) return;
+        card.scrollIntoView({ behavior: "smooth", block: "center" });
+        card.classList.add("flash");
+        setTimeout(function () { card.classList.remove("flash"); }, 900);
+      };
+    });
+  }
+
+  boot();
+})();
+</script>
+

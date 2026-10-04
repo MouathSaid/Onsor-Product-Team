@@ -1,4 +1,4 @@
-<title>Onsor Home</title>
+<title>Onsor Function</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -31,7 +31,14 @@
   }
   .wrap{ max-width:880px; margin:0 auto; display:flex; flex-direction:column; gap:26px; }
   .mono{ font-family:"IBM Plex Mono", ui-monospace, "SF Mono", monospace; }
-  .tabular{ font-variant-numeric: tabular-nums; }
+
+  .back-link{
+    align-self:flex-start; display:inline-flex; align-items:center; gap:6px;
+    font-family:"IBM Plex Mono",monospace; font-size:12px; font-weight:500; letter-spacing:.01em;
+    color:var(--text-faint); text-decoration:none;
+  }
+  .back-link:hover{ color:var(--main); }
+  .back-link:focus-visible{ outline:2px solid var(--main); outline-offset:2px; border-radius:4px; }
 
   header{ display:flex; flex-direction:column; gap:10px; }
   .eyebrow{
@@ -83,116 +90,41 @@
 
 <div class="wrap">
 
+  <a class="back-link" href="hub.html">&larr; Home</a>
+
   <header>
     <div class="eyebrow">Onsor</div>
-    <h1>Home</h1>
-    <p class="lede">Pick a team to see what they're running.</p>
+    <h1>Function</h1>
+    <p class="lede">Everyday tools the team uses across products &mdash; pricing, investigations, and more as they're added.</p>
   </header>
 
   <div class="grid">
 
-    <a class="group-card" href="group-project-management.html">
+    <a class="group-card" href="device-pricing.html">
       <div class="card-top">
-        <div class="group-icon">🗂️</div>
+        <div class="group-icon">💰</div>
         <span class="arrow">&rarr;</span>
       </div>
       <div class="group-body">
-        <h2>Project Management</h2>
-        <div class="group-meta has-projects">4 projects</div>
-      </div>
-    </a>
-
-    <a class="group-card" href="group-product-development.html">
-      <div class="card-top">
-        <div class="group-icon">🧪</div>
-        <span class="arrow">&rarr;</span>
-      </div>
-      <div class="group-body">
-        <h2>Product Development</h2>
-        <div class="group-meta">Not started</div>
-      </div>
-    </a>
-
-    <a class="group-card" href="production-dashboard.html">
-      <div class="card-top">
-        <div class="group-icon">🏭</div>
-        <span class="arrow">&rarr;</span>
-      </div>
-      <div class="group-body">
-        <h2>Production</h2>
-        <div class="group-meta has-projects">Live dashboard</div>
-      </div>
-    </a>
-
-    <a class="group-card" href="group-technical-support.html">
-      <div class="card-top">
-        <div class="group-icon">🎫</div>
-        <span class="arrow">&rarr;</span>
-      </div>
-      <div class="group-body">
-        <h2>Technical Support</h2>
-        <div class="group-meta has-projects">1 project</div>
-      </div>
-    </a>
-
-    <a class="group-card" href="group-incentives.html">
-      <div class="card-top">
-        <div class="group-icon">🚀</div>
-        <span class="arrow">&rarr;</span>
-      </div>
-      <div class="group-body">
-        <h2>Initiatives</h2>
-        <div class="group-meta">Not started</div>
-      </div>
-    </a>
-
-    <a class="group-card" href="warranty-dashboard.html">
-      <div class="card-top">
-        <div class="group-icon">🛡️</div>
-        <span class="arrow">&rarr;</span>
-      </div>
-      <div class="group-body">
-        <h2>Warranty Claim</h2>
-        <div class="group-meta has-projects">Live dashboard</div>
-      </div>
-    </a>
-
-    <a class="group-card" href="knowledge-base.html">
-      <div class="card-top">
-        <div class="group-icon">📚</div>
-        <span class="arrow">&rarr;</span>
-      </div>
-      <div class="group-body">
-        <h2>Products Knowledge Base</h2>
+        <h2>Device Pricing</h2>
         <div class="group-meta has-projects">Live · Notion</div>
       </div>
     </a>
 
-    <a class="group-card" href="feedback.html">
+    <a class="group-card" href="rca.html">
       <div class="card-top">
-        <div class="group-icon">💬</div>
+        <div class="group-icon">🕵️</div>
         <span class="arrow">&rarr;</span>
       </div>
       <div class="group-body">
-        <h2>Device Feedback</h2>
-        <div class="group-meta has-projects">Live · Customer &amp; internal</div>
-      </div>
-    </a>
-
-    <a class="group-card" href="function.html">
-      <div class="card-top">
-        <div class="group-icon">🔧</div>
-        <span class="arrow">&rarr;</span>
-      </div>
-      <div class="group-body">
-        <h2>Function</h2>
+        <h2>RCA</h2>
         <div class="group-meta has-projects">Live · Notion</div>
       </div>
     </a>
 
   </div>
 
-  <footer>Click a team to see its projects.</footer>
+  <footer>More functions get added here over time.</footer>
 
 </div>
 
