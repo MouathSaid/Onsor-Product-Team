@@ -902,10 +902,55 @@
     } catch (e) { showDiag((e && e.message) ? e.message : String(e)); }
   });
 
+  // Outside Claude (the GitHub site) there are no connectors, so the page talks
+  // to the onsor-jira-live Cloudflare Worker through this stand-in, which
+  // offers the same three calls the page makes on the Claude connector.
+  var LIVE_URL = "https://onsor-jira-live.mouath-shuaili.workers.dev";
+  function workerNs(){
+    var watchHandler = null;
+    function request(path, body){
+      var opts = body
+        ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }
+        : { cache: "no-store" };
+      return fetch(LIVE_URL + path, opts).then(function(res){
+        return res.json().catch(function(){ return {}; }).then(function(data){
+          if (!res.ok) return Promise.reject({
+            code: res.status >= 500 ? "server_unavailable" : "tool_error",
+            message: (data && data.error) || ("HTTP " + res.status)
+          });
+          return { payload: data };
+        });
+      }, function(){
+        return Promise.reject({ code: "server_unavailable", message: "Jira proxy unreachable" });
+      });
+    }
+    function refresh(){
+      return request("/?project=" + JIRA_PROJECT_KEY + "&t=" + Date.now()).then(function(result){
+        if (watchHandler) watchHandler({ type: "data", result: result });
+      }, function(err){
+        if (watchHandler) watchHandler({ type: "error", error: err });
+      });
+    }
+    return {
+      watchTool: function(server, tool, input, handler, options){
+        watchHandler = handler;
+        refresh();
+        setInterval(refresh, (options && options.refetchInterval) || 300000);
+      },
+      invalidate: function(){ return refresh(); },
+      callTool: function(server, tool, input){
+        var key = input && input.issueIdOrKey;
+        if (tool === "getTransitionsForJiraIssue") return request("/transitions?key=" + encodeURIComponent(key));
+        if (tool === "editJiraIssue") return request("/edit", { key: key, fields: input.fields });
+        if (tool === "transitionJiraIssue") return request("/transition", { key: key, transitionId: input.transition && input.transition.id });
+        if (tool === "addCommentToJiraIssue") return request("/comment", { key: key, text: input.commentBody });
+        return Promise.reject({ code: "tool_error", message: "Unsupported action" });
+      }
+    };
+  }
   function noMcpFallback(){
-    setSyncStatus("error", "Live Jira sync isn't available in this view");
-    showError("This view can't reach your connectors. Open this page inside claude.ai to see live batch data from Jira.");
-    refreshBtn.disabled = true;
+    mcpNs = workerNs();
+    startWatch(mcpNs);
   }
 
   function init(){
