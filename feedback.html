@@ -447,6 +447,9 @@
   var NOTION_SERVER = "Notion";
   var NOTION_TOOL = "notion-create-pages";
   var NOTION_DATA_SOURCE_ID = "55ad481f-7e7c-4169-b511-0944b9e99ee8";
+  // Outside Claude (the GitHub site) there is no Notion connector, so the
+  // entry goes to this Cloudflare Worker, which writes the Notion row.
+  var WORKER_URL = "https://onsor-feedback.mouath-shuaili.workers.dev";
 
   // ---------------- state ----------------
   var activeFamily = "";
@@ -588,7 +591,7 @@
 
   function postToNotion(id, entry) {
     return mcpReady.then(function (mcp) {
-      if (!mcp) return Promise.reject({ code: "capability_disabled" });
+      if (!mcp) return postToWorker(id, entry);
       var fam = FAMILIES[entry.family];
       return mcp.callTool(NOTION_SERVER, NOTION_TOOL, {
         parent: { type: "data_source_id", data_source_id: NOTION_DATA_SOURCE_ID },
@@ -609,8 +612,29 @@
     });
   }
 
+  function postToWorker(id, entry) {
+    var body = {
+      id: id,
+      deviceName: entry.deviceName,
+      family: (FAMILIES[entry.family] || {}).label || "Other",
+      dislike: entry.dislike,
+      wish: entry.wish,
+      submittedAt: entry.submittedAt
+    };
+    return fetch(WORKER_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body)
+    }).then(function (res) {
+      if (!res.ok) return Promise.reject({ code: "worker_failed" });
+    }, function () {
+      return Promise.reject({ code: "worker_failed" });
+    });
+  }
+
   function notionErrorMessage(err) {
     var code = err && err.code;
+    if (code === "worker_failed") return "Couldn’t send your feedback — please try again in a moment.";
     if (code === "needs_reauth") return "Not sent to Notion — reconnect Notion in claude.ai Settings → Connectors, then send again.";
     if (code === "server_not_connected" || code === "selection_required" || code === "server_not_found")
       return "Not sent to Notion — add the Notion connector in claude.ai Settings → Connectors, then send again.";
