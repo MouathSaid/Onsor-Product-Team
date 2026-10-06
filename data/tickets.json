@@ -1,5 +1,5 @@
 {
-  "fetchedAt": "2026-10-06T11:35:11.252856Z",
+  "fetchedAt": "2026-10-06T11:57:45.252597Z",
   "issues": {
     "nodes": [
       {
@@ -5079,6 +5079,81 @@
           "comment": {
             "comments": [],
             "self": "https://onsor.atlassian.net/rest/api/3/issue/24644/comment",
+            "maxResults": 0,
+            "total": 0,
+            "startAt": 0
+          },
+          "assignee": null,
+          "status": {
+            "self": "https://onsor.atlassian.net/rest/api/3/status/10473",
+            "description": "",
+            "iconUrl": "https://onsor.atlassian.net/",
+            "name": "New Ticket Request",
+            "id": "10473",
+            "statusCategory": {
+              "self": "https://onsor.atlassian.net/rest/api/3/statuscategory/2",
+              "id": 2,
+              "key": "new",
+              "colorName": "blue-gray",
+              "name": "To Do"
+            }
+          }
+        }
+      },
+      {
+        "id": "24785",
+        "key": "PPIER-30",
+        "webUrl": "https://onsor.atlassian.net/browse/PPIER-30",
+        "fields": {
+          "customfield_12091": null,
+          "summary": "T1420i | T14 EC Update V102.42 minor issue",
+          "customfield_12095": [
+            {
+              "self": "https://onsor.atlassian.net/rest/api/3/customFieldOption/14065",
+              "value": "Murshid Al Habsi",
+              "id": "14065"
+            }
+          ],
+          "customfield_12094": {
+            "self": "https://onsor.atlassian.net/rest/api/3/customFieldOption/14060",
+            "value": "Software issue",
+            "id": "14060",
+            "color": "MAGENTA_DARKER"
+          },
+          "created": "2026-10-06T15:51:47.855+0400",
+          "customfield_12077": "0",
+          "customfield_12076": "0",
+          "customfield_12079": "After the EC update for the fan noise issue. The Type C charging port is working but is not charging. However, the other port is charging and working ",
+          "reporter": {
+            "self": "https://onsor.atlassian.net/rest/api/3/user?accountId=712020%3A9e34407c-9a2f-4221-a7cb-3b8f883ddf02",
+            "accountId": "712020:9e34407c-9a2f-4221-a7cb-3b8f883ddf02",
+            "avatarUrls": {
+              "48x48": "https://secure.gravatar.com/avatar/3970ec8d3960bd25144300dad3a4e707?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FMH-5.png",
+              "24x24": "https://secure.gravatar.com/avatar/3970ec8d3960bd25144300dad3a4e707?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FMH-5.png",
+              "16x16": "https://secure.gravatar.com/avatar/3970ec8d3960bd25144300dad3a4e707?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FMH-5.png",
+              "32x32": "https://secure.gravatar.com/avatar/3970ec8d3960bd25144300dad3a4e707?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FMH-5.png"
+            },
+            "displayName": "Murshid Al Habsi",
+            "active": true,
+            "timeZone": "Asia/Muscat",
+            "accountType": "atlassian"
+          },
+          "customfield_12078": {
+            "self": "https://onsor.atlassian.net/rest/api/3/customFieldOption/14011",
+            "value": "In Warranty",
+            "id": "14011"
+          },
+          "customfield_10772": null,
+          "customfield_10773": null,
+          "customfield_10767": {
+            "self": "https://onsor.atlassian.net/rest/api/3/customFieldOption/11675",
+            "value": "T1420i",
+            "id": "11675",
+            "color": "PURPLE_DARKER"
+          },
+          "comment": {
+            "comments": [],
+            "self": "https://onsor.atlassian.net/rest/api/3/issue/24785/comment",
             "maxResults": 0,
             "total": 0,
             "startAt": 0
