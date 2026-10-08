@@ -1,5 +1,5 @@
 {
-  "fetchedAt": "2026-10-08T07:18:14.991143Z",
+  "fetchedAt": "2026-10-08T07:48:08.696647Z",
   "issues": {
     "nodes": [
       {
@@ -5152,25 +5152,98 @@
             "color": "PURPLE_DARKER"
           },
           "comment": {
-            "comments": [],
+            "comments": [
+              {
+                "self": "https://onsor.atlassian.net/rest/api/3/issue/24785/comment/17097",
+                "id": "17097",
+                "author": {
+                  "self": "https://onsor.atlassian.net/rest/api/3/user?accountId=712020%3Aa749a631-e8b0-499b-abf2-5634a8bed6e1",
+                  "accountId": "712020:a749a631-e8b0-499b-abf2-5634a8bed6e1",
+                  "avatarUrls": {
+                    "48x48": "https://secure.gravatar.com/avatar/421c94a407d7e68b7d412be1ea285da9?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FMT-0.png",
+                    "24x24": "https://secure.gravatar.com/avatar/421c94a407d7e68b7d412be1ea285da9?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FMT-0.png",
+                    "16x16": "https://secure.gravatar.com/avatar/421c94a407d7e68b7d412be1ea285da9?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FMT-0.png",
+                    "32x32": "https://secure.gravatar.com/avatar/421c94a407d7e68b7d412be1ea285da9?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FMT-0.png"
+                  },
+                  "displayName": "Mohammed Al Thohli",
+                  "active": true,
+                  "timeZone": "Asia/Muscat",
+                  "accountType": "atlassian"
+                },
+                "body": {
+                  "type": "doc",
+                  "version": 1,
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Please test the following update that should resolved the issue"
+                        }
+                      ],
+                      "attrs": {
+                        "localId": "374440017e23"
+                      }
+                    },
+                    {
+                      "type": "mediaGroup",
+                      "content": [
+                        {
+                          "type": "media",
+                          "attrs": {
+                            "type": "file",
+                            "id": "b2319b7c-d77b-4536-b0b3-cdce631eb6f5",
+                            "collection": ""
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "localId": "8ed42e9e48d1"
+                      }
+                    }
+                  ]
+                },
+                "updateAuthor": {
+                  "self": "https://onsor.atlassian.net/rest/api/3/user?accountId=712020%3Aa749a631-e8b0-499b-abf2-5634a8bed6e1",
+                  "accountId": "712020:a749a631-e8b0-499b-abf2-5634a8bed6e1",
+                  "avatarUrls": {
+                    "48x48": "https://secure.gravatar.com/avatar/421c94a407d7e68b7d412be1ea285da9?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FMT-0.png",
+                    "24x24": "https://secure.gravatar.com/avatar/421c94a407d7e68b7d412be1ea285da9?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FMT-0.png",
+                    "16x16": "https://secure.gravatar.com/avatar/421c94a407d7e68b7d412be1ea285da9?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FMT-0.png",
+                    "32x32": "https://secure.gravatar.com/avatar/421c94a407d7e68b7d412be1ea285da9?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FMT-0.png"
+                  },
+                  "displayName": "Mohammed Al Thohli",
+                  "active": true,
+                  "timeZone": "Asia/Muscat",
+                  "accountType": "atlassian"
+                },
+                "created": "2026-10-08T11:36:35.116+0400",
+                "updated": "2026-10-08T11:36:35.116+0400",
+                "jsdPublic": true
+              }
+            ],
             "self": "https://onsor.atlassian.net/rest/api/3/issue/24785/comment",
-            "maxResults": 0,
-            "total": 0,
+            "maxResults": 1,
+            "total": 1,
             "startAt": 0
           },
           "assignee": null,
           "status": {
-            "self": "https://onsor.atlassian.net/rest/api/3/status/10473",
+            "self": "https://onsor.atlassian.net/rest/api/3/status/10478",
             "description": "",
             "iconUrl": "https://onsor.atlassian.net/",
-            "name": "New Ticket Request",
-            "id": "10473",
+            "name": "Solution Implementation",
+            "id": "10478",
             "statusCategory": {
-              "self": "https://onsor.atlassian.net/rest/api/3/statuscategory/2",
-              "id": 2,
-              "key": "new",
-              "colorName": "blue-gray",
-              "name": "To Do"
+              "self": "https://onsor.atlassian.net/rest/api/3/statuscategory/4",
+              "id": 4,
+              "key": "indeterminate",
+              "colorName": "yellow",
+              "name": "In Progress"
             }
           }
         }
