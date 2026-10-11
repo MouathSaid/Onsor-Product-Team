@@ -1,5 +1,5 @@
 {
-  "fetchedAt": "2026-10-11T05:56:59.234450Z",
+  "fetchedAt": "2026-10-11T06:23:46.419214Z",
   "issues": {
     "nodes": [
       {
@@ -4351,11 +4351,11 @@
           },
           "assignee": null,
           "status": {
-            "self": "https://onsor.atlassian.net/rest/api/3/status/10474",
+            "self": "https://onsor.atlassian.net/rest/api/3/status/10475",
             "description": "",
             "iconUrl": "https://onsor.atlassian.net/",
-            "name": "L3 Triage",
-            "id": "10474",
+            "name": "Investigation",
+            "id": "10475",
             "statusCategory": {
               "self": "https://onsor.atlassian.net/rest/api/3/statuscategory/4",
               "id": 4,
@@ -4619,11 +4619,11 @@
           },
           "assignee": null,
           "status": {
-            "self": "https://onsor.atlassian.net/rest/api/3/status/10474",
+            "self": "https://onsor.atlassian.net/rest/api/3/status/10475",
             "description": "",
             "iconUrl": "https://onsor.atlassian.net/",
-            "name": "L3 Triage",
-            "id": "10474",
+            "name": "Investigation",
+            "id": "10475",
             "statusCategory": {
               "self": "https://onsor.atlassian.net/rest/api/3/statuscategory/4",
               "id": 4,
@@ -5077,25 +5077,104 @@
             "color": "PURPLE_DARKER"
           },
           "comment": {
-            "comments": [],
+            "comments": [
+              {
+                "self": "https://onsor.atlassian.net/rest/api/3/issue/24644/comment/17104",
+                "id": "17104",
+                "author": {
+                  "self": "https://onsor.atlassian.net/rest/api/3/user?accountId=712020%3Aa749a631-e8b0-499b-abf2-5634a8bed6e1",
+                  "accountId": "712020:a749a631-e8b0-499b-abf2-5634a8bed6e1",
+                  "avatarUrls": {
+                    "48x48": "https://secure.gravatar.com/avatar/421c94a407d7e68b7d412be1ea285da9?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FMT-0.png",
+                    "24x24": "https://secure.gravatar.com/avatar/421c94a407d7e68b7d412be1ea285da9?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FMT-0.png",
+                    "16x16": "https://secure.gravatar.com/avatar/421c94a407d7e68b7d412be1ea285da9?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FMT-0.png",
+                    "32x32": "https://secure.gravatar.com/avatar/421c94a407d7e68b7d412be1ea285da9?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FMT-0.png"
+                  },
+                  "displayName": "Mohammed Al Thohli",
+                  "active": true,
+                  "timeZone": "Asia/Muscat",
+                  "accountType": "atlassian"
+                },
+                "body": {
+                  "type": "doc",
+                  "version": 1,
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Please arrange for this EC to be installed on the device "
+                        }
+                      ],
+                      "attrs": {
+                        "localId": "52ed4f7abdd8"
+                      }
+                    },
+                    {
+                      "type": "mediaGroup",
+                      "content": [
+                        {
+                          "type": "media",
+                          "attrs": {
+                            "type": "file",
+                            "id": "0f8f2250-fb23-4f48-a491-b3bf3aa6d5c3",
+                            "collection": ""
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "from the description the issue is the fan noise when waking the device up "
+                        }
+                      ],
+                      "attrs": {
+                        "localId": "33f9b1fcd473"
+                      }
+                    }
+                  ]
+                },
+                "updateAuthor": {
+                  "self": "https://onsor.atlassian.net/rest/api/3/user?accountId=712020%3Aa749a631-e8b0-499b-abf2-5634a8bed6e1",
+                  "accountId": "712020:a749a631-e8b0-499b-abf2-5634a8bed6e1",
+                  "avatarUrls": {
+                    "48x48": "https://secure.gravatar.com/avatar/421c94a407d7e68b7d412be1ea285da9?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FMT-0.png",
+                    "24x24": "https://secure.gravatar.com/avatar/421c94a407d7e68b7d412be1ea285da9?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FMT-0.png",
+                    "16x16": "https://secure.gravatar.com/avatar/421c94a407d7e68b7d412be1ea285da9?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FMT-0.png",
+                    "32x32": "https://secure.gravatar.com/avatar/421c94a407d7e68b7d412be1ea285da9?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FMT-0.png"
+                  },
+                  "displayName": "Mohammed Al Thohli",
+                  "active": true,
+                  "timeZone": "Asia/Muscat",
+                  "accountType": "atlassian"
+                },
+                "created": "2026-10-11T10:04:59.672+0400",
+                "updated": "2026-10-11T10:04:59.672+0400",
+                "jsdPublic": true
+              }
+            ],
             "self": "https://onsor.atlassian.net/rest/api/3/issue/24644/comment",
-            "maxResults": 0,
-            "total": 0,
+            "maxResults": 1,
+            "total": 1,
             "startAt": 0
           },
           "assignee": null,
           "status": {
-            "self": "https://onsor.atlassian.net/rest/api/3/status/10473",
+            "self": "https://onsor.atlassian.net/rest/api/3/status/10478",
             "description": "",
             "iconUrl": "https://onsor.atlassian.net/",
-            "name": "New Ticket Request",
-            "id": "10473",
+            "name": "Solution Implementation",
+            "id": "10478",
             "statusCategory": {
-              "self": "https://onsor.atlassian.net/rest/api/3/statuscategory/2",
-              "id": 2,
-              "key": "new",
-              "colorName": "blue-gray",
-              "name": "To Do"
+              "self": "https://onsor.atlassian.net/rest/api/3/statuscategory/4",
+              "id": 4,
+              "key": "indeterminate",
+              "colorName": "yellow",
+              "name": "In Progress"
             }
           }
         }
