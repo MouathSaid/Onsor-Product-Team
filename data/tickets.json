@@ -1,5 +1,5 @@
 {
-  "fetchedAt": "2026-10-13T06:58:19.102897Z",
+  "fetchedAt": "2026-10-13T07:26:36.731254Z",
   "issues": {
     "nodes": [
       {
@@ -4685,17 +4685,17 @@
           },
           "assignee": null,
           "status": {
-            "self": "https://onsor.atlassian.net/rest/api/3/status/10473",
+            "self": "https://onsor.atlassian.net/rest/api/3/status/10481",
             "description": "",
             "iconUrl": "https://onsor.atlassian.net/",
-            "name": "New Ticket Request",
-            "id": "10473",
+            "name": "Closure & Reporting",
+            "id": "10481",
             "statusCategory": {
-              "self": "https://onsor.atlassian.net/rest/api/3/statuscategory/2",
-              "id": 2,
-              "key": "new",
-              "colorName": "blue-gray",
-              "name": "To Do"
+              "self": "https://onsor.atlassian.net/rest/api/3/statuscategory/3",
+              "id": 3,
+              "key": "done",
+              "colorName": "green",
+              "name": "Done"
             }
           }
         }
