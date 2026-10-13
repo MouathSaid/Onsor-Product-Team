@@ -1,5 +1,5 @@
 {
-  "fetchedAt": "2026-10-13T06:23:22.549104Z",
+  "fetchedAt": "2026-10-13T06:58:19.102897Z",
   "issues": {
     "nodes": [
       {
@@ -4619,11 +4619,11 @@
           },
           "assignee": null,
           "status": {
-            "self": "https://onsor.atlassian.net/rest/api/3/status/10475",
+            "self": "https://onsor.atlassian.net/rest/api/3/status/10478",
             "description": "",
             "iconUrl": "https://onsor.atlassian.net/",
-            "name": "Investigation",
-            "id": "10475",
+            "name": "Solution Implementation",
+            "id": "10478",
             "statusCategory": {
               "self": "https://onsor.atlassian.net/rest/api/3/statuscategory/4",
               "id": 4,
