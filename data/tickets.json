@@ -1,5 +1,5 @@
 {
-  "fetchedAt": "2026-10-22T01:54:23.084558Z",
+  "fetchedAt": "2026-10-22T07:20:35.349927Z",
   "issues": {
     "nodes": [
       {
@@ -5190,11 +5190,107 @@
                 "created": "2026-10-15T10:21:12.256+0400",
                 "updated": "2026-10-15T10:21:12.256+0400",
                 "jsdPublic": true
+              },
+              {
+                "self": "https://onsor.atlassian.net/rest/api/3/issue/24524/comment/17160",
+                "id": "17160",
+                "author": {
+                  "self": "https://onsor.atlassian.net/rest/api/3/user?accountId=6128b16d0952180069024121",
+                  "accountId": "6128b16d0952180069024121",
+                  "avatarUrls": {
+                    "48x48": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/6128b16d0952180069024121/ed6be9e8-43a5-4a06-95eb-d7229fc599b3/48",
+                    "24x24": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/6128b16d0952180069024121/ed6be9e8-43a5-4a06-95eb-d7229fc599b3/24",
+                    "16x16": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/6128b16d0952180069024121/ed6be9e8-43a5-4a06-95eb-d7229fc599b3/16",
+                    "32x32": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/6128b16d0952180069024121/ed6be9e8-43a5-4a06-95eb-d7229fc599b3/32"
+                  },
+                  "displayName": "Ayman AL Amri",
+                  "active": true,
+                  "timeZone": "Asia/Dubai",
+                  "accountType": "atlassian"
+                },
+                "body": {
+                  "type": "doc",
+                  "version": 1,
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Dear "
+                        },
+                        {
+                          "type": "mention",
+                          "attrs": {
+                            "id": "712020:e465506e-b428-4c1f-af41-d17670365f79",
+                            "text": "@mouath.shuaili",
+                            "accessLevel": "",
+                            "localId": "224e5a40-3348-459e-961f-0c22fc2e7e6b"
+                          }
+                        },
+                        {
+                          "type": "text",
+                          "text": " and "
+                        },
+                        {
+                          "type": "mention",
+                          "attrs": {
+                            "id": "712020:a749a631-e8b0-499b-abf2-5634a8bed6e1",
+                            "text": "@Mohammed Al Thohli",
+                            "accessLevel": "",
+                            "localId": "4c643f34-9876-4644-8793-068f68d11d1a"
+                          }
+                        },
+                        {
+                          "type": "text",
+                          "text": " "
+                        },
+                        {
+                          "type": "hardBreak"
+                        },
+                        {
+                          "type": "text",
+                          "text": "find the final data for the schools "
+                        },
+                        {
+                          "type": "hardBreak"
+                        },
+                        {
+                          "type": "inlineCard",
+                          "attrs": {
+                            "url": "https://onsortechnologies-my.sharepoint.com/:x:/g/personal/ayman_amri_onsor_om/IQACu8i64x5QTYgdmoMJW-1mAQYmsHTmNjoCtmljmbOsB1c?e=EfxBau",
+                            "localId": "804b03866390"
+                          }
+                        }
+                      ],
+                      "attrs": {
+                        "localId": "d9ab9814f3d6"
+                      }
+                    }
+                  ]
+                },
+                "updateAuthor": {
+                  "self": "https://onsor.atlassian.net/rest/api/3/user?accountId=6128b16d0952180069024121",
+                  "accountId": "6128b16d0952180069024121",
+                  "avatarUrls": {
+                    "48x48": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/6128b16d0952180069024121/ed6be9e8-43a5-4a06-95eb-d7229fc599b3/48",
+                    "24x24": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/6128b16d0952180069024121/ed6be9e8-43a5-4a06-95eb-d7229fc599b3/24",
+                    "16x16": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/6128b16d0952180069024121/ed6be9e8-43a5-4a06-95eb-d7229fc599b3/16",
+                    "32x32": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/6128b16d0952180069024121/ed6be9e8-43a5-4a06-95eb-d7229fc599b3/32"
+                  },
+                  "displayName": "Ayman AL Amri",
+                  "active": true,
+                  "timeZone": "Asia/Dubai",
+                  "accountType": "atlassian"
+                },
+                "created": "2026-10-22T09:10:21.338+0400",
+                "updated": "2026-10-22T09:10:21.338+0400",
+                "jsdPublic": true
               }
             ],
             "self": "https://onsor.atlassian.net/rest/api/3/issue/24524/comment",
-            "maxResults": 2,
-            "total": 2,
+            "maxResults": 3,
+            "total": 3,
             "startAt": 0
           },
           "assignee": null,
