@@ -1,5 +1,5 @@
 {
-  "fetchedAt": "2026-11-02T00:26:30.083065Z",
+  "fetchedAt": "2026-11-02T06:41:32.224379Z",
   "issues": {
     "nodes": [
       {
@@ -5608,6 +5608,75 @@
               "key": "indeterminate",
               "colorName": "yellow",
               "name": "In Progress"
+            }
+          }
+        }
+      },
+      {
+        "id": "25433",
+        "key": "PPIER-31",
+        "webUrl": "https://onsor.atlassian.net/browse/PPIER-31",
+        "fields": {
+          "customfield_12091": null,
+          "summary": "K1410i | K14 | Hibernate Apply | schools",
+          "customfield_12095": null,
+          "customfield_12094": {
+            "self": "https://onsor.atlassian.net/rest/api/3/customFieldOption/14062",
+            "value": "No fault found",
+            "id": "14062",
+            "color": "GREY_DARKEST"
+          },
+          "created": "2026-11-02T09:12:15.177+0400",
+          "customfield_12077": "-",
+          "customfield_12076": "-",
+          "customfield_12079": "Some time device and fan working when the lid closed",
+          "reporter": {
+            "self": "https://onsor.atlassian.net/rest/api/3/user?accountId=6128b16d0952180069024121",
+            "accountId": "6128b16d0952180069024121",
+            "avatarUrls": {
+              "48x48": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/6128b16d0952180069024121/ed6be9e8-43a5-4a06-95eb-d7229fc599b3/48",
+              "24x24": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/6128b16d0952180069024121/ed6be9e8-43a5-4a06-95eb-d7229fc599b3/24",
+              "16x16": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/6128b16d0952180069024121/ed6be9e8-43a5-4a06-95eb-d7229fc599b3/16",
+              "32x32": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/6128b16d0952180069024121/ed6be9e8-43a5-4a06-95eb-d7229fc599b3/32"
+            },
+            "displayName": "Ayman AL Amri",
+            "active": true,
+            "timeZone": "Asia/Dubai",
+            "accountType": "atlassian"
+          },
+          "customfield_12078": {
+            "self": "https://onsor.atlassian.net/rest/api/3/customFieldOption/14011",
+            "value": "In Warranty",
+            "id": "14011"
+          },
+          "customfield_10772": null,
+          "customfield_10773": null,
+          "customfield_10767": {
+            "self": "https://onsor.atlassian.net/rest/api/3/customFieldOption/11680",
+            "value": "K1410i",
+            "id": "11680",
+            "color": "GREEN_DARKER"
+          },
+          "comment": {
+            "comments": [],
+            "self": "https://onsor.atlassian.net/rest/api/3/issue/25433/comment",
+            "maxResults": 0,
+            "total": 0,
+            "startAt": 0
+          },
+          "assignee": null,
+          "status": {
+            "self": "https://onsor.atlassian.net/rest/api/3/status/10473",
+            "description": "",
+            "iconUrl": "https://onsor.atlassian.net/",
+            "name": "New Ticket Request",
+            "id": "10473",
+            "statusCategory": {
+              "self": "https://onsor.atlassian.net/rest/api/3/statuscategory/2",
+              "id": 2,
+              "key": "new",
+              "colorName": "blue-gray",
+              "name": "To Do"
             }
           }
         }
