@@ -1,5 +1,5 @@
 {
-  "fetchedAt": "2026-11-10T07:46:56.172226Z",
+  "fetchedAt": "2026-11-10T16:17:16.556876Z",
   "issues": {
     "nodes": [
       {
@@ -5660,6 +5660,80 @@
           "comment": {
             "comments": [],
             "self": "https://onsor.atlassian.net/rest/api/3/issue/25433/comment",
+            "maxResults": 0,
+            "total": 0,
+            "startAt": 0
+          },
+          "assignee": null,
+          "status": {
+            "self": "https://onsor.atlassian.net/rest/api/3/status/10473",
+            "description": "",
+            "iconUrl": "https://onsor.atlassian.net/",
+            "name": "New Ticket Request",
+            "id": "10473",
+            "statusCategory": {
+              "self": "https://onsor.atlassian.net/rest/api/3/statuscategory/2",
+              "id": 2,
+              "key": "new",
+              "colorName": "blue-gray",
+              "name": "To Do"
+            }
+          }
+        }
+      },
+      {
+        "id": "25695",
+        "key": "PPIER-32",
+        "webUrl": "https://onsor.atlassian.net/browse/PPIER-32",
+        "fields": {
+          "customfield_12091": null,
+          "summary": "Formcase Cart | Oman college of health Sciences ",
+          "customfield_12095": [
+            {
+              "self": "https://onsor.atlassian.net/rest/api/3/customFieldOption/14067",
+              "value": "Muhannad Al Raisi",
+              "id": "14067"
+            }
+          ],
+          "customfield_12094": {
+            "self": "https://onsor.atlassian.net/rest/api/3/customFieldOption/14059",
+            "value": "Hardware issue",
+            "id": "14059"
+          },
+          "created": "2026-11-10T15:59:02.730+0400",
+          "customfield_12077": "20298",
+          "customfield_12076": "GCCTC36PDCE1",
+          "customfield_12079": "Formcase cart is not charging ",
+          "reporter": {
+            "self": "https://onsor.atlassian.net/rest/api/3/user?accountId=712020%3A12059bb6-3baa-4025-9bdb-0751aad93d81",
+            "accountId": "712020:12059bb6-3baa-4025-9bdb-0751aad93d81",
+            "avatarUrls": {
+              "48x48": "https://secure.gravatar.com/avatar/449f8e7747b7fea76a09bb7aeec9a917?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FM-4.png",
+              "24x24": "https://secure.gravatar.com/avatar/449f8e7747b7fea76a09bb7aeec9a917?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FM-4.png",
+              "16x16": "https://secure.gravatar.com/avatar/449f8e7747b7fea76a09bb7aeec9a917?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FM-4.png",
+              "32x32": "https://secure.gravatar.com/avatar/449f8e7747b7fea76a09bb7aeec9a917?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FM-4.png"
+            },
+            "displayName": "muhannad.raisi",
+            "active": true,
+            "timeZone": "Asia/Muscat",
+            "accountType": "atlassian"
+          },
+          "customfield_12078": {
+            "self": "https://onsor.atlassian.net/rest/api/3/customFieldOption/14011",
+            "value": "In Warranty",
+            "id": "14011"
+          },
+          "customfield_10772": null,
+          "customfield_10773": null,
+          "customfield_10767": {
+            "self": "https://onsor.atlassian.net/rest/api/3/customFieldOption/15556",
+            "value": "Formcase Cart",
+            "id": "15556",
+            "color": "GREEN"
+          },
+          "comment": {
+            "comments": [],
+            "self": "https://onsor.atlassian.net/rest/api/3/issue/25695/comment",
             "maxResults": 0,
             "total": 0,
             "startAt": 0
