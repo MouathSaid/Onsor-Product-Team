@@ -1,5 +1,5 @@
 {
-  "fetchedAt": "2026-11-11T09:02:14.042640Z",
+  "fetchedAt": "2026-11-11T17:11:06.549711Z",
   "issues": {
     "nodes": [
       {
@@ -4351,11 +4351,11 @@
           },
           "assignee": null,
           "status": {
-            "self": "https://onsor.atlassian.net/rest/api/3/status/10475",
+            "self": "https://onsor.atlassian.net/rest/api/3/status/10478",
             "description": "",
             "iconUrl": "https://onsor.atlassian.net/",
-            "name": "Investigation",
-            "id": "10475",
+            "name": "Solution Implementation",
+            "id": "10478",
             "statusCategory": {
               "self": "https://onsor.atlassian.net/rest/api/3/statuscategory/4",
               "id": 4,
@@ -5295,11 +5295,11 @@
           },
           "assignee": null,
           "status": {
-            "self": "https://onsor.atlassian.net/rest/api/3/status/10474",
+            "self": "https://onsor.atlassian.net/rest/api/3/status/10475",
             "description": "",
             "iconUrl": "https://onsor.atlassian.net/",
-            "name": "L3 Triage",
-            "id": "10474",
+            "name": "Investigation",
+            "id": "10475",
             "statusCategory": {
               "self": "https://onsor.atlassian.net/rest/api/3/statuscategory/4",
               "id": 4,
@@ -5666,17 +5666,17 @@
           },
           "assignee": null,
           "status": {
-            "self": "https://onsor.atlassian.net/rest/api/3/status/10473",
+            "self": "https://onsor.atlassian.net/rest/api/3/status/10474",
             "description": "",
             "iconUrl": "https://onsor.atlassian.net/",
-            "name": "New Ticket Request",
-            "id": "10473",
+            "name": "L3 Triage",
+            "id": "10474",
             "statusCategory": {
-              "self": "https://onsor.atlassian.net/rest/api/3/statuscategory/2",
-              "id": 2,
-              "key": "new",
-              "colorName": "blue-gray",
-              "name": "To Do"
+              "self": "https://onsor.atlassian.net/rest/api/3/statuscategory/4",
+              "id": 4,
+              "key": "indeterminate",
+              "colorName": "yellow",
+              "name": "In Progress"
             }
           }
         }
