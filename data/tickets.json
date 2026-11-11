@@ -1,5 +1,5 @@
 {
-  "fetchedAt": "2026-11-10T21:53:27.138642Z",
+  "fetchedAt": "2026-11-11T01:45:58.200278Z",
   "issues": {
     "nodes": [
       {
@@ -24,7 +24,6 @@
           "created": "2026-03-01T12:46:19.439+0400",
           "customfield_12077": "16229",
           "customfield_12076": "RCAD0083",
-          "customfield_12079": "Screen issue ",
           "reporter": {
             "self": "https://onsor.atlassian.net/rest/api/3/user?accountId=712020%3A12059bb6-3baa-4025-9bdb-0751aad93d81",
             "accountId": "712020:12059bb6-3baa-4025-9bdb-0751aad93d81",
@@ -39,6 +38,7 @@
             "timeZone": "Asia/Muscat",
             "accountType": "atlassian"
           },
+          "customfield_12079": "Screen issue ",
           "customfield_12078": {
             "self": "https://onsor.atlassian.net/rest/api/3/customFieldOption/14011",
             "value": "In Warranty",
@@ -202,7 +202,6 @@
           "created": "2026-03-05T09:53:45.183+0400",
           "customfield_12077": "16988",
           "customfield_12076": "T1420i04355",
-          "customfield_12079": "Fan issue too loud",
           "reporter": {
             "self": "https://onsor.atlassian.net/rest/api/3/user?accountId=712020%3A12059bb6-3baa-4025-9bdb-0751aad93d81",
             "accountId": "712020:12059bb6-3baa-4025-9bdb-0751aad93d81",
@@ -217,6 +216,7 @@
             "timeZone": "Asia/Muscat",
             "accountType": "atlassian"
           },
+          "customfield_12079": "Fan issue too loud",
           "customfield_12078": {
             "self": "https://onsor.atlassian.net/rest/api/3/customFieldOption/14011",
             "value": "In Warranty",
@@ -431,7 +431,6 @@
           "created": "2026-03-05T10:02:29.569+0400",
           "customfield_12077": "16991",
           "customfield_12076": "t1610i00262",
-          "customfield_12079": "Fan Sound too loud",
           "reporter": {
             "self": "https://onsor.atlassian.net/rest/api/3/user?accountId=712020%3A12059bb6-3baa-4025-9bdb-0751aad93d81",
             "accountId": "712020:12059bb6-3baa-4025-9bdb-0751aad93d81",
@@ -446,6 +445,7 @@
             "timeZone": "Asia/Muscat",
             "accountType": "atlassian"
           },
+          "customfield_12079": "Fan Sound too loud",
           "customfield_12078": {
             "self": "https://onsor.atlassian.net/rest/api/3/customFieldOption/14011",
             "value": "In Warranty",
@@ -622,7 +622,6 @@
           "created": "2026-03-08T13:27:02.634+0400",
           "customfield_12077": "15932 15930 16503 16501 16457 16195 16001 16276 16277 16110 ... and more ",
           "customfield_12076": "K14E10I01197 K14E10I01237 K14E10I05439 K14E10I08815 K14E10I16588 K14E10I17609 K14E10I17669 K14E10I17928 K14E10I17970 ... and more",
-          "customfield_12079": "The trackpad shows intermittent malfunction. It occasionally stops responding and sometimes becomes stuck during use.",
           "reporter": {
             "self": "https://onsor.atlassian.net/rest/api/3/user?accountId=6128b16d0952180069024121",
             "accountId": "6128b16d0952180069024121",
@@ -637,6 +636,7 @@
             "timeZone": "Asia/Dubai",
             "accountType": "atlassian"
           },
+          "customfield_12079": "The trackpad shows intermittent malfunction. It occasionally stops responding and sometimes becomes stuck during use.",
           "customfield_12078": {
             "self": "https://onsor.atlassian.net/rest/api/3/customFieldOption/14011",
             "value": "In Warranty",
@@ -931,7 +931,6 @@
           "created": "2026-03-10T11:34:42.050+0400",
           "customfield_12077": "15129 15134 15138 15167 15202 15226 15235 15254 1525... and more",
           "customfield_12076": "K14E10102085 K14E10107261 K14E10I00102 K14E10I00135 K14E10I00241 K14E10I00704 K14E10I00724 K14E10I00974 K14E10I01463 K14E10I01549 K14E10I01783 K14E10I01871 K14E10I02021 K14E10I02836 K14E10I02864 K14E10I02903 ...an more ",
-          "customfield_12079": "broken screen",
           "reporter": {
             "self": "https://onsor.atlassian.net/rest/api/3/user?accountId=6128b16d0952180069024121",
             "accountId": "6128b16d0952180069024121",
@@ -946,6 +945,7 @@
             "timeZone": "Asia/Dubai",
             "accountType": "atlassian"
           },
+          "customfield_12079": "broken screen",
           "customfield_12078": {
             "self": "https://onsor.atlassian.net/rest/api/3/customFieldOption/14011",
             "value": "In Warranty",
@@ -1108,7 +1108,6 @@
           "created": "2026-03-15T09:43:26.068+0400",
           "customfield_12077": "17064",
           "customfield_12076": "MT1210i00199",
-          "customfield_12079": "Cable not working",
           "reporter": {
             "self": "https://onsor.atlassian.net/rest/api/3/user?accountId=712020%3A12059bb6-3baa-4025-9bdb-0751aad93d81",
             "accountId": "712020:12059bb6-3baa-4025-9bdb-0751aad93d81",
@@ -1123,6 +1122,7 @@
             "timeZone": "Asia/Muscat",
             "accountType": "atlassian"
           },
+          "customfield_12079": "Cable not working",
           "customfield_12078": {
             "self": "https://onsor.atlassian.net/rest/api/3/customFieldOption/14011",
             "value": "In Warranty",
@@ -1247,7 +1247,6 @@
           "created": "2026-03-24T06:26:51.213+0400",
           "customfield_12077": "16661,16853,16955,16578",
           "customfield_12076": "M14U10i00254,M14U10i00104,M14U10i00308,M14U10i00303",
-          "customfield_12079": "the device not working at all from box , and some time not charging",
           "reporter": {
             "self": "https://onsor.atlassian.net/rest/api/3/user?accountId=6128b16d0952180069024121",
             "accountId": "6128b16d0952180069024121",
@@ -1262,6 +1261,7 @@
             "timeZone": "Asia/Dubai",
             "accountType": "atlassian"
           },
+          "customfield_12079": "the device not working at all from box , and some time not charging",
           "customfield_12078": {
             "self": "https://onsor.atlassian.net/rest/api/3/customFieldOption/14011",
             "value": "In Warranty",
@@ -1611,7 +1611,6 @@
           "created": "2026-04-01T12:20:45.401+0400",
           "customfield_12077": "no ticket raised ",
           "customfield_12076": "M14U10i03144",
-          "customfield_12079": "touch pad isn't working on pre boot authentication (Trellix)  ",
           "reporter": {
             "self": "https://onsor.atlassian.net/rest/api/3/user?accountId=712020%3A12059bb6-3baa-4025-9bdb-0751aad93d81",
             "accountId": "712020:12059bb6-3baa-4025-9bdb-0751aad93d81",
@@ -1626,6 +1625,7 @@
             "timeZone": "Asia/Muscat",
             "accountType": "atlassian"
           },
+          "customfield_12079": "touch pad isn't working on pre boot authentication (Trellix)  ",
           "customfield_12078": {
             "self": "https://onsor.atlassian.net/rest/api/3/customFieldOption/14011",
             "value": "In Warranty",
@@ -1853,7 +1853,6 @@
           "created": "2026-04-14T11:46:51.959+0400",
           "customfield_12077": "01",
           "customfield_12076": null,
-          "customfield_12079": "slow update",
           "reporter": {
             "self": "https://onsor.atlassian.net/rest/api/3/user?accountId=712020%3Aa749a631-e8b0-499b-abf2-5634a8bed6e1",
             "accountId": "712020:a749a631-e8b0-499b-abf2-5634a8bed6e1",
@@ -1868,6 +1867,7 @@
             "timeZone": "Asia/Muscat",
             "accountType": "atlassian"
           },
+          "customfield_12079": "slow update",
           "customfield_12078": {
             "self": "https://onsor.atlassian.net/rest/api/3/customFieldOption/14011",
             "value": "In Warranty",
@@ -2031,7 +2031,6 @@
           "created": "2026-05-18T14:49:46.146+0400",
           "customfield_12077": "17875",
           "customfield_12076": "MT1210i01192",
-          "customfield_12079": "battery issue , its drops from 62% to 28% within half an hour ",
           "reporter": {
             "self": "https://onsor.atlassian.net/rest/api/3/user?accountId=712020%3A12059bb6-3baa-4025-9bdb-0751aad93d81",
             "accountId": "712020:12059bb6-3baa-4025-9bdb-0751aad93d81",
@@ -2046,6 +2045,7 @@
             "timeZone": "Asia/Muscat",
             "accountType": "atlassian"
           },
+          "customfield_12079": "battery issue , its drops from 62% to 28% within half an hour ",
           "customfield_12078": {
             "self": "https://onsor.atlassian.net/rest/api/3/customFieldOption/14011",
             "value": "In Warranty",
@@ -2316,7 +2316,6 @@
           "created": "2026-05-20T12:29:48.631+0400",
           "customfield_12077": "17897",
           "customfield_12076": "MT1210i00735",
-          "customfield_12079": "Based on your recent visit, the tablet\u2019s battery drains quickly.",
           "reporter": {
             "self": "https://onsor.atlassian.net/rest/api/3/user?accountId=712020%3A12059bb6-3baa-4025-9bdb-0751aad93d81",
             "accountId": "712020:12059bb6-3baa-4025-9bdb-0751aad93d81",
@@ -2331,6 +2330,7 @@
             "timeZone": "Asia/Muscat",
             "accountType": "atlassian"
           },
+          "customfield_12079": "Based on your recent visit, the tablet\u2019s battery drains quickly.",
           "customfield_12078": {
             "self": "https://onsor.atlassian.net/rest/api/3/customFieldOption/14011",
             "value": "In Warranty",
@@ -2672,7 +2672,6 @@
           "created": "2026-06-30T12:32:20.217+0400",
           "customfield_12077": "18141",
           "customfield_12076": "TURST00000973",
-          "customfield_12079": "A significant and noticeable increase in fan noise.",
           "reporter": {
             "self": "https://onsor.atlassian.net/rest/api/3/user?accountId=712020%3A12059bb6-3baa-4025-9bdb-0751aad93d81",
             "accountId": "712020:12059bb6-3baa-4025-9bdb-0751aad93d81",
@@ -2687,6 +2686,7 @@
             "timeZone": "Asia/Muscat",
             "accountType": "atlassian"
           },
+          "customfield_12079": "A significant and noticeable increase in fan noise.",
           "customfield_12078": {
             "self": "https://onsor.atlassian.net/rest/api/3/customFieldOption/14011",
             "value": "In Warranty",
@@ -2878,7 +2878,6 @@
           "created": "2026-07-20T16:20:41.445+0400",
           "customfield_12077": "18290",
           "customfield_12076": "ALL ULTRA DEVICES",
-          "customfield_12079": "All Onsor Ultra laptops the screen sharing via Clickshare dongle is not wokring and with any other similar devices.",
           "reporter": {
             "self": "https://onsor.atlassian.net/rest/api/3/user?accountId=712020%3A12059bb6-3baa-4025-9bdb-0751aad93d81",
             "accountId": "712020:12059bb6-3baa-4025-9bdb-0751aad93d81",
@@ -2893,6 +2892,7 @@
             "timeZone": "Asia/Muscat",
             "accountType": "atlassian"
           },
+          "customfield_12079": "All Onsor Ultra laptops the screen sharing via Clickshare dongle is not wokring and with any other similar devices.",
           "customfield_12078": {
             "self": "https://onsor.atlassian.net/rest/api/3/customFieldOption/14011",
             "value": "In Warranty",
@@ -3589,7 +3589,6 @@
           "created": "2026-07-22T15:53:09.002+0400",
           "customfield_12077": "00",
           "customfield_12076": "00 prototype ",
-          "customfield_12079": "device not working at all",
           "reporter": {
             "self": "https://onsor.atlassian.net/rest/api/3/user?accountId=712020%3A12059bb6-3baa-4025-9bdb-0751aad93d81",
             "accountId": "712020:12059bb6-3baa-4025-9bdb-0751aad93d81",
@@ -3604,6 +3603,7 @@
             "timeZone": "Asia/Muscat",
             "accountType": "atlassian"
           },
+          "customfield_12079": "device not working at all",
           "customfield_12078": {
             "self": "https://onsor.atlassian.net/rest/api/3/customFieldOption/14011",
             "value": "In Warranty",
@@ -3944,7 +3944,6 @@
           "created": "2026-08-17T13:58:06.099+0400",
           "customfield_12077": "18454",
           "customfield_12076": "T1420i",
-          "customfield_12079": "Are Onsor devices compatible with Lenovo 40AY universal docking station ",
           "reporter": {
             "self": "https://onsor.atlassian.net/rest/api/3/user?accountId=712020%3A12059bb6-3baa-4025-9bdb-0751aad93d81",
             "accountId": "712020:12059bb6-3baa-4025-9bdb-0751aad93d81",
@@ -3959,6 +3958,7 @@
             "timeZone": "Asia/Muscat",
             "accountType": "atlassian"
           },
+          "customfield_12079": "Are Onsor devices compatible with Lenovo 40AY universal docking station ",
           "customfield_12078": {
             "self": "https://onsor.atlassian.net/rest/api/3/customFieldOption/14011",
             "value": "In Warranty",
@@ -4398,7 +4398,6 @@
           "created": "2026-08-18T15:13:41.190+0400",
           "customfield_12077": "18458",
           "customfield_12076": "TURST00001246",
-          "customfield_12079": "no ",
           "reporter": {
             "self": "https://onsor.atlassian.net/rest/api/3/user?accountId=712020%3A12059bb6-3baa-4025-9bdb-0751aad93d81",
             "accountId": "712020:12059bb6-3baa-4025-9bdb-0751aad93d81",
@@ -4413,6 +4412,7 @@
             "timeZone": "Asia/Muscat",
             "accountType": "atlassian"
           },
+          "customfield_12079": "no ",
           "customfield_12078": {
             "self": "https://onsor.atlassian.net/rest/api/3/customFieldOption/14011",
             "value": "In Warranty",
@@ -4646,7 +4646,6 @@
           "created": "2026-09-14T13:30:01.589+0400",
           "customfield_12077": "asd",
           "customfield_12076": null,
-          "customfield_12079": "asdasd",
           "reporter": {
             "self": "https://onsor.atlassian.net/rest/api/3/user?accountId=712020%3Ae465506e-b428-4c1f-af41-d17670365f79",
             "accountId": "712020:e465506e-b428-4c1f-af41-d17670365f79",
@@ -4662,6 +4661,7 @@
             "timeZone": "Asia/Muscat",
             "accountType": "atlassian"
           },
+          "customfield_12079": "asdasd",
           "customfield_12078": {
             "self": "https://onsor.atlassian.net/rest/api/3/customFieldOption/14012",
             "value": "Out of Warranty ",
@@ -4723,7 +4723,6 @@
           "created": "2026-09-24T13:37:08.450+0400",
           "customfield_12077": "18905",
           "customfield_12076": "K26-00000277",
-          "customfield_12079": "\u0644\u0627 \u064a\u0631\u0636\u0649 \u0627\u0644\u0639\u0645\u0644 \u0639\u0644\u0649 \u0643\u0644 \u0627\u0646\u0648\u0627\u0639 \u0627\u0644\u0634\u0627\u0634\u0627\u062a",
           "reporter": {
             "self": "https://onsor.atlassian.net/rest/api/3/user?accountId=712020%3A12059bb6-3baa-4025-9bdb-0751aad93d81",
             "accountId": "712020:12059bb6-3baa-4025-9bdb-0751aad93d81",
@@ -4738,6 +4737,7 @@
             "timeZone": "Asia/Muscat",
             "accountType": "atlassian"
           },
+          "customfield_12079": "\u0644\u0627 \u064a\u0631\u0636\u0649 \u0627\u0644\u0639\u0645\u0644 \u0639\u0644\u0649 \u0643\u0644 \u0627\u0646\u0648\u0627\u0639 \u0627\u0644\u0634\u0627\u0634\u0627\u062a",
           "customfield_12078": {
             "self": "https://onsor.atlassian.net/rest/api/3/customFieldOption/14011",
             "value": "In Warranty",
@@ -4973,7 +4973,6 @@
           "created": "2026-09-27T09:17:10.622+0400",
           "customfield_12077": "-",
           "customfield_12076": "-",
-          "customfield_12079": "The customer reported that the device was not working without the charger. During inspection, we found that the battery was swollen. The battery was replaced, and the device was tested successfully. The device is now working properly without the charger.",
           "reporter": {
             "self": "https://onsor.atlassian.net/rest/api/3/user?accountId=6128b16d0952180069024121",
             "accountId": "6128b16d0952180069024121",
@@ -4988,6 +4987,7 @@
             "timeZone": "Asia/Dubai",
             "accountType": "atlassian"
           },
+          "customfield_12079": "The customer reported that the device was not working without the charger. During inspection, we found that the battery was swollen. The battery was replaced, and the device was tested successfully. The device is now working properly without the charger.",
           "customfield_12078": {
             "self": "https://onsor.atlassian.net/rest/api/3/customFieldOption/14011",
             "value": "In Warranty",
@@ -5333,7 +5333,6 @@
           "created": "2026-09-30T10:36:48.224+0400",
           "customfield_12077": "0",
           "customfield_12076": "N/A",
-          "customfield_12079": "The device wakes up from sleep mode while the lid is closed and overheats while inside the bag.",
           "reporter": {
             "self": "https://onsor.atlassian.net/rest/api/3/user?accountId=712020%3A12059bb6-3baa-4025-9bdb-0751aad93d81",
             "accountId": "712020:12059bb6-3baa-4025-9bdb-0751aad93d81",
@@ -5348,6 +5347,7 @@
             "timeZone": "Asia/Muscat",
             "accountType": "atlassian"
           },
+          "customfield_12079": "The device wakes up from sleep mode while the lid is closed and overheats while inside the bag.",
           "customfield_12078": {
             "self": "https://onsor.atlassian.net/rest/api/3/customFieldOption/14011",
             "value": "In Warranty",
@@ -5487,7 +5487,6 @@
           "created": "2026-10-06T15:51:47.855+0400",
           "customfield_12077": "0",
           "customfield_12076": "0",
-          "customfield_12079": "After the EC update for the fan noise issue. The Type C charging port is working but is not charging. However, the other port is charging and working ",
           "reporter": {
             "self": "https://onsor.atlassian.net/rest/api/3/user?accountId=712020%3A9e34407c-9a2f-4221-a7cb-3b8f883ddf02",
             "accountId": "712020:9e34407c-9a2f-4221-a7cb-3b8f883ddf02",
@@ -5502,6 +5501,7 @@
             "timeZone": "Asia/Muscat",
             "accountType": "atlassian"
           },
+          "customfield_12079": "After the EC update for the fan noise issue. The Type C charging port is working but is not charging. However, the other port is charging and working ",
           "customfield_12078": {
             "self": "https://onsor.atlassian.net/rest/api/3/customFieldOption/14011",
             "value": "In Warranty",
@@ -5629,7 +5629,6 @@
           "created": "2026-11-02T09:12:15.177+0400",
           "customfield_12077": "-",
           "customfield_12076": "-",
-          "customfield_12079": "Some time device and fan working when the lid closed",
           "reporter": {
             "self": "https://onsor.atlassian.net/rest/api/3/user?accountId=6128b16d0952180069024121",
             "accountId": "6128b16d0952180069024121",
@@ -5644,6 +5643,7 @@
             "timeZone": "Asia/Dubai",
             "accountType": "atlassian"
           },
+          "customfield_12079": "Some time device and fan working when the lid closed",
           "customfield_12078": {
             "self": "https://onsor.atlassian.net/rest/api/3/customFieldOption/14011",
             "value": "In Warranty",
@@ -5703,7 +5703,6 @@
           "created": "2026-11-10T15:59:02.730+0400",
           "customfield_12077": "20298",
           "customfield_12076": "GCCTC36PDCE1",
-          "customfield_12079": "Formcase cart is not charging ",
           "reporter": {
             "self": "https://onsor.atlassian.net/rest/api/3/user?accountId=712020%3A12059bb6-3baa-4025-9bdb-0751aad93d81",
             "accountId": "712020:12059bb6-3baa-4025-9bdb-0751aad93d81",
@@ -5718,6 +5717,7 @@
             "timeZone": "Asia/Muscat",
             "accountType": "atlassian"
           },
+          "customfield_12079": "Formcase cart is not charging ",
           "customfield_12078": {
             "self": "https://onsor.atlassian.net/rest/api/3/customFieldOption/14011",
             "value": "In Warranty",
